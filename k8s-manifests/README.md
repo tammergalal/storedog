@@ -139,6 +139,7 @@ export SD_TAG=1.5.0
 ### Set environment variables for Storedog
 
 ```bash
+export DD_ENV=storedog-k8s
 export DD_VERSION_ADS=1.0.0
 export DD_VERSION_ADS_PYTHON=1.0.0
 export DD_VERSION_BACKEND=1.0.0
