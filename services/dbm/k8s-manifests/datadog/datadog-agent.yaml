@@ -19,7 +19,7 @@ spec:
         secretName: datadog-secret
         keyName: app-key
     tags:
-      - "env:storedog-k8s"
+      - "env:${DD_ENV}"
   features:
     logCollection: # Logs
       enabled: true

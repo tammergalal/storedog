@@ -105,6 +105,7 @@ The deployment process uses several environment variables to template image loca
 |-------------------------------|---------------------------------------------|---------------------------------|
 | `REGISTRY_URL`                | Container registry base URL                 | `localhost:5000`               |
 | `SD_TAG`                      | Storedog image tag/version                  | `latest`                       |
+| `DD_ENV`                      | Datadog environment                         | `storedog-k8s`                 |
 | `DD_VERSION_ADS`              | Version tag for ads service                 | `1.0.0`                        |
 | `DD_VERSION_ADS_PYTHON`       | Version tag for ads Python service (optional) | `1.0.0`                        |
 | `DD_VERSION_BACKEND`          | Version tag for backend & worker services   | `1.0.0`                        |
@@ -139,6 +140,7 @@ export SD_TAG=1.5.0
 ### Set environment variables for Storedog
 
 ```bash
+export DD_ENV=storedog-k8s
 export DD_VERSION_ADS=1.0.0
 export DD_VERSION_ADS_PYTHON=1.0.0
 export DD_VERSION_BACKEND=1.0.0
@@ -147,7 +149,7 @@ export DD_VERSION_NGINX=1.28.0
 export NEXT_PUBLIC_DD_VERSION_FRONTEND=1.0.0
 ```
 
-The Datadog environment variable `DD_ENV` is set in two places. Update both values as needed.
+The Datadog environment variable `DD_ENV` is set in two places. Update both values as needed. The commands below uses `envsubst` to update the variable values in place before applying the definition file.
 
 * The `datadog/datadog-agent.yaml` file on line 19.
 * The `storedog-app/configmaps/storedog-config.yaml` file on line 22.
@@ -169,19 +171,19 @@ helm install datadog-operator datadog/datadog-operator
 
 ```bash
 kubectl create secret generic datadog-secret \
-  --from-literal api-key=$DD_API_KEY \
-  --from-literal app-key=$DD_APP_KEY
+  --from-literal api-key=${DD_API_KEY} \
+  --from-literal app-key=${DD_APP_KEY}
 ```
 
-3. Apply the Datadog Agent definition:
+3. Apply the Datadog Agent definition and use `envsubst` to substitute the environment variable in the definition file.
 
 ```bash
-kubectl apply -f k8s-manifests/datadog/datadog-agent.yaml
+envsubst < k8s-manifests/datadog/datadog-agent.yaml | kubectl apply -f -
 ```
 
 ### Deploy Cluster Setup and Storedog
 
-The storedog-app definition files contain variables which need to be set before applying them to the cluster. The command below uses `envsubst` to update the variable values in place before applying the definition file.
+The storedog-app definition files contain variables which need to be set before applying them to the cluster. The command below uses `envsubst` to substitute the environment variable in the definition file.
 
 1. **Deploy Cluster Components (one-time setup per cluster):**
 
