@@ -1,10 +1,9 @@
 import { ChangeEvent, FocusEventHandler, useEffect, useState } from 'react'
 import cn from 'clsx'
-import Image from 'next/image'
-import Link from 'next/link'
+import { Link } from '@remix-run/react'
 import s from './CartItem.module.css'
 import { useUI } from '@components/ui/context'
-import type { CartLineItem } from '@customTypes/cart'
+import type { LineItem } from '@customTypes/cart'
 import usePrice from '@lib/hooks/usePrice'
 import { useCart } from '@lib/CartContext'
 import Quantity from '@components/ui/Quantity'
@@ -25,7 +24,7 @@ const CartItem = ({
   ...rest
 }: {
   variant?: 'default' | 'display'
-  item: CartLineItem
+  item: LineItem
   currencyCode: string
 }) => {
   const { cartRemove, cartUpdate } = useCart()
@@ -34,8 +33,8 @@ const CartItem = ({
   const [quantity, setQuantity] = useState<number>(item.quantity)
 
   const { price } = usePrice({
-    amount: item.variant.price * item.quantity,
-    baseAmount: item.variant.listPrice * item.quantity,
+    amount: item.price * item.quantity,
+    baseAmount: item.price * item.quantity,
     currencyCode,
   })
 
@@ -69,9 +68,6 @@ const CartItem = ({
     }
   }
 
-  // TODO: Add a type for this
-  const options = (item as any).options
-
   useEffect(() => {
     // Reset the quantity state if the item quantity changes
     if (item.quantity !== Number(quantity)) {
@@ -90,57 +86,22 @@ const CartItem = ({
     >
       <div className="flex flex-row space-x-4 py-4">
         <div className="w-16 h-16 bg-violet relative overflow-hidden cursor-pointer z-0">
-          <Link href={`/products/${item.path}`}>
-            <a>
-              <Image
-                onClick={() => closeSidebarIfPresent()}
-                className={s.productImage}
-                width={150}
-                height={150}
-                src={item.variant.image?.url || placeholderImg}
-                alt={item.variant.image?.alt || 'Product Image'}
-                unoptimized
-              />
-            </a>
+          <Link to={`/products/${item.slug || item.product_id}`} onClick={() => closeSidebarIfPresent()}>
+            <img
+              className={s.productImage}
+              width={150}
+              height={150}
+              src={item.image_url || placeholderImg}
+              alt={item.name || 'Product Image'}
+            />
           </Link>
         </div>
         <div className="flex-1 flex flex-col text-base">
-          <Link href={`/products/${item.path}`}>
-            <a>
-              <span
-                className={s.productName}
-                onClick={() => closeSidebarIfPresent()}
-              >
-                {item.name}
-              </span>
-            </a>
+          <Link to={`/products/${item.slug || item.product_id}`} onClick={() => closeSidebarIfPresent()}>
+            <span className={s.productName}>
+              {item.name}
+            </span>
           </Link>
-          {/* TODO: determine if we want to use this */}
-          {options && options.length > 0 && (
-            <div className="flex items-center pb-1">
-              {options.map((option: ItemOption, i: number) => (
-                <div
-                  key={`${item.id}-${option.name}`}
-                  className="text-sm font-semibold text-accent-7 inline-flex items-center justify-center"
-                >
-                  {option.name}
-                  {option.name === 'Color' ? (
-                    <span
-                      className="mx-2 rounded-full bg-transparent border w-5 h-5 p-1 text-accent-9 inline-flex items-center justify-center overflow-hidden"
-                      style={{
-                        backgroundColor: `${option.value}`,
-                      }}
-                    ></span>
-                  ) : (
-                    <span className="mx-2 rounded-full bg-transparent border h-5 p-1 text-accent-9 inline-flex items-center justify-center overflow-hidden">
-                      {option.value}
-                    </span>
-                  )}
-                  {i === options.length - 1 ? '' : <span className="mr-3" />}
-                </div>
-              ))}
-            </div>
-          )}
           {variant === 'display' && (
             <div className="text-sm tracking-wider">{quantity}x</div>
           )}

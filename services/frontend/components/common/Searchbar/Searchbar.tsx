@@ -1,7 +1,7 @@
-import { FC, memo, useEffect } from 'react'
+import { FC, memo } from 'react'
 import cn from 'clsx'
 import s from './Searchbar.module.css'
-import { useRouter } from 'next/router'
+import { useNavigate, useLocation } from '@remix-run/react'
 
 interface Props {
   className?: string
@@ -9,26 +9,16 @@ interface Props {
 }
 
 const Searchbar: FC<Props> = ({ className, id = 'search' }) => {
-  const router = useRouter()
-
-  useEffect(() => {
-    router.prefetch('/search')
-  }, [router])
+  const navigate = useNavigate()
+  const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     e.preventDefault()
 
     if (e.key === 'Enter') {
       const q = e.currentTarget.value
-
-      router.push(
-        {
-          pathname: `/search`,
-          query: q ? { q } : {},
-        },
-        undefined,
-        { shallow: true }
-      )
+      navigate(q ? `/search?q=${encodeURIComponent(q)}` : '/search')
     }
   }
 
@@ -41,7 +31,7 @@ const Searchbar: FC<Props> = ({ className, id = 'search' }) => {
         id={id}
         className={s.input}
         placeholder="Search for products..."
-        defaultValue={router.query.q}
+        defaultValue={searchParams.get('q') || ''}
         onKeyUp={handleKeyUp}
       />
       <div className={s.iconContainer}>

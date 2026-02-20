@@ -1,40 +1,25 @@
-export type CartLineItem = {
-  id: string
+export interface LineItem {
+  id: number
+  product_id: number
+  variant_id: number
   quantity: number
-  variantId: string
+  price: number
   name: string
-  path: string
-  productId: string
-  discounts: []
-  variant: {
-    id: string
-    sku: string
-    name: string
-    price: number
-    requiresShipping: boolean
-    availableForSale: boolean
-    listPrice: number
-    isInStock: boolean
-    image: {
-      url: string
-      alt: string
-    }
-  }
+  slug: string | null
+  image_url: string | null
 }
 
-export type Cart = {
-  createdAt: string
-  currency: {
-    code: string
-  }
-  customerId: string
-  discounts: []
-  email: string | null
+export interface Cart {
   id: string
-  lineItems: CartLineItem[] | []
-  lineItemsSubtotalPrice: number
-  shipTotal: number
-  subtotalPrice: number
-  taxesIncluded: boolean
-  totalPrice: number
+  token: string
+  state: string
+  email: string | null
+  currency: string
+  item_count: number
+  subtotal: number
+  discount_amount: number
+  discount_code: string | null
+  ship_total: number
+  total: number
+  line_items: LineItem[]
 }

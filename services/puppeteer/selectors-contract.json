@@ -1,0 +1,225 @@
+{
+  "version": "1.1.0",
+  "description": "Puppeteer selector contract for Storedog. Every CSS selector, aria-label, and RUM action used by the browser-replay scripts.",
+  "selectors": {
+    "productItem": {
+      "css": ".product-item",
+      "description": "Individual product card in a product grid (homepage or category page)",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "productGrid": {
+      "css": ".product-grid",
+      "description": "Container grid that holds product items",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "productItemThumbnail": {
+      "css": ".product-item img",
+      "description": "Product thumbnail image inside a product item card",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "productItemTitleLink": {
+      "css": ".product-item:nth-child(1) a",
+      "description": "Fallback product title link inside nth product item (index is dynamic)",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "addToCartButton": {
+      "css": "#add-to-cart-button",
+      "description": "Add to cart button on the product detail page",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "quickAddToCartButton": {
+      "css": ".add-to-cart-btn",
+      "description": "Quick add-to-cart button in the hover overlay on simple-variant product cards (homepage grid). No loading/disabled state — intentional APM duplicate-click scenario.",
+      "sessions": ["mainSession"],
+      "data_dependent": false,
+      "added_in": "phase4.3"
+    },
+    "variantSelect": {
+      "css": "select#variant-select",
+      "description": "Product variant dropdown selector on the product detail page",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "variantSelectOptions": {
+      "css": "select#variant-select option",
+      "description": "Option elements inside the variant dropdown",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "closeSidebar": {
+      "css": "#close-sidebar",
+      "description": "Close button for the cart sidebar that appears after adding to cart",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "sidebar": {
+      "css": "#sidebar",
+      "description": "Sidebar element used during checkout for scrolling",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "mainNavbarFirstLink": {
+      "css": "nav#main-navbar a:first-child",
+      "description": "First link in the main navigation bar (used to navigate to all-products page)",
+      "sessions": ["secondSession"],
+      "data_dependent": false
+    },
+    "mainNavbarLinks": {
+      "css": "#main-navbar a",
+      "description": "All links in the main navigation bar",
+      "sessions": ["fourthSession"],
+      "data_dependent": false
+    },
+    "footerLink": {
+      "css": ".footer-link",
+      "description": "Footer navigation links",
+      "sessions": ["mainSession", "secondSession"],
+      "data_dependent": false
+    },
+    "footerLinkNth": {
+      "css": "span:nth-of-type(1) .footer-link",
+      "description": "Specific footer link by index (index is dynamic at runtime)",
+      "sessions": ["mainSession", "secondSession"],
+      "data_dependent": false
+    },
+    "discountCodeInput": {
+      "css": "input[name=\"discount-code\"]",
+      "description": "Discount code text input field on the checkout page",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "purchaseConfirmedMessage": {
+      "css": ".purchase-confirmed-msg",
+      "description": "Purchase confirmation message shown after successful checkout",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false
+    },
+    "homeLink": {
+      "css": "[href=\"/\"]",
+      "description": "Logo or home link used to navigate back to the homepage",
+      "sessions": ["mainSession"],
+      "data_dependent": false
+    },
+    "advertisementWrapper": {
+      "css": ".advertisement-wrapper",
+      "description": "Ad banner container when an ad has loaded successfully. Note: loading and error states use .advertisment-wrapper (typo) — a known inconsistency.",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false,
+      "added_in": "phase4.2"
+    },
+    "flashSaleBanner": {
+      "css": ".flash-sale-banner",
+      "description": "Full-width flash sale countdown banner shown at top of page when a flash sale is active",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": true,
+      "added_in": "phase4.4"
+    },
+    "discountWrapper": {
+      "css": ".discount-wrapper",
+      "description": "Static promotional banner shown when no flash sale is active (e.g., 'Save 10% with code BRONZE10')",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": false,
+      "added_in": "phase4.4"
+    }
+  },
+  "rumActions": {
+    "applyDiscount": {
+      "css": "button[data-dd-action-name=\"Apply Discount\"]",
+      "actionName": "Apply Discount",
+      "description": "Button to submit a discount code during checkout",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"]
+    },
+    "toggleCart": {
+      "css": "button[data-dd-action-name=\"Toggle Cart\"]",
+      "actionName": "Toggle Cart",
+      "description": "Button to open the cart sidebar",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"]
+    },
+    "proceedToCheckout": {
+      "css": "button[data-dd-action-name=\"Proceed to Checkout\"]",
+      "actionName": "Proceed to Checkout",
+      "description": "Button to proceed from cart to checkout form",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"]
+    },
+    "confirmPurchase": {
+      "css": "button[data-dd-action-name=\"Confirm Purchase\"]",
+      "actionName": "Confirm Purchase",
+      "description": "Button to finalize and confirm the purchase",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"]
+    },
+    "heroCtaClicked": {
+      "actionName": "Hero CTA Clicked",
+      "description": "RUM action fired when the 'Shop Now' hero CTA link is clicked on the homepage. Carries destination attribute. No data-dd-action-name — tracked via programmatic datadogRum.addAction call.",
+      "sessions": ["mainSession"],
+      "added_in": "phase4.2"
+    },
+    "quickAddToCart": {
+      "actionName": "Quick Add to Cart",
+      "description": "RUM action fired when the hover quick-add button on a simple-variant product card is clicked. Carries product_id and product_name. No loading state — intentional APM duplicate scenario.",
+      "sessions": ["mainSession"],
+      "added_in": "phase4.3"
+    },
+    "flashSaleCodeCopied": {
+      "actionName": "Flash Sale Code Copied",
+      "description": "RUM action fired when the 'Copy Code' button is clicked in the flash sale banner. Carries the discount code.",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "added_in": "phase4.4"
+    },
+    "discountBannerDismissed": {
+      "actionName": "Discount Banner Dismissed",
+      "description": "RUM action fired when the × button closes the flash sale banner. Dismissal is persisted to sessionStorage.",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "added_in": "phase4.4"
+    },
+    "adServed": {
+      "actionName": "Ad Served",
+      "description": "RUM action fired for every ad in the /ads response (once per ad per fetch). Carries ad_id and ab_group for A/B analytics correlation.",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "added_in": "phase3.2"
+    }
+  },
+  "ariaLabels": {
+    "sunsetBits": {
+      "css": "[aria-label=\"Sunset Bits\"]",
+      "ariaLabel": "Sunset Bits",
+      "description": "Specific product card for 'Sunset Bits' (selected by name)",
+      "sessions": ["selectSunsetBits"],
+      "data_dependent": true
+    },
+    "dynamicProductAriaLabel": {
+      "css": "[aria-label=\"{productAriaLabel}\"]",
+      "ariaLabel": "dynamic",
+      "description": "Dynamically resolved aria-label for a randomly selected product card on the homepage",
+      "sessions": ["mainSession"],
+      "data_dependent": true
+    },
+    "learningBits": {
+      "css": "[aria-label=\"Learning Bits\"]",
+      "ariaLabel": "Learning Bits",
+      "description": "Related product card for 'Learning Bits' on a product detail page",
+      "sessions": ["mainSession", "secondSession"],
+      "data_dependent": true
+    },
+    "copyDiscountCode": {
+      "css": "[aria-label=\"Copy discount code\"]",
+      "ariaLabel": "Copy discount code",
+      "description": "Copy Code button in the active flash sale banner",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": true,
+      "added_in": "phase4.4"
+    },
+    "dismissFlashSale": {
+      "css": "[aria-label=\"Dismiss flash sale\"]",
+      "ariaLabel": "Dismiss flash sale",
+      "description": "× dismiss button in the active flash sale banner",
+      "sessions": ["mainSession", "secondSession", "thirdSession", "fourthSession"],
+      "data_dependent": true,
+      "added_in": "phase4.4"
+    }
+  }
+}

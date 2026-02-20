@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import Link from 'next/link'
+import { Link } from '@remix-run/react'
 import type { Product } from '@commerce/types/product'
 import { Grid } from '@components/ui'
 import { ProductCard } from '@components/product'
@@ -23,29 +23,21 @@ const HomeAllProductsGrid: FC<Props> = ({
         <div className={s.aside}>
           <ul className="mb-10">
             <li className="py-1 text-base font-bold tracking-wide">
-              <Link href={getCategoryPath('')}>
-                <a>All Categories</a>
-              </Link>
+              <Link to={getCategoryPath('')}>All Categories</Link>
             </li>
             {categories.map((cat: any) => (
               <li key={cat.path} className="py-1 text-accent-8 text-base">
-                <Link href={getCategoryPath(cat.path)}>
-                  <a>{cat.name}</a>
-                </Link>
+                <Link to={getCategoryPath(cat.path)}>{cat.name}</Link>
               </li>
             ))}
           </ul>
           <ul className="">
             <li className="py-1 text-base font-bold tracking-wide">
-              <Link href={getDesignerPath('')}>
-                <a>All Designers</a>
-              </Link>
+              <Link to={getDesignerPath('')}>All Designers</Link>
             </li>
             {brands.flatMap(({ node }: any) => (
               <li key={node.path} className="py-1 text-accent-8 text-base">
-                <Link href={getDesignerPath(node.path)}>
-                  <a>{node.name}</a>
-                </Link>
+                <Link to={getDesignerPath(node.path)}>{node.name}</Link>
               </li>
             ))}
           </ul>
@@ -55,7 +47,7 @@ const HomeAllProductsGrid: FC<Props> = ({
         <Grid layout="normal">
           {products.map((product) => (
             <ProductCard
-              key={product.path}
+              key={product.slug}
               product={product}
               variant="simple"
               imgProps={{

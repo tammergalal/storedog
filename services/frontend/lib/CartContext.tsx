@@ -8,7 +8,6 @@ import {
 import {
   createCart,
   getCart,
-  emptyCart,
   deleteCart,
   addToCart,
   removeFromCart,
@@ -25,16 +24,16 @@ type CartProviderProps = {
 
 type CartContextType = {
   cart: Cart | null
-  cartToken: string
+  cartToken: string | null
   cartError: any
   cartUser: any
-  setCart: (cart: Cart | {}) => void
-  cartInit: () => Promise<void>
+  setCart: (cart: Cart | null) => void
+  cartInit: () => Promise<string | null>
   cartEmpty: () => Promise<void>
   cartDelete: () => Promise<void>
   cartAdd: (variantId: string, quantity: number) => Promise<any>
-  cartRemove: (lineItemId: string) => Promise<any>
-  cartUpdate: (lineItemId: string, quantity: number) => Promise<any>
+  cartRemove: (lineItemId: string | number) => Promise<any>
+  cartUpdate: (lineItemId: string | number, quantity: number) => Promise<any>
   applyDiscount: (couponCode: string) => Promise<any>
 }
 
@@ -44,7 +43,7 @@ export const CartContext = createContext<CartContextType>({
   cartError: null,
   cartUser: null,
   setCart: () => {},
-  cartInit: async () => {},
+  cartInit: async () => null,
   cartEmpty: async () => {},
   cartDelete: async () => {},
   cartAdd: async () => {},
@@ -81,58 +80,51 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }
   }, [])
 
-  // init cart
-  const cartInit = async () => {
-    const cartToken = localStorage.getItem('cartToken')
+  // init cart — returns the resolved token so callers can use it directly
+  const cartInit = async (): Promise<string | null> => {
+    const storedToken = localStorage.getItem('cartToken')
 
     try {
-      if (cartToken && cartToken !== 'undefined') {
-        let cart = await getCart({
-          order_token: cartToken,
-          include:
-            'line_items,variants,variants.images,billing_address,shipping_address,user,payments,shipments,promotions',
-        })
-
-        if (!cart.id) {
+      if (storedToken && storedToken !== 'undefined') {
+        let cartData: Cart
+        try {
+          cartData = await getCart(storedToken)
+        } catch {
+          // Token invalid, create a new cart
           localStorage.removeItem('cartToken')
-          cart = await createCart({
-            include:
-              'line_items,variants,variants.images,billing_address,shipping_address,user,payments,shipments,promotions',
-          })
-          localStorage.setItem('cartToken', cart.customerId)
+          cartData = await createCart()
         }
 
-        setCart(cart)
-        setCartToken(cart.customerId)
+        setCart(cartData)
+        setCartToken(cartData.token)
         setCartError(null)
+        return cartData.token
       } else {
-        const cart = await createCart({
-          include:
-            'line_items,variants,variants.images,billing_address,shipping_address,user,payments,shipments,promotions',
-        })
-        localStorage.setItem('cartToken', cart.customerId)
-        setCart(cart)
-        setCartToken(cart.customerId)
+        const cartData = await createCart()
+        localStorage.setItem('cartToken', cartData.token)
+        setCart(cartData)
+        setCartToken(cartData.token)
         setCartError(null)
-        return cartToken
+        return cartData.token
       }
     } catch (error) {
-      console.log(error)
+      console.error(error)
       setCartError(error)
+      return null
     }
   }
 
-  // empty cart
+  // empty cart — calls backend to delete the server-side cart before clearing local state
   const cartEmpty = async () => {
     try {
-      // if (cartToken) {
-      //   await emptyCart({ order_token: cartToken })
-      // }
+      if (cartToken) {
+        await deleteCart(cartToken)
+      }
       setCart(null)
       setCartToken(null)
       setCartError(null)
     } catch (error) {
-      console.log(error)
+      console.error(error)
       setCartError(error)
     }
   }
@@ -141,97 +133,64 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const cartDelete = async () => {
     try {
       if (cartToken) {
-        await deleteCart({ order_token: cartToken })
+        await deleteCart(cartToken)
       }
       setCart(null)
       setCartToken(null)
       setCartError(null)
     } catch (error) {
-      console.log(error)
+      console.error(error)
       setCartError(error)
     }
   }
 
-  // add to cart
+  // add to cart — uses cartInit return value directly to avoid localStorage race condition
   const cartAdd = async (variantId: string, quantity: number) => {
     try {
-      if (cartToken) {
-        const cart = await addToCart({
-          order_token: cartToken,
-          variant_id: variantId,
-          quantity,
-          include:
-            'line_items,variants,variants.images,billing_address,shipping_address,user,payments,shipments,promotions',
-        })
-        if (cart?.error) {
-          throw new Error(cart.error)
-        }
-
-        setCart(cart)
-        setCartError(null)
-        return cart
-      } else {
-        const cartToken = await cartInit()
-        const cart = await addToCart({
-          order_token: cartToken || '',
-          variant_id: variantId,
-          quantity,
-        })
-        setCart(cart)
-        setCartError(null)
-        return cart
+      const token = cartToken || (await cartInit())
+      if (!token) {
+        setCartError('Could not initialize cart')
+        return { error: 'Could not initialize cart' }
       }
+      const cartData = await addToCart(token, variantId, quantity)
+      setCart(cartData)
+      setCartError(null)
+      return cartData
     } catch (error) {
-      console.log(error)
+      console.error(error)
       setCartError(error)
       return { error }
     }
   }
 
   // remove from cart
-  const cartRemove = async (lineItemId: string) => {
+  const cartRemove = async (lineItemId: string | number) => {
     try {
       if (cartToken) {
-        const cart = await removeFromCart({
-          order_token: cartToken,
-          id: lineItemId,
-          include:
-            'line_items,variants,variants.images,billing_address,shipping_address,user,payments,shipments,promotions',
-        })
-
-        if (!cart?.id) {
-          throw new Error(cart)
-        }
-
-        setCart(cart)
+        const cartData = await removeFromCart(cartToken, lineItemId)
+        setCart(cartData)
         setCartError(null)
       } else {
         setCartError('Cart not found')
       }
     } catch (error) {
-      console.log(error)
+      console.error(error)
       setCartError(error)
     }
   }
 
   // update quantity
-  const cartUpdate = async (lineItemId: string, quantity: number) => {
+  const cartUpdate = async (lineItemId: string | number, quantity: number) => {
     try {
       if (cartToken) {
-        const cart = await updateQuantity({
-          order_token: cartToken,
-          line_item_id: lineItemId,
-          quantity,
-          include:
-            'line_items,variants,variants.images,billing_address,shipping_address,user,payments,shipments,promotions',
-        })
-        setCart(cart)
+        const cartData = await updateQuantity(cartToken, lineItemId, quantity)
+        setCart(cartData)
         setCartError(null)
       } else {
         setCartError('Cart not found')
       }
     } catch (error) {
-      console.log(error)
+      console.error(error)
       setCartError(error)
     }
   }
@@ -239,24 +198,15 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const applyDiscount = async (couponCode: string) => {
     try {
       if (cartToken) {
-        const cart = await applyCouponCode({
-          order_token: cartToken,
-          couponCode,
-          include:
-            'line_items,variants,variants.images,billing_address,shipping_address,user,payments,shipments,promotions',
-        })
-
-        console.log('Discount Applied response', cart)
-        if (!cart?.id) {
-          throw new Error(cart)
-        }
-        setCart(cart)
+        const cartData = await applyCouponCode(cartToken, couponCode)
+        console.log('Discount Applied response', cartData)
+        setCart(cartData)
         setCartError(null)
       } else {
         setCartError('Cart not found')
       }
     } catch (error) {
-      console.log(error)
+      console.error(error)
       setCartError(error)
     }
   }

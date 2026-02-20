@@ -1,32 +1,26 @@
-import type { Product } from '@customTypes/product'
+import type { Product, ProductVariant } from '@customTypes/product'
 export type SelectedOptions = Record<string, string | null>
 import { Dispatch, SetStateAction } from 'react'
 
-export function getProductVariant(product: Product, opts: SelectedOptions) {
-  const variant = product.variants.find((variant) => {
-    return Object.entries(opts).every(([key, value]) =>
-      variant.options.find((option) => {
-        if (
-          option.__typename === 'MultipleChoiceOption' &&
-          option.displayName.toLowerCase() === key.toLowerCase()
-        ) {
-          return option.values.find((v) => v.label.toLowerCase() === value)
-        }
-      })
+export function getProductVariant(product: Product, opts: SelectedOptions): ProductVariant | undefined {
+  // With flat variants, selection is simplified — match by options_text
+  return product.variants.find((variant) => {
+    return Object.values(opts).some(
+      (value) => value && variant.options_text?.toLowerCase().includes(value.toLowerCase())
     )
   })
-  return variant
 }
 
 export function selectDefaultOptionFromProduct(
   product: Product,
   updater: Dispatch<SetStateAction<SelectedOptions>>
 ) {
-  // Selects the default option
-  product.variants[0]?.options?.forEach((v) => {
+  // Select the first variant's options_text as default
+  const firstVariant = product.variants[0]
+  if (firstVariant?.options_text) {
     updater((choices) => ({
       ...choices,
-      [v.displayName.toLowerCase()]: v.values[0].label.toLowerCase(),
+      options: firstVariant.options_text?.toLowerCase() || null,
     }))
-  })
+  }
 }

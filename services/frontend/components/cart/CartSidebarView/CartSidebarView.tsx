@@ -1,5 +1,5 @@
 import cn from 'clsx'
-import Link from 'next/link'
+import { Link } from '@remix-run/react'
 import { FC } from 'react'
 import s from './CartSidebarView.module.css'
 import CartItem from '../CartItem'
@@ -16,14 +16,14 @@ const CartSidebarView: FC = () => {
 
   const { price: subTotal } = usePrice(
     cart && {
-      amount: Number(cart.subtotalPrice),
-      currencyCode: cart.currency.code,
+      amount: Number(cart.subtotal),
+      currencyCode: cart.currency,
     }
   )
   const { price: total } = usePrice(
     cart && {
-      amount: Number(cart.totalPrice),
-      currencyCode: cart.currency.code,
+      amount: Number(cart.total),
+      currencyCode: cart.currency,
     }
   )
   const handleClose = () => closeSidebar()
@@ -39,7 +39,7 @@ const CartSidebarView: FC = () => {
       })}
       handleClose={handleClose}
     >
-      {!cart || !cart.lineItems.length ? (
+      {!cart || !cart.line_items.length ? (
         <div className="flex-1 px-4 flex flex-col justify-center items-center">
           <span className="border border-dashed border-primary rounded-full flex items-center justify-center w-16 h-16 p-12 bg-secondary text-secondary">
             <Bag className="absolute" />
@@ -73,19 +73,17 @@ const CartSidebarView: FC = () => {
       ) : (
         <>
           <div className="px-4 sm:px-6 flex-1">
-            <Link href="/cart">
-              <a>
-                <Text variant="sectionHeading" onClick={handleClose}>
-                  My Cart
-                </Text>
-              </a>
+            <Link to="/cart" onClick={handleClose}>
+              <Text variant="sectionHeading">
+                My Cart
+              </Text>
             </Link>
             <ul className={s.lineItemsList}>
-              {cart?.lineItems.map((item: any) => (
+              {cart?.line_items.map((item: any) => (
                 <CartItem
                   key={item.id}
                   item={item}
-                  currencyCode={cart?.currency.code}
+                  currencyCode={cart?.currency}
                 />
               ))}
             </ul>
@@ -104,7 +102,7 @@ const CartSidebarView: FC = () => {
               <li className="flex justify-between py-1">
                 <span>Shipping</span>
                 <span className="font-bold tracking-wide">
-                  {Number(cart?.shipTotal).toFixed(2) || 'TBD'}
+                  {Number(cart?.ship_total).toFixed(2) || 'TBD'}
                 </span>
               </li>
             </ul>

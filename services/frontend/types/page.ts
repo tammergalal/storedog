@@ -1,6 +1,6 @@
 export interface Page {
-  id: string
-  name: string
-  url: string
-  content?: string | null
+  id: number
+  slug: string
+  title: string
+  content: string | null
 }

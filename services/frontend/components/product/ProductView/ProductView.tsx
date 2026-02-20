@@ -1,5 +1,4 @@
 import cn from 'clsx'
-import Image from 'next/image'
 import s from './ProductView.module.css'
 import { FC } from 'react'
 import type { Product } from '@customTypes/product'
@@ -17,8 +16,8 @@ interface ProductViewProps {
 const ProductView: FC<ProductViewProps> = ({ product, relatedProducts }) => {
   const { price } = usePrice({
     amount: product.price.value,
-    baseAmount: product.price.retailPrice,
-    currencyCode: product.price.currencyCode!,
+    baseAmount: product.price.value,
+    currencyCode: product.price.currency,
   })
 
   return (
@@ -28,21 +27,19 @@ const ProductView: FC<ProductViewProps> = ({ product, relatedProducts }) => {
           <div className={cn(s.main, 'fit')}>
             <ProductTag
               name={product.name}
-              price={`${price} ${product.price?.currencyCode}`}
+              price={`${price} ${product.price?.currency}`}
               fontSize={32}
             />
             <div className={s.sliderContainer}>
               <ProductSlider key={product.id}>
                 {product.images.map((image, i) => (
                   <div key={image.url} className={s.imageContainer}>
-                    <Image
+                    <img
                       className={s.img}
                       src={image.url!}
                       alt={image.alt || 'Product Image'}
                       width={600}
                       height={600}
-                      priority={i === 0}
-                      quality="85"
                     />
                   </div>
                 ))}
@@ -62,13 +59,13 @@ const ProductView: FC<ProductViewProps> = ({ product, relatedProducts }) => {
           <div className={s.relatedProductsGrid}>
             {relatedProducts.map((p) => (
               <div
-                key={p.path}
+                key={p.slug}
                 className="animated fadeIn bg-accent-0 border border-accent-2"
               >
                 <ProductCard
                   noNameTag
                   product={p}
-                  key={p.path}
+                  key={p.slug}
                   variant="simple"
                   className="animated fadeIn"
                   imgProps={{

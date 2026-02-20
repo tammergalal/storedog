@@ -2,7 +2,7 @@ import s from './ProductSidebar.module.css'
 import { datadogRum } from '@datadog/browser-rum'
 import { FC, useEffect, useState } from 'react'
 import { useCart } from '@lib/CartContext'
-import type { Product } from '@customTypes/product'
+import type { Product, ProductVariant } from '@customTypes/product'
 import { Button, Text, Collapse, useUI } from '@components/ui'
 
 interface ProductSidebarProps {
@@ -14,11 +14,11 @@ const ProductSidebar: FC<ProductSidebarProps> = ({ product, className }) => {
   const { cart, cartAdd, cartError } = useCart()
   const { openSidebar, setSidebarView } = useUI()
   const [loading, setLoading] = useState(false)
-  const [variant, setVariant] = useState<any>(null)
+  const [variant, setVariant] = useState<ProductVariant | null>(null)
 
   useEffect(() => {
     if (!product) return
-    setVariant(product.variants[0])
+    setVariant(product.variants[0] || null)
   }, [product])
 
   const addToCart = async () => {
@@ -34,14 +34,14 @@ const ProductSidebar: FC<ProductSidebarProps> = ({ product, className }) => {
       }
 
       datadogRum.addAction('Product Added to Cart', {
-        cartTotal: cart.totalPrice,
+        cartTotal: cart?.total,
         product: {
           name: product.name,
-          sku: product.sku,
+          sku: variant?.sku || null,
           id: product.id,
           price: product.price.value,
           slug: product.slug,
-          variantName: variant.attributes.name || 'default',
+          variantName: variant?.options_text || 'default',
         },
       })
 
@@ -58,7 +58,7 @@ const ProductSidebar: FC<ProductSidebarProps> = ({ product, className }) => {
     <div className={className}>
       <Text
         className="pb-4 break-words w-full max-w-xl"
-        html={product.descriptionHtml || product.description}
+        html={product.description || ''}
       />
 
       {cartError && (
@@ -75,16 +75,16 @@ const ProductSidebar: FC<ProductSidebarProps> = ({ product, className }) => {
             className="my-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-12 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
             onChange={(e) => {
               const selectedVariant = product.variants.find(
-                (v) => v.id === e.target.value
+                (v) => v.id === Number(e.target.value)
               )
-              setVariant(selectedVariant)
+              setVariant(selectedVariant || null)
             }}
           >
             {product.variants
-              .filter((v: any) => v.availableForSale)
-              .map((v: any) => (
+              .filter((v) => v.in_stock)
+              .map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.attributes.name}
+                  {v.options_text || `Variant ${v.id}`}
                 </option>
               ))}
           </select>
@@ -96,9 +96,9 @@ const ProductSidebar: FC<ProductSidebarProps> = ({ product, className }) => {
           className={s.button}
           onClick={addToCart}
           loading={loading}
-          disabled={variant?.availableForSale === false}
+          disabled={variant?.in_stock === false}
         >
-          {variant?.availableForSale === false
+          {variant?.in_stock === false
             ? 'Not Available'
             : 'Add To Cart'}
         </Button>

@@ -1,53 +1,37 @@
 import React from 'react'
-import { withRouter } from 'next/router'
 import { datadogRum } from '@datadog/browser-rum'
 
-class ErrorBoundary extends React.Component {
-  constructor(props) {
+class ErrorBoundary extends React.Component<
+  { children?: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children?: React.ReactNode }) {
     super(props)
-
-    // Define a state variable to track whether is an error or not
     this.state = { hasError: false }
   }
-  static getDerivedStateFromError(error) {
-    // Update state so the next render will show the fallback UI
-
+  static getDerivedStateFromError(error: Error) {
     return { hasError: true }
   }
-  componentDidCatch(error, errorInfo) {
-    // You can use your own error logging service here
-    // console.log({ error, errorInfo });
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     datadogRum.addError(error, errorInfo)
   }
   render() {
-    const { router } = this.props
-
-    // Check if the error is thrown
     if (this.state.hasError) {
-      // You can render any custom fallback UI
       return (
-        <MainLayout
-          pageTitle="Error!"
-          description="You have encountered an error"
-        >
-          <div>
-            <h2 className="mb-2 text-3xl">Oops, there is an error!</h2>
-            <button
-              type="button"
-              className=" bg-neutral-500 px-2 py-1 text-lg text-neutral-100 hover:bg-neutral-600 "
-              onClick={() => location.assign('/')}
-            >
-              Go back home
-            </button>
-          </div>
-        </MainLayout>
+        <div>
+          <h2 className="mb-2 text-3xl">Oops, there is an error!</h2>
+          <button
+            type="button"
+            className=" bg-neutral-500 px-2 py-1 text-lg text-neutral-100 hover:bg-neutral-600 "
+            onClick={() => location.assign('/')}
+          >
+            Go back home
+          </button>
+        </div>
       )
     }
-
-    // Return children components in case of no error
-
     return this.props.children
   }
 }
 
-export default withRouter(ErrorBoundary)
+export default ErrorBoundary

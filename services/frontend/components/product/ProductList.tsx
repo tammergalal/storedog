@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Link } from '@remix-run/react'
 import { useState, useEffect } from 'react'
 import cn from 'clsx'
 import { Layout } from '@components/common'
@@ -9,18 +9,19 @@ import rangeMap from '@lib/range-map'
 
 import { Product } from '@customTypes/product'
 import { Page } from '@customTypes/page'
+import type { Taxon } from '@customTypes/taxons'
 
 interface Props {
   products: Product[]
-  pages: Page[]
-  taxons: any
-  taxon?: any
+  /** Passed by callers but not currently rendered. Kept for API compatibility. */
+  pages?: Page[]
+  taxons: Record<string, Taxon>
+  taxon?: Taxon
   cardVersion?: 'v1' | 'v2'
 }
 
 export default function ProductList({
   products,
-  pages,
   taxons,
   taxon,
   cardVersion,
@@ -36,28 +37,26 @@ export default function ProductList({
     return () => clearTimeout(timeout)
   }, [products])
 
-  function renderTaxonsList(taxons: any) {
-    return Object.keys(taxons).map((taxon) => {
-      return (
-        <li
-          className={taxons[taxon].children?.length ? 'list-none' : 'list-disc'}
-          key={taxons[taxon].id}
-        >
-          {taxons[taxon].children?.length ? (
-            taxons[taxon].attributes.name
-          ) : (
-            <Link href={`/taxonomies/${taxons[taxon].attributes.permalink}`}>
-              {taxons[taxon].attributes.name}
-            </Link>
-          )}
-          {taxons[taxon].children?.length > 0 && (
-            <ul className="ps-5 mt-2 space-y-1 list-disc list-inside">
-              {renderTaxonsList(taxons[taxon].children)}
-            </ul>
-          )}
-        </li>
-      )
-    })
+  function renderTaxonsList(nodes: Taxon[]) {
+    return nodes.filter((node) => node?.name).map((node) => (
+      <li
+        className={node.children?.length ? 'list-none' : 'list-disc'}
+        key={node.id}
+      >
+        {node.children?.length ? (
+          node.name
+        ) : (
+          <Link to={`/taxonomies/${node.permalink}`}>
+            {node.name}
+          </Link>
+        )}
+        {node.children && node.children.length > 0 && (
+          <ul className="ps-5 mt-2 space-y-1 list-disc list-inside">
+            {renderTaxonsList(node.children)}
+          </ul>
+        )}
+      </li>
+    ))
   }
 
   const ProductCardComponent =
@@ -71,7 +70,7 @@ export default function ProductList({
             id="taxons-list"
             className="space-y-4 text-gray-500 list-disc list-inside dark:text-gray-400"
           >
-            {renderTaxonsList(taxons)}
+            {renderTaxonsList(Object.values(taxons))}
           </ul>
         </div>
         {/* Products */}
@@ -79,7 +78,7 @@ export default function ProductList({
           <h2 className="mb-4 text-3xl font-bold">
             Products{' '}
             {taxon?.id ? (
-              <span className="text-accent">in {taxon.attributes.name}</span>
+              <span className="text-accent">in {taxon.name}</span>
             ) : null}
           </h2>
           {products?.length ? (

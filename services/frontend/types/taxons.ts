@@ -1,17 +1,7 @@
-export type Taxon = {
-  id: string
-  type: string
-  attributes: {
-    name: string
-    pretty_name: string
-    permalink: string
-    seo_title?: string
-    meta_title?: string
-    meta_description?: string
-    meta_keywords?: string
-  }
-  children?: any[]
-  parent?: string
-  products?: any[]
-  image?: any
+export interface Taxon {
+  id: number
+  name: string
+  permalink: string
+  pretty_name: string | null
+  children: Taxon[]
 }

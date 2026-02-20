@@ -3,7 +3,7 @@ import cn from 'clsx';
 import { Container } from '@components/ui';
 import { ArrowRight } from '@components/icons';
 import s from './Hero.module.css';
-import Link from 'next/link';
+import { Link } from '@remix-run/react';
 interface HeroProps {
   className?: string;
   headline: string;
@@ -18,11 +18,9 @@ const Hero: FC<HeroProps> = ({ headline, description, className }) => {
           <h2 className={s.title}>{headline}</h2>
           <div className={s.description}>
             <p>{description}</p>
-            <Link href='/'>
-              <a className='flex items-center text-white pt-3 font-bold hover:underline cursor-pointer w-max-content'>
-                Read it here
-                <ArrowRight width='20' heigh='20' className='ml-1' />
-              </a>
+            <Link to='/' className='flex items-center text-white pt-3 font-bold hover:underline cursor-pointer w-max-content'>
+              Read it here
+              <ArrowRight width='20' heigh='20' className='ml-1' />
             </Link>
           </div>
         </div>
