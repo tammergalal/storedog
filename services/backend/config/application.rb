@@ -41,6 +41,10 @@ module SpreeStarter
     # adds support for Services
     config.autoload_paths += %W(#{config.root}/services #{config.root}/app/services/concerns)
 
+    # Chaos/delay middleware for fault injection via env vars
+    require_relative '../app/middleware/chaos_middleware'
+    config.middleware.use ChaosMiddleware
+
     # if Rails.env.production?
     #   # CloudFlare middleware for proper visitors IP addresses
     #   require "#{Rails.root}/lib/cloud_flare_middleware"

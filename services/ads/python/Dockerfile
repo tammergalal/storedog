@@ -18,11 +18,8 @@ COPY . .
 # Install dependencies via pip and avoid caching build artifacts
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set default Flask app and development environment
+# Set default Flask app
 ENV FLASK_APP=ads.py
-ENV POSTGRES_PASSWORD=postgres
-ENV POSTGRES_USER=postgres
-ENV POSTGRES_HOST=postgres
 
 # Start the app using ddtrace so we have profiling and tracing
 ENTRYPOINT ["ddtrace-run"]

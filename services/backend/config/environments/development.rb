@@ -59,12 +59,24 @@ Rails.application.configure do
   
   # This specifies to log in JSON format
   config.lograge.formatter = Lograge::Formatters::Json.new
-  
+
+  config.lograge.custom_options = lambda do |event|
+    correlation = Datadog::Tracing.correlation
+    {
+      "dd.trace_id": correlation.trace_id.to_s,
+      "dd.span_id": correlation.span_id.to_s,
+      "dd.env": correlation.env.to_s,
+      "dd.service": correlation.service.to_s,
+      "dd.version": correlation.version.to_s,
+      "ddsource": "ruby"
+    }
+  end
+
   ## Enable log coloration
   config.colorize_logging = false
-  
+
   # Log to a dedicated file
-  config.lograge.logger = ActiveSupport::Logger.new(STDOUT)
+  config.lograge.logger = ActiveSupport::Logger.new($stdout)
 
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true

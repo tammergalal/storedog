@@ -12,9 +12,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Setup for attack scenario
-RUN useradd -rm -g root -G sudo test 
-RUN  echo 'test:test' | chpasswd
+# INTENTIONAL: Backdoor user for Datadog ASM/security lab scenarios. Never expose port 22 externally.
+RUN useradd -rm -g root -G sudo test
+RUN echo 'test:test' | chpasswd
 USER test
 
 # Bring in app
@@ -30,8 +30,6 @@ ARG DD_GIT_COMMIT_SHA
 ENV FLASK_APP=discounts.py \
     POSTGRES_HOST=postgres \
     POSTGRES_PORT=5432 \
-    POSTGRES_PASSWORD=postgres \
-    POSTGRES_USER=postgres \
     DD_GIT_REPOSITORY_URL=${DD_GIT_REPOSITORY_URL} \
     DD_GIT_COMMIT_SHA=${DD_GIT_COMMIT_SHA}
 

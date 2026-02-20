@@ -1,0 +1,46 @@
+[
+  {
+    "name": "Categories",
+    "permalink": "categories",
+    "pretty_name": "Categories",
+    "taxonomy": "categories",
+    "position": 0,
+    "children": [
+      {
+        "name": "Footwear",
+        "permalink": "categories/footwear",
+        "pretty_name": "Categories > Footwear",
+        "taxonomy": "categories",
+        "position": 0
+      },
+      {
+        "name": "Apparel",
+        "permalink": "categories/apparel",
+        "pretty_name": "Categories > Apparel",
+        "taxonomy": "categories",
+        "position": 1
+      },
+      {
+        "name": "Accessories",
+        "permalink": "categories/accessories",
+        "pretty_name": "Categories > Accessories",
+        "taxonomy": "categories",
+        "position": 2
+      },
+      {
+        "name": "Nutrition",
+        "permalink": "categories/nutrition",
+        "pretty_name": "Categories > Nutrition",
+        "taxonomy": "categories",
+        "position": 3
+      },
+      {
+        "name": "Electronics",
+        "permalink": "categories/electronics",
+        "pretty_name": "Categories > Electronics",
+        "taxonomy": "categories",
+        "position": 4
+      }
+    ]
+  }
+]

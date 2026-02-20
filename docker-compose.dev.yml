@@ -12,7 +12,7 @@ services:
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
       - DD_CONTAINER_EXCLUDE=image:agent name:puppeteer
       - DD_CLOUD_PROVIDER_METADATA=[]
-      - DD_HOSTNAME=${DD_HOSTNAME-development-host}
+      - DD_HOSTNAME=${DD_HOSTNAME:-development-host}
       - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
     networks:
       - storedog-network
@@ -27,11 +27,11 @@ services:
   frontend:
     build:
       context: ./services/frontend
-    command: bash -c "wait-for-it backend:4000 -- ${FRONTEND_COMMAND:-npm run dev}"
+    command: bash -c "wait-for-it store-catalog:8000 -- ${FRONTEND_COMMAND:-npm run dev}"
     depends_on:
-      - worker
+      - store-catalog
+      - store-cart
       - dd-agent
-      - backend
     volumes:
       - ./services/frontend:/app
       - /app/node_modules
@@ -41,7 +41,7 @@ services:
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-development}
       - DD_SERVICE=store-frontend-api # used for Next.js API routes
-      - DD_VERSION=${NEXT_PUBLIC_DD_VERSION_FRONTEND-1.0.0}
+      - DD_VERSION=${NEXT_PUBLIC_DD_VERSION_FRONTEND:-1.0.0}
       - DD_RUNTIME_METRICS_ENABLED=true
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
@@ -55,82 +55,78 @@ services:
       - NEXT_PUBLIC_DISCOUNTS_ROUTE=${NEXT_PUBLIC_DISCOUNTS_ROUTE:-/services/discounts}
       - NEXT_PUBLIC_DBM_ROUTE=${NEXT_PUBLIC_DBM_ROUTE:-/services/dbm}
       - NEXT_PUBLIC_FRONTEND_API_ROUTE=${NEXT_PUBLIC_FRONTEND_API_ROUTE:-http://localhost:3000}
-      - NEXT_PUBLIC_SPREE_API_HOST=${NEXT_PUBLIC_SPREE_API_HOST:-http://service-proxy/services/backend}
-      - NEXT_PUBLIC_SPREE_CLIENT_HOST=${NEXT_PUBLIC_SPREE_CLIENT_HOST:-/services/backend}
-      - NEXT_PUBLIC_SPREE_IMAGE_HOST=${NEXT_PUBLIC_SPREE_IMAGE_HOST:-/services/backend}
-      - NEXT_PUBLIC_SPREE_ALLOWED_IMAGE_DOMAIN=${NEXT_PUBLIC_SPREE_ALLOWED_IMAGE_DOMAIN:-service-proxy}
+      - CATALOG_API_HOST=${CATALOG_API_HOST:-http://service-proxy/services/catalog}
+      - CART_API_HOST=${CART_API_HOST:-http://service-proxy/services/cart}
     labels:
       com.datadoghq.ad.logs: '[{"source": "nodejs", "auto_multi_line_detection": true }]'
 
-  # Backend service (Ruby on Rails/Spree)
-  backend:
+  # Catalog service (Python/FastAPI)
+  store-catalog:
     build:
-      context: ./services/backend
-    command: wait-for-it postgres:5432 -- bundle exec ddprofrb exec rails s -b 0.0.0.0 -p 4000 --pid /app/tmp/pids/server.pid
+      context: ./services/catalog
+    command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
-      - 'postgres'
-      - 'redis'
-      - 'dd-agent'
+      - postgres
+      - dd-agent
     networks:
       - storedog-network
     volumes:
-      - './services/backend:/app'
+      - ./services/catalog:/app
     environment:
-      - REDIS_URL=redis://redis:6379/0
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - POSTGRES_USER=${POSTGRES_USER-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD-postgres}
-      - DISABLE_SPRING=1
-      - RAILS_ENV=${RAILS_ENV:-production}
-      - DB_POOL=${DB_POOL:-25}
-      - MAX_THREADS=${MAX_THREADS:-5}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-development}
-      - DD_SERVICE=store-backend
-      - DD_VERSION=${DD_VERSION_BACKEND:-1.0.0}
+      - DD_SERVICE=store-catalog
+      - DD_VERSION=${DD_VERSION_CATALOG:-1.0.0}
       - DD_RUNTIME_METRICS_ENABLED=true
       - DD_PROFILING_ENABLED=true
-      - DD_PROFILING_ALLOCATION_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
+      - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
     labels:
-      com.datadoghq.ad.logs: '[{"source": "ruby", "auto_multi_line_detection": true }]'
+      com.datadoghq.ad.logs: '[{"source": "python"}]'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-  # Background job processor (Sidekiq)
-  worker:
+  # Cart service (Python/FastAPI)
+  store-cart:
     build:
-      context: ./services/backend
-    command: wait-for-it postgres:5432 -- bundle exec ddprofrb exec sidekiq -C config/sidekiq.yml
+      context: ./services/cart
+    command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8001 --reload
     depends_on:
-      - 'postgres'
-      - 'redis'
-      - 'backend'
-      - 'dd-agent'
+      - postgres
+      - store-catalog
+      - discounts
+      - dd-agent
     networks:
       - storedog-network
     volumes:
-      - ./services/backend:/app
+      - ./services/cart:/app
     environment:
-      # this will never not be true
-      - WORKER=true
-      - REDIS_URL=redis://redis:6379/0
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-      - DISABLE_SPRING=1
-      - DB_POOL=${DB_POOL:-25}
-      - MAX_THREADS=${MAX_THREADS:-5}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog
+      - CATALOG_URL=http://store-catalog:8000
+      - DISCOUNTS_URL=http://discounts:2814
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-development}
-      - DD_SERVICE=store-worker
-      - DD_VERSION=${DD_VERSION_BACKEND:-1.0.0}
+      - DD_SERVICE=store-cart
+      - DD_VERSION=${DD_VERSION_CART:-1.0.0}
       - DD_RUNTIME_METRICS_ENABLED=true
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
     labels:
-      com.datadoghq.ad.logs: '[{"source": "ruby", "auto_multi_line_detection": true }]'
+      com.datadoghq.ad.logs: '[{"source": "python"}]'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # Discounts service (Python/Flask)
   discounts:
@@ -139,6 +135,7 @@ services:
     command: wait-for-it postgres:5432 -- ddtrace-run flask run --port=2814 --host=0.0.0.0
     depends_on:
       - postgres
+      - redis
       - dd-agent
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
@@ -152,6 +149,9 @@ services:
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     volumes:
       - ./services/discounts:/app
     networks:
@@ -177,6 +177,7 @@ services:
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
     networks:
       - storedog-network
     labels:
@@ -242,7 +243,7 @@ services:
       com.datadoghq.ad.check_names: '["redisdb"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379}]'
-      com.datadoghq.ad.logs: '[{"source": "redis"}]'
+      com.datadoghq.ad.logs: '[{"source": "redis", "service": "redis"}]'
 
   # Browser automation for testing
   puppeteer:
@@ -259,6 +260,7 @@ services:
       - ./services/puppeteer/scripts/puppeteer.js:/home/pptruser/puppeteer.js
     depends_on:
       - frontend
+      - service-proxy
     shm_size: '4gb' # Increase shared memory size
     cap_add:
       - 'SYS_ADMIN' # Required for Puppeteer to run in Docker
