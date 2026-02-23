@@ -1,5 +1,4 @@
-import Link from 'next/link'
-import { FC, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import cn from 'clsx'
 import { datadogRum } from '@datadog/browser-rum'
 
@@ -18,7 +17,12 @@ import s from './CheckoutSidebarView.module.css'
 const CheckoutSidebarView: FC = () => {
   const [loadingSubmit, setLoadingSubmit] = useState(false)
   const [discountInput, setDiscountInput] = useState('')
-  const [checkoutError, setCheckoutError] = useState(null)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+  const [discountResult, setDiscountResult] = useState<{
+    tier: string
+    value: number
+    label: string
+  } | null>(null)
   const { setSidebarView, closeSidebar } = useUI()
   const { cart: cartData, cartEmpty, cartInit, applyDiscount } = useCart()
   const {
@@ -31,57 +35,61 @@ const CheckoutSidebarView: FC = () => {
 
   const { price: subTotal } = usePrice(
     cartData && {
-      amount: Number(cartData.subtotalPrice),
-      currencyCode: cartData.currency.code,
+      amount: Number(cartData.subtotal),
+      currencyCode: cartData.currency,
     }
   )
   const { price: total } = usePrice(
     cartData && {
-      amount: Number(cartData.totalPrice),
-      currencyCode: cartData.currency.code,
+      amount: Number(cartData.total),
+      currencyCode: cartData.currency,
     }
   )
+
+  useEffect(() => {
+    const referral = localStorage.getItem('storedog_referral')
+    if (referral && !discountInput) {
+      setDiscountInput(referral)
+    }
+  }, [])
 
   async function handleSubmit(event: React.ChangeEvent<HTMLFormElement>) {
     try {
       setLoadingSubmit(true)
       event.preventDefault()
 
-      const res = await handleCompleteCheckout()
-      console.log('checkout response', res)
-      if (res.error) {
-        throw res.error
+      if (!cartData) {
+        throw new Error('Cart is not initialized')
       }
 
-      console.log('cartData', cartData)
+      const res = await handleCompleteCheckout()
+      if ((res as any)?.error) {
+        throw (res as any).error
+      }
 
       datadogRum.addAction('Successful Checkout', {
         id: cartData.id,
-        cart_total: cartData.totalPrice,
-        created_at: cartData.createdAt,
-        discounts: cartData.discounts,
+        cart_total: cartData.total,
       })
 
-      cartData.lineItems.forEach((item: any) => {
+      cartData.line_items.forEach((item) => {
         datadogRum.addAction('Product Purchased', {
           product: {
             id: item.id,
             name: item.name,
-            variant: item.variant.name,
             quantity: item.quantity,
-            price: item.variant.price,
+            price: item.price,
           },
         })
       })
 
-      // clearCheckoutFields()
       setLoadingSubmit(false)
       await cartEmpty()
       await cartInit()
       setSidebarView('ORDER_CONFIRM_VIEW')
     } catch (e) {
-      console.log(e)
-      setCheckoutError(e)
+      console.error(e)
+      setCheckoutError(e instanceof Error ? e.message : String(e))
       setLoadingSubmit(false)
     }
   }
@@ -114,8 +122,34 @@ const CheckoutSidebarView: FC = () => {
 
       console.log('discount accepted', discount)
 
-      // always hardcode this to FREESHIP because that's all that's set up in spree
-      await applyDiscount('FREESHIP')
+      await applyDiscount(discountCode)
+
+      if (discount?.tier) {
+        const tierLabels: Record<string, string> = {
+          bronze: 'Bronze',
+          silver: 'Silver',
+          gold: 'Gold',
+          free_shipping: 'Free Shipping',
+        }
+        const label = tierLabels[discount.tier] || discount.tier
+        const value = discount.discount_value ?? discount.value ?? 0
+        const description =
+          discount.tier === 'free_shipping'
+            ? 'free shipping'
+            : `${value}% off`
+        setDiscountResult({ tier: discount.tier, value, label: `${label} tier applied — ${description}` })
+      }
+
+      const rumAttributes: Record<string, unknown> = {
+        discount_code: discountCode,
+      }
+      if (discount?.tier) {
+        rumAttributes.discount_tier = discount.tier
+      }
+      if (discount?.discount_value != null) {
+        rumAttributes.discount_value = discount.discount_value
+      }
+      datadogRum.addAction('Discount Applied', rumAttributes)
 
       setDiscountInput('')
     } catch (err) {
@@ -149,11 +183,11 @@ const CheckoutSidebarView: FC = () => {
         />
 
         <ul className={s.lineItemsList}>
-          {cartData?.lineItems.map((item: any) => (
+          {cartData?.line_items.map((item) => (
             <CartItem
               key={item.id}
               item={item}
-              currencyCode={cartData!.currency.code}
+              currencyCode={cartData!.currency}
               variant="display"
             />
           ))}
@@ -184,6 +218,11 @@ const CheckoutSidebarView: FC = () => {
               Apply Discount
             </Button>
           </div>
+          {discountResult && (
+            <p className="text-green text-sm mt-2">
+              &#10003; {discountResult.label}
+            </p>
+          )}
         </form>
       </div>
 
@@ -204,7 +243,7 @@ const CheckoutSidebarView: FC = () => {
           <li className="flex justify-between py-1">
             <span>Shipping</span>
             <span className="font-bold tracking-wide" id="shipping-rate">
-              {shippingRate?.price || 'TBD'}
+              {shippingRate?.cost != null ? Number(shippingRate.cost).toFixed(2) : 'TBD'}
             </span>
           </li>
         </ul>
@@ -220,7 +259,7 @@ const CheckoutSidebarView: FC = () => {
             loading={loadingSubmit}
             className="confirm-purchase-btn"
             data-dd-action-name="Confirm Purchase"
-            disabled={addressStatus.ok && paymentStatus.ok ? false : true}
+            disabled={!(addressStatus.ok && paymentStatus.ok)}
           >
             Confirm Purchase
           </Button>

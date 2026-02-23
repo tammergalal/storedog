@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useCallback } from 'react'
-import Link from 'next/link'
+import { Link } from '@remix-run/react'
 import s from './Navbar.module.css'
 import NavbarRoot from './NavbarRoot'
 import { Logo, Container } from '@components/ui'
@@ -82,31 +82,21 @@ const Navbar: FC<NavbarProps> = ({}) => {
       <Container clean className="mx-auto max-w-8xl px-6">
         <div className={s.nav}>
           <div className="flex items-center flex-1">
-            <Link href="/">
-              <a className={s.logo} aria-label="Logo">
-                <Logo />
-              </a>
+            <Link to="/" className={s.logo} aria-label="Logo">
+              <Logo />
             </Link>
             <nav className={s.navMenu} id="main-navbar">
-              <Link href="/products">
-                <a className={s.link} id="all-products-link">
-                  Products
-                </a>
+              <Link to="/products" className={s.link} id="all-products-link">
+                Products
               </Link>
-              <Link href="/taxonomies/categories/bestsellers">
-                <a className={s.link} id="bestsellers-link">
-                  Best Sellers
-                </a>
+              <Link to="/taxonomies/categories/bestsellers" className={s.link} id="bestsellers-link">
+                Best Sellers
               </Link>
-              <Link href="/taxonomies/categories/new">
-                <a className={s.link} id="new-items-link">
-                  New
-                </a>
+              <Link to="/taxonomies/categories/new" className={s.link} id="new-items-link">
+                New
               </Link>
-              <Link href="/taxonomies/categories/tops">
-                <a className={s.link} id="tops-link">
-                  Tops
-                </a>
+              <Link to="/taxonomies/categories/tops" className={s.link} id="tops-link">
+                Tops
               </Link>
             </nav>
           </div>

@@ -1,9 +1,8 @@
 import { FC } from 'react'
 import cn from 'clsx'
-import Link from 'next/link'
+import { Link } from '@remix-run/react'
 import { Product } from '@customTypes/product'
 import s from './ProductCard.module.css'
-import Image, { ImageProps } from 'next/image'
 import usePrice from '@lib/hooks/usePrice'
 import ProductTag from '../ProductTag'
 
@@ -11,7 +10,7 @@ interface Props {
   className?: string
   product: Product
   noNameTag?: boolean
-  imgProps?: Omit<ImageProps, 'src' | 'layout' | 'placeholder' | 'blurDataURL'>
+  imgProps?: React.ImgHTMLAttributes<HTMLImageElement>
   variant?: 'default' | 'slim' | 'simple'
 }
 
@@ -26,8 +25,8 @@ export const ProductCard: FC<Props> = ({
 }) => {
   const { price } = usePrice({
     amount: product.price.value,
-    baseAmount: product.price.retailPrice,
-    currencyCode: product.price.currencyCode!,
+    baseAmount: product.price.value,
+    currencyCode: product.price.currency,
   })
 
   const rootClassName = cn(
@@ -41,21 +40,18 @@ export const ProductCard: FC<Props> = ({
       {variant === 'slim' && (
         <>
           <div className={s.header}>
-            <Link href={`/products/${product.slug}`}>
-              <a aria-label={product.name}>{product.name}</a>
+            <Link to={`/products/${product.slug}`} aria-label={product.name}>
+              {product.name}
             </Link>
           </div>
           {product?.images && (
             <div>
-              <Image
-                quality="85"
+              <img
                 src={product.images[0]?.url || placeholderImg}
                 alt={product.name || 'Product Image'}
                 height={320}
                 width={320}
-                layout="fixed"
                 {...imgProps}
-                priority
               />
             </div>
           )}
@@ -67,30 +63,25 @@ export const ProductCard: FC<Props> = ({
           {!noNameTag && (
             <div className={s.header}>
               <h3 className={s.name}>
-                <Link href={`/products/${product.slug}`}>
-                  <a aria-label={product.name} className={s.link}>
-                    {product.name}
-                  </a>
+                <Link to={`/products/${product.slug}`} aria-label={product.name} className={s.link}>
+                  {product.name}
                 </Link>
               </h3>
               <div className={s.price}>
-                {`${price} ${product.price?.currencyCode}`}
+                {`${price} ${product.price?.currency}`}
               </div>
             </div>
           )}
           <div className={s.imageContainer}>
             {product?.images && (
               <div>
-                <Image
+                <img
                   alt={product.name || 'Product Image'}
                   className={s.productImage}
                   src={product.images[0]?.url || placeholderImg}
                   height={540}
                   width={540}
-                  quality="85"
-                  layout="responsive"
                   {...imgProps}
-                  priority
                 />
               </div>
             )}
@@ -100,28 +91,23 @@ export const ProductCard: FC<Props> = ({
 
       {variant === 'default' && (
         <>
-          <Link href={`/products/${product.slug}`}>
-            <a aria-label={product.name}>
-              <ProductTag
-                name={product.name}
-                price={`${price} ${product.price?.currencyCode}`}
-              />
-            </a>
+          <Link to={`/products/${product.slug}`} aria-label={product.name}>
+            <ProductTag
+              name={product.name}
+              price={`${price} ${product.price?.currency}`}
+            />
           </Link>
 
           <div className={s.imageContainer}>
             {product?.images && (
               <div>
-                <Image
+                <img
                   alt={product.name || 'Product Image'}
                   className={s.productImage}
                   src={product.images[0]?.url || placeholderImg}
                   height={540}
                   width={540}
-                  quality="85"
-                  layout="responsive"
                   {...imgProps}
-                  priority
                 />
               </div>
             )}

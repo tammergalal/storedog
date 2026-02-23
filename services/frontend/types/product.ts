@@ -1,49 +1,36 @@
-export interface Product {
-  id: string
+export interface ProductImage {
+  url: string
+  alt: string | null
+}
+
+export interface ProductVariant {
+  id: number
+  sku: string | null
+  price: number
+  options_text: string | null
+  in_stock: boolean
+  image_url: string | null
+}
+
+export interface ProductTaxon {
+  id: number
   name: string
-  description: string
-  descriptionHtml: string
+  permalink: string
+}
+
+export interface Product {
+  id: number
   slug: string
-  sku: string
-  price: {
-    value: number
-    retailPrice: number
-    currencyCode: string
-  }
-  path: string
-  images: {
-    url: string
-    alt: string
-  }[]
-  variants: {
-    id: string | number
-    attributes: {
-      name: string
-      inStock: boolean
-      price: number
-      depth?: number
-      width?: number
-      height?: number
-      weight?: number
-    }
-    options: {
-      __typename?: 'MultipleChoiceOption'
-      id: string
-      displayName: string
-      values: {
-        label: string
-        hexColors?: string[]
-      }[]
-    }[]
-    availableForSale: boolean
-  }[]
-  options?: {
-    __typename?: 'MultipleChoiceOption'
-    id: string
-    displayName: string
-    values: {
-      label: string
-      hexColors?: string[]
-    }[]
-  }
+  name: string
+  description: string | null
+  price: { value: number; currency: string }
+  images: ProductImage[]
+  variants: ProductVariant[]
+  taxons: ProductTaxon[]
+  available: boolean
+}
+
+export interface ProductListResponse {
+  products: Product[]
+  meta: { count: number; pages: number }
 }

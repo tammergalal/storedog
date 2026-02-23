@@ -34,6 +34,31 @@
     'Helvetica', sans-serif;
 }
 
+:root {
+  /* Semantic brand tokens — Storedog outdoor/lifestyle identity */
+  --brand: #632ca6;          /* Datadog purple — primary CTA, links, active states */
+  --brand-light: #8a5cbf;    /* Lighter purple for hover states */
+  --brand-dark: #4a1f82;     /* Darker purple for pressed states */
+
+  /* Surface palette — warm neutral base */
+  --surface: #FAF8F5;        /* Off-white page background */
+  --surface-alt: #E8E4DF;    /* Warm gray for cards, sidebars */
+  --surface-hover: #DDD8D2;  /* Hover state on surface-alt elements */
+
+  /* Text */
+  --text-base: #1A1A1A;      /* Charcoal — body text */
+  --text-muted: #6B6560;     /* Muted text, captions */
+  --text-on-brand: #ffffff;  /* Text on brand-colored backgrounds */
+
+  /* Border */
+  --border-subtle: #D4CFC9;  /* Subtle dividers and card borders */
+  --border-default: #A09A93; /* Default form borders */
+
+  /* Font families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
 /* 
 [data-theme='dark'] {
   --primary: #000000;

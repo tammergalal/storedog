@@ -1,8 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react'
 import cn from 'clsx'
 import s from './Layout.module.css'
-import dynamic from 'next/dynamic'
-// import LoginView from '@components/auth/LoginView'
 import { useUI } from '@components/ui/context'
 import { Navbar, Footer } from '@components/common'
 import ShippingView from '@components/checkout/ShippingView'
@@ -17,7 +15,7 @@ import Discount from '@components/common/Discount'
 import Ad from '@components/common/Ad'
 import type { Page } from '@customTypes/page'
 import type { Link as LinkProps } from '../UserNav/MenuSidebarView'
-import Pages from 'pages/[...pages]'
+import type { ReactNode } from 'react'
 
 const Loading = () => (
   <div className="w-80 h-80 flex items-center text-center justify-center p-3">
@@ -25,21 +23,12 @@ const Loading = () => (
   </div>
 )
 
-const dynamicProps = {
-  loading: Loading,
-}
-
-const FeatureBar = dynamic(() => import('@components/common/FeatureBar'), {
-  ...dynamicProps,
-})
-
-const Modal = dynamic(() => import('@components/ui/Modal'), {
-  ...dynamicProps,
-  ssr: false,
-})
+const FeatureBar = lazy(() => import('@components/common/FeatureBar'))
+const Modal = lazy(() => import('@components/ui/Modal'))
 
 interface Props {
-  pageProps: any
+  pageProps?: any
+  children?: ReactNode
 }
 
 const ModalView: React.FC<{ modalView: string; closeModal(): any }> = ({
@@ -47,11 +36,13 @@ const ModalView: React.FC<{ modalView: string; closeModal(): any }> = ({
   closeModal,
 }) => {
   return (
-    <Modal onClose={closeModal}>
-      {/* {modalView === 'LOGIN_VIEW' && <LoginView />} */}
-      {/* {modalView === 'SIGNUP_VIEW' && <SignUpView />}
-      {modalView === 'FORGOT_VIEW' && <ForgotPassword />} */}
-    </Modal>
+    <Suspense fallback={<Loading />}>
+      <Modal onClose={closeModal}>
+        {/* {modalView === 'LOGIN_VIEW' && <LoginView />} */}
+        {/* {modalView === 'SIGNUP_VIEW' && <SignUpView />}
+        {modalView === 'FORGOT_VIEW' && <ForgotPassword />} */}
+      </Modal>
+    </Suspense>
   )
 }
 
@@ -65,7 +56,8 @@ const ModalUI: React.FC = () => {
 const SidebarView: React.FC<{
   sidebarView: string
   closeSidebar(): any
-}> = ({ sidebarView, closeSidebar }) => {
+  links?: LinkProps[]
+}> = ({ sidebarView, closeSidebar, links = [] }) => {
   return (
     <Sidebar onClose={closeSidebar}>
       {sidebarView === 'CART_VIEW' && <CartSidebarView />}
@@ -78,14 +70,14 @@ const SidebarView: React.FC<{
   )
 }
 
-const SidebarUI: React.FC<{}> = ({}) => {
+const SidebarUI: React.FC = () => {
   const { displaySidebar, closeSidebar, sidebarView } = useUI()
   return displaySidebar ? (
     <SidebarView sidebarView={sidebarView} closeSidebar={closeSidebar} />
   ) : null
 }
 
-const Layout: React.FC<Props> = ({ children, pageProps: { ...pageProps } }) => {
+const Layout: React.FC<Props> = ({ children, pageProps }) => {
   const [pages, setPages] = useState<Page[]>([])
 
   useEffect(() => {

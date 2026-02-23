@@ -1,10 +1,13 @@
-import NextLink, { LinkProps as NextLinkProps } from 'next/link'
+import { Link as RemixLink } from '@remix-run/react'
+import type { LinkProps as RemixLinkProps } from '@remix-run/react'
 
-const Link: React.FC<NextLinkProps> = ({ href, children, ...props }) => {
+type LinkProps = Omit<RemixLinkProps, 'to'> & { href?: string; to?: string }
+
+const Link: React.FC<LinkProps> = ({ href, to, children, ...props }) => {
   return (
-    <NextLink href={href}>
-      <a {...props}>{children}</a>
-    </NextLink>
+    <RemixLink to={to || href || '#'} {...props}>
+      {children}
+    </RemixLink>
   )
 }
 

@@ -14,7 +14,7 @@ const UserNav: React.FC<{
   const { cart } = useCart()
   const { setSidebarView, openSidebar } = useUI()
 
-  const itemsCount = cart?.lineItems?.reduce(countItem, 0) ?? 0
+  const itemsCount = cart?.line_items?.reduce(countItem, 0) ?? 0
 
   return (
     <nav className={cn(s.root, className)} id="user-nav">
