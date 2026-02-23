@@ -72,18 +72,29 @@ Rails.application.configure do
   
   # This specifies to log in JSON format
   config.lograge.formatter = Lograge::Formatters::Json.new
-  
+
+  config.lograge.custom_options = lambda do |event|
+    correlation = Datadog::Tracing.correlation
+    {
+      "dd.trace_id": correlation.trace_id.to_s,
+      "dd.span_id": correlation.span_id.to_s,
+      "dd.env": correlation.env.to_s,
+      "dd.service": correlation.service.to_s,
+      "dd.version": correlation.version.to_s,
+      "ddsource": "ruby"
+    }
+  end
+
   ## Enable log coloration
   config.colorize_logging = false
-  
-  # Log to a dedicated file
-  config.lograge.logger = ActiveSupport::Logger.new(STDOUT)
 
-  # Log configuration for Datadog
-  # disable ActiveSupport::TaggedLogging to prevent plain-text TaggedLogging tags from polluting the log lines.
-  config.logger = ActiveSupport::Logger.new(STDOUT)
-  config.active_job.logger = ActiveSupport::Logger.new(STDOUT)
-  config.active_job.lograge = ActiveSupport::Logger.new(STDOUT)
+  # Log to a dedicated file
+  config.lograge.logger = ActiveSupport::Logger.new($stdout)
+
+  # Plain STDOUT logger — TaggedLogging is intentionally disabled to prevent
+  # plain-text tag prefixes from polluting the Lograge JSON log lines.
+  config.logger = ActiveSupport::Logger.new($stdout)
+  config.active_job.logger = ActiveSupport::Logger.new($stdout)
 
 
   # Use a different cache store in production.
@@ -91,7 +102,7 @@ Rails.application.configure do
     memcached_config = {
       username: ENV['MEMCACHEDCLOUD_USERNAME'],
       password: ENV['MEMCACHEDCLOUD_PASSWORD'],
-      value_max_bytes: 104_857_60,
+      value_max_bytes: 10_485_760,
       compress: false,
       pool_size: ENV.fetch('MEMCACHED_POOL_SIZE', 5).to_i,
       expires_in: 1.week
@@ -142,16 +153,6 @@ Rails.application.configure do
 
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
-
-  # Use a different logger for distributed setups.
-  # require 'syslog/logger'
-  # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
-
-  if ENV["RAILS_LOG_TO_STDOUT"].present?
-    logger           = ActiveSupport::Logger.new(STDOUT)
-    logger.formatter = config.log_formatter
-    config.logger    = ActiveSupport::TaggedLogging.new(logger)
-  end
 
   # sendgrid mail
   if ENV['SENDGRID_API_KEY'].present?

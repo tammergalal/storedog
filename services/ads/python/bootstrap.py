@@ -1,7 +1,11 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask
 from models import Advertisement, db
 
-import os
 DB_USERNAME = os.environ['POSTGRES_USER']
 DB_PASSWORD = os.environ['POSTGRES_PASSWORD']
 DB_HOST = os.environ['POSTGRES_HOST']
@@ -10,8 +14,9 @@ DB_HOST = os.environ['POSTGRES_HOST']
 def create_app():
     """Create a Flask application"""
     app = Flask(__name__)
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://' + DB_USERNAME + ':' + DB_PASSWORD + '@' + DB_HOST + '/' + DB_USERNAME
+    app.config['SQLALCHEMY_DATABASE_URI'] = (
+        f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_USERNAME}'
+    )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
@@ -22,6 +27,7 @@ def create_app():
 def initialize_database(app, db):
     """Drop and restore database in a consistent state"""
     with app.app_context():
+        # INTENTIONAL: drop_all ensures a clean, reproducible demo state on every restart.
         db.drop_all()
         db.create_all()
         first_ad = Advertisement('Discount Clothing', '/t/clothing', 15.1, '1.jpg')

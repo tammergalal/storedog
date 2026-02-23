@@ -1,0 +1,17 @@
+[
+  {
+    "slug": "homepage",
+    "title": "Welcome to Storedog",
+    "content": "Your one-stop shop for outdoor and athletic gear. From trail running shoes to GPS watches, we have everything you need for your next adventure. Free shipping on orders over $75."
+  },
+  {
+    "slug": "about",
+    "title": "About Storedog",
+    "content": "Storedog was founded by outdoor enthusiasts who believe everyone deserves access to quality gear. We curate the best products for runners, hikers, climbers, and fitness enthusiasts. Our team tests every product in real-world conditions before adding it to our catalog."
+  },
+  {
+    "slug": "shipping-returns",
+    "title": "Shipping & Returns",
+    "content": "We offer free standard shipping on all orders over $75. Standard shipping takes 3-5 business days. Express shipping is available for $12.99 and arrives in 1-2 business days. Returns are accepted within 30 days of purchase with original tags attached."
+  }
+]

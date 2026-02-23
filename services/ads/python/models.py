@@ -1,7 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
-import datetime
 
 db = SQLAlchemy()
+
 
 class Advertisement(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -15,7 +15,7 @@ class Advertisement(db.Model):
         self.url = url
         self.weight = weight
         self.path = path
-    
+
     def serialize(self):
         return {
             'id': self.id,
@@ -24,6 +24,3 @@ class Advertisement(db.Model):
             'weight': self.weight,
             'path': self.path
         }
-
-
-    

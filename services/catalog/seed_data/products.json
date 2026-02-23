@@ -1,0 +1,207 @@
+[
+  {
+    "slug": "trail-runner-pro",
+    "name": "Trail Runner Pro",
+    "description": "High-performance trail running shoes with advanced grip and cushioning for rugged terrain. Breathable mesh upper with reinforced toe cap.",
+    "price": 129.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/footwear"],
+    "images": [
+      {"url": "/public/images/trail-runner-pro.jpg", "alt": "Trail Runner Pro shoes", "position": 0}
+    ],
+    "variants": [
+      {"sku": "TRP-08", "price": 129.99, "options_text": "Size: 8", "in_stock": true, "weight": 0.68, "image_url": "/public/images/trail-runner-pro.jpg"},
+      {"sku": "TRP-09", "price": 129.99, "options_text": "Size: 9", "in_stock": true, "weight": 0.70, "image_url": "/public/images/trail-runner-pro.jpg"},
+      {"sku": "TRP-10", "price": 129.99, "options_text": "Size: 10", "in_stock": true, "weight": 0.72, "image_url": "/public/images/trail-runner-pro.jpg"},
+      {"sku": "TRP-11", "price": 129.99, "options_text": "Size: 11", "in_stock": true, "weight": 0.74, "image_url": "/public/images/trail-runner-pro.jpg"},
+      {"sku": "TRP-12", "price": 129.99, "options_text": "Size: 12", "in_stock": false, "weight": 0.76, "image_url": "/public/images/trail-runner-pro.jpg"}
+    ]
+  },
+  {
+    "slug": "hiking-backpack-45l",
+    "name": "Hiking Backpack 45L",
+    "description": "Durable 45-liter hiking backpack with ergonomic frame, multiple compartments, and hydration bladder compatibility. Rain cover included.",
+    "price": 189.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/accessories"],
+    "images": [
+      {"url": "/public/images/hiking-backpack-45l.jpg", "alt": "Hiking Backpack 45L", "position": 0}
+    ],
+    "variants": [
+      {"sku": "HBP-45-BLK", "price": 189.99, "options_text": "Color: Black", "in_stock": true, "weight": 1.80, "image_url": "/public/images/hiking-backpack-45l.jpg"},
+      {"sku": "HBP-45-GRN", "price": 189.99, "options_text": "Color: Forest Green", "in_stock": true, "weight": 1.80, "image_url": "/public/images/hiking-backpack-45l.jpg"},
+      {"sku": "HBP-45-NVY", "price": 189.99, "options_text": "Color: Navy", "in_stock": true, "weight": 1.80, "image_url": "/public/images/hiking-backpack-45l.jpg"}
+    ]
+  },
+  {
+    "slug": "performance-running-jacket",
+    "name": "Performance Running Jacket",
+    "description": "Lightweight, waterproof running jacket with reflective details for visibility. Packable design fits in its own pocket.",
+    "price": 95.00,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/apparel"],
+    "images": [
+      {"url": "/public/images/performance-running-jacket.jpg", "alt": "Performance Running Jacket", "position": 0}
+    ],
+    "variants": [
+      {"sku": "PRJ-S", "price": 95.00, "options_text": "Size: S", "in_stock": true, "weight": 0.22, "image_url": "/public/images/performance-running-jacket.jpg"},
+      {"sku": "PRJ-M", "price": 95.00, "options_text": "Size: M", "in_stock": true, "weight": 0.24, "image_url": "/public/images/performance-running-jacket.jpg"},
+      {"sku": "PRJ-L", "price": 95.00, "options_text": "Size: L", "in_stock": true, "weight": 0.26, "image_url": "/public/images/performance-running-jacket.jpg"},
+      {"sku": "PRJ-XL", "price": 95.00, "options_text": "Size: XL", "in_stock": true, "weight": 0.28, "image_url": "/public/images/performance-running-jacket.jpg"}
+    ]
+  },
+  {
+    "slug": "compression-shorts",
+    "name": "Compression Shorts",
+    "description": "Moisture-wicking compression shorts with four-way stretch fabric. Built-in brief liner and zippered pocket for keys.",
+    "price": 45.00,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/apparel"],
+    "images": [
+      {"url": "/public/images/compression-shorts.jpg", "alt": "Compression Shorts", "position": 0}
+    ],
+    "variants": [
+      {"sku": "CS-S-BLK", "price": 45.00, "options_text": "Size: S / Color: Black", "in_stock": true, "weight": 0.14, "image_url": "/public/images/compression-shorts.jpg"},
+      {"sku": "CS-M-BLK", "price": 45.00, "options_text": "Size: M / Color: Black", "in_stock": true, "weight": 0.15, "image_url": "/public/images/compression-shorts.jpg"},
+      {"sku": "CS-L-BLK", "price": 45.00, "options_text": "Size: L / Color: Black", "in_stock": true, "weight": 0.16, "image_url": "/public/images/compression-shorts.jpg"},
+      {"sku": "CS-M-NVY", "price": 45.00, "options_text": "Size: M / Color: Navy", "in_stock": true, "weight": 0.15, "image_url": "/public/images/compression-shorts.jpg"}
+    ]
+  },
+  {
+    "slug": "water-bottle-32oz",
+    "name": "Water Bottle 32oz",
+    "description": "Insulated stainless steel water bottle that keeps drinks cold for 24 hours or hot for 12. BPA-free lid with built-in straw.",
+    "price": 34.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/accessories"],
+    "images": [
+      {"url": "/public/images/water-bottle-32oz.jpg", "alt": "Water Bottle 32oz", "position": 0}
+    ],
+    "variants": [
+      {"sku": "WB32-BLK", "price": 34.99, "options_text": "Color: Matte Black", "in_stock": true, "weight": 0.45, "image_url": "/public/images/water-bottle-32oz.jpg"},
+      {"sku": "WB32-RED", "price": 34.99, "options_text": "Color: Red", "in_stock": true, "weight": 0.45, "image_url": "/public/images/water-bottle-32oz.jpg"},
+      {"sku": "WB32-BLU", "price": 34.99, "options_text": "Color: Ocean Blue", "in_stock": true, "weight": 0.45, "image_url": "/public/images/water-bottle-32oz.jpg"}
+    ]
+  },
+  {
+    "slug": "trail-mix-variety-pack",
+    "name": "Trail Mix Variety Pack",
+    "description": "Assorted trail mix pack with 12 individual servings. Includes classic nut blend, tropical fruit mix, and chocolate energy mix.",
+    "price": 24.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/nutrition"],
+    "images": [
+      {"url": "/public/images/trail-mix-variety-pack.jpg", "alt": "Trail Mix Variety Pack", "position": 0}
+    ],
+    "variants": [
+      {"sku": "TMVP-12", "price": 24.99, "options_text": "12 Pack", "in_stock": true, "weight": 0.90, "image_url": "/public/images/trail-mix-variety-pack.jpg"},
+      {"sku": "TMVP-24", "price": 42.99, "options_text": "24 Pack", "in_stock": true, "weight": 1.80, "image_url": "/public/images/trail-mix-variety-pack.jpg"}
+    ]
+  },
+  {
+    "slug": "sunglasses-sport-pro",
+    "name": "Sunglasses Sport Pro",
+    "description": "Polarized sport sunglasses with wraparound frame and anti-slip nose pads. UV400 protection with interchangeable lenses.",
+    "price": 79.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/accessories"],
+    "images": [
+      {"url": "/public/images/sunglasses-sport-pro.jpg", "alt": "Sunglasses Sport Pro", "position": 0}
+    ],
+    "variants": [
+      {"sku": "SSP-BLK", "price": 79.99, "options_text": "Frame: Black", "in_stock": true, "weight": 0.03, "image_url": "/public/images/sunglasses-sport-pro.jpg"},
+      {"sku": "SSP-WHT", "price": 79.99, "options_text": "Frame: White", "in_stock": true, "weight": 0.03, "image_url": "/public/images/sunglasses-sport-pro.jpg"}
+    ]
+  },
+  {
+    "slug": "headlamp-300-lumen",
+    "name": "Headlamp 300 Lumen",
+    "description": "Rechargeable LED headlamp with 300 lumens output, five lighting modes, and red night vision mode. IPX6 waterproof rating.",
+    "price": 39.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/electronics"],
+    "images": [
+      {"url": "/public/images/headlamp-300-lumen.jpg", "alt": "Headlamp 300 Lumen", "position": 0}
+    ],
+    "variants": [
+      {"sku": "HL300-BLK", "price": 39.99, "options_text": "Color: Black", "in_stock": true, "weight": 0.08, "image_url": "/public/images/headlamp-300-lumen.jpg"},
+      {"sku": "HL300-ORG", "price": 39.99, "options_text": "Color: Orange", "in_stock": true, "weight": 0.08, "image_url": "/public/images/headlamp-300-lumen.jpg"}
+    ]
+  },
+  {
+    "slug": "gps-sport-watch",
+    "name": "GPS Sport Watch",
+    "description": "Multi-sport GPS watch with heart rate monitor, altimeter, and 7-day battery life. Tracks running, cycling, swimming, and hiking with route mapping.",
+    "price": 249.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/electronics"],
+    "images": [
+      {"url": "/public/images/gps-sport-watch.jpg", "alt": "GPS Sport Watch", "position": 0}
+    ],
+    "variants": [
+      {"sku": "GSW-BLK-SM", "price": 249.99, "options_text": "Color: Black / Band: S-M", "in_stock": true, "weight": 0.05, "image_url": "/public/images/gps-sport-watch.jpg"},
+      {"sku": "GSW-BLK-LG", "price": 249.99, "options_text": "Color: Black / Band: L-XL", "in_stock": true, "weight": 0.06, "image_url": "/public/images/gps-sport-watch.jpg"},
+      {"sku": "GSW-GRY-SM", "price": 249.99, "options_text": "Color: Grey / Band: S-M", "in_stock": true, "weight": 0.05, "image_url": "/public/images/gps-sport-watch.jpg"}
+    ]
+  },
+  {
+    "slug": "yoga-mat-premium",
+    "name": "Yoga Mat Premium",
+    "description": "Extra-thick 6mm yoga mat with non-slip surface and alignment markers. Made from eco-friendly TPE material with carrying strap included.",
+    "price": 59.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/accessories"],
+    "images": [
+      {"url": "/public/images/yoga-mat-premium.jpg", "alt": "Yoga Mat Premium", "position": 0}
+    ],
+    "variants": [
+      {"sku": "YMP-PRP", "price": 59.99, "options_text": "Color: Purple", "in_stock": true, "weight": 1.20, "image_url": "/public/images/yoga-mat-premium.jpg"},
+      {"sku": "YMP-BLU", "price": 59.99, "options_text": "Color: Blue", "in_stock": true, "weight": 1.20, "image_url": "/public/images/yoga-mat-premium.jpg"},
+      {"sku": "YMP-BLK", "price": 59.99, "options_text": "Color: Black", "in_stock": true, "weight": 1.20, "image_url": "/public/images/yoga-mat-premium.jpg"}
+    ]
+  },
+  {
+    "slug": "energy-gel-pack",
+    "name": "Energy Gel Pack",
+    "description": "Quick-absorbing energy gel with electrolytes for endurance activities. Variety pack includes citrus, berry, and coffee flavors.",
+    "price": 29.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/nutrition"],
+    "images": [
+      {"url": "/public/images/energy-gel-pack.jpg", "alt": "Energy Gel Pack", "position": 0}
+    ],
+    "variants": [
+      {"sku": "EGP-8", "price": 29.99, "options_text": "8 Pack", "in_stock": true, "weight": 0.32, "image_url": "/public/images/energy-gel-pack.jpg"},
+      {"sku": "EGP-16", "price": 49.99, "options_text": "16 Pack", "in_stock": true, "weight": 0.64, "image_url": "/public/images/energy-gel-pack.jpg"}
+    ]
+  },
+  {
+    "slug": "hiking-boots-alpine",
+    "name": "Hiking Boots Alpine",
+    "description": "Waterproof leather hiking boots with Vibram soles and ankle support. Insulated for cold weather with breathable Gore-Tex lining.",
+    "price": 219.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["categories/footwear"],
+    "images": [
+      {"url": "/public/images/hiking-boots-alpine.jpg", "alt": "Hiking Boots Alpine", "position": 0}
+    ],
+    "variants": [
+      {"sku": "HBA-09", "price": 219.99, "options_text": "Size: 9", "in_stock": true, "weight": 0.95, "image_url": "/public/images/hiking-boots-alpine.jpg"},
+      {"sku": "HBA-10", "price": 219.99, "options_text": "Size: 10", "in_stock": true, "weight": 0.98, "image_url": "/public/images/hiking-boots-alpine.jpg"},
+      {"sku": "HBA-11", "price": 219.99, "options_text": "Size: 11", "in_stock": true, "weight": 1.01, "image_url": "/public/images/hiking-boots-alpine.jpg"},
+      {"sku": "HBA-12", "price": 219.99, "options_text": "Size: 12", "in_stock": true, "weight": 1.04, "image_url": "/public/images/hiking-boots-alpine.jpg"}
+    ]
+  }
+]

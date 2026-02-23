@@ -1,62 +1,48 @@
-import json_log_formatter
-from ddtrace import tracer
-import logging
-import requests
+import os
 import random
-import time
-import sys
-import re
 
-from flask import Flask, Response, jsonify, send_from_directory
+from ddtrace import patch, tracer
+from flask import jsonify, send_from_directory
 from flask import request as flask_request
 from flask_cors import CORS
 
+from sqlalchemy import text
 from bootstrap import create_app
+from chaos import register_chaos_middleware
+from logging_utils import setup_logger
 from models import Advertisement, db
 
-from ddtrace import patch
 patch(logging=True)
 
-formatter = json_log_formatter.VerboseJSONFormatter()
-json_handler = logging.StreamHandler(sys.stdout)
-json_handler.setFormatter(formatter)
-logger = logging.getLogger('werkzeug')
-logger.addHandler(json_handler)
-logger.setLevel(logging.DEBUG)
+logger = setup_logger('store-ads')
 
 app = create_app()
 CORS(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Add filter to remove color-encoding from logs e.g. "[37mGET / HTTP/1.1 [0m" 200 -
+register_chaos_middleware(app)
 
 
-class NoEscape(logging.Filter):
-    def __init__(self):
-        self.regex = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-
-    def strip_esc(self, s):
-        try:  # string-like
-            return self.regex.sub('', s)
-        except:  # non-string-like
-            return s
-
-    def filter(self, record):
-        record.msg = self.strip_esc(record.msg)
-        if type(record.args) is tuple:
-            record.args = tuple(map(self.strip_esc, record.args))
-        return 1
-
-
-remove_color_filter = NoEscape()
-logger.addFilter(remove_color_filter)
+@app.route('/health')
+def health():
+    try:
+        db.session.execute(text('SELECT 1'))
+        db_connected = True
+    except Exception:
+        db_connected = False
+    return jsonify({
+        'service': os.getenv('DD_SERVICE', 'store-ads'),
+        'version': os.getenv('DD_VERSION', '1.0.0'),
+        'dd_trace_enabled': True,
+        'db_connected': db_connected,
+    })
 
 
 @tracer.wrap()
 @app.route('/')
 def hello():
     logger.info("home url for ads called")
-    return Response({'Hello from Advertisements!': 'world'}, mimetype='application/json')
+    return jsonify({'Hello from Advertisements!': 'world'})
 
 
 @tracer.wrap()
@@ -74,6 +60,7 @@ def weighted_image(weight):
     for ad in advertisements:
         if ad.weight < weight:
             return jsonify(ad.serialize())
+    return jsonify({'error': 'No advertisement found for weight'}), 404
 
 
 @tracer.wrap()
@@ -97,9 +84,7 @@ def status():
             except ValueError:
                 logger.error('Request failed', exc_info=True)
 
-            err = jsonify({'error': 'Internal Server Error'})
-            err.status_code = 500
-            return err
+            return jsonify({'error': 'Internal Server Error'}), 500
 
         else:
 
@@ -109,17 +94,15 @@ def status():
                     f"Total advertisements available: {len(advertisements)}")
                 return jsonify([b.serialize() for b in advertisements])
 
-            except:
+            except Exception:
                 logger.error("An error occurred while getting ad.")
-                err = jsonify({'error': 'Internal Server Error'})
-                err.status_code = 500
-                return err
+                return jsonify({'error': 'Internal Server Error'}), 500
 
     elif flask_request.method == 'POST':
 
         try:
             # create a new advertisement with random name and value
-            advertisements_count = len(Advertisement.query.all())
+            advertisements_count = db.session.query(Advertisement).count()
             new_advertisement = Advertisement('Advertisement ' + str(advertisements_count + 1),
                                               '/',
                                               random.randint(10, 500))
@@ -130,14 +113,9 @@ def status():
 
             return jsonify([b.serialize() for b in advertisements])
 
-        except:
-
+        except Exception:
             logger.error("An error occurred while creating a new ad.")
-            err = jsonify({'error': 'Internal Server Error'})
-            err.status_code = 500
-            return err
+            return jsonify({'error': 'Internal Server Error'}), 500
 
     else:
-        err = jsonify({'error': 'Invalid request method'})
-        err.status_code = 405
-        return err
+        return jsonify({'error': 'Invalid request method'}), 405

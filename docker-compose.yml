@@ -21,11 +21,11 @@ services:
       - postgres_logs:/var/log/pg_log:ro
   frontend:
     image: ghcr.io/datadog/storedog/frontend:${STOREDOG_IMAGE_VERSION:-latest}
-    command: bash -c "wait-for-it backend:4000 -- ${FRONTEND_COMMAND:-npm run prod}"
+    command: bash -c "wait-for-it store-catalog:8000 -- ${FRONTEND_COMMAND:-npm run prod}"
     depends_on:
-      - worker
+      - store-catalog
+      - store-cart
       - dd-agent
-      - backend
     networks:
       - storedog-network
     environment:
@@ -43,55 +43,88 @@ services:
       - NEXT_PUBLIC_DD_SERVICE_FRONTEND=store-frontend # used for client-side Next.js RUM configuration
       - NEXT_PUBLIC_DD_ENV=${DD_ENV:-production}
       - NEXT_PUBLIC_DD_VERSION=${NEXT_PUBLIC_DD_VERSION_FRONTEND:-1.0.0}
+      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
+      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
+      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
+      - FEATURE_FLAG_DBM=${FEATURE_FLAG_DBM:-false}
+      - FEATURE_FLAG_ERROR_TRACKING=${FEATURE_FLAG_ERROR_TRACKING:-false}
+      - FEATURE_FLAG_BROKEN_DISCOUNTS=${FEATURE_FLAG_BROKEN_DISCOUNTS:-false}
+      - FEATURE_FLAG_ADS_ENABLED=${FEATURE_FLAG_ADS_ENABLED:-true}
+      - FEATURE_FLAG_DISCOUNTS_ENABLED=${FEATURE_FLAG_DISCOUNTS_ENABLED:-true}
     labels:
       com.datadoghq.ad.logs: '[{"source": "nodejs", "auto_multi_line_detection": true }]'
-  backend:
-    image: ghcr.io/datadog/storedog/backend:${STOREDOG_IMAGE_VERSION:-latest}
-    command: wait-for-it postgres:5432 -- bundle exec ddprofrb exec rails s -b 0.0.0.0 -p 4000 --pid /app/tmp/pids/server.pid
+  store-catalog:
+    build:
+      context: ./services/catalog
+    command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8000
     depends_on:
-      - 'postgres'
-      - 'redis'
-      - 'dd-agent'
+      - postgres
+      - dd-agent
     networks:
       - storedog-network
     environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-production}
-      - DD_SERVICE=store-backend
-      - DD_VERSION=${DD_VERSION_BACKEND:-1.0.0}
+      - DD_SERVICE=store-catalog
+      - DD_VERSION=${DD_VERSION_CATALOG:-1.0.0}
       - DD_RUNTIME_METRICS_ENABLED=true
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
+      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
+      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
     labels:
-      com.datadoghq.ad.logs: '[{"source": "ruby", "auto_multi_line_detection": true }]'
-  worker:
-    image: ghcr.io/datadog/storedog/backend:${STOREDOG_IMAGE_VERSION:-latest}
-    command: wait-for-it postgres:5432 -- bundle exec ddprofrb exec sidekiq -C config/sidekiq.yml
+      com.datadoghq.ad.logs: '[{"source": "python"}]'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  store-cart:
+    build:
+      context: ./services/cart
+    command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8001
     depends_on:
-      - 'postgres'
-      - 'redis'
-      - 'backend'
-      - 'dd-agent'
+      - postgres
+      - store-catalog
+      - discounts
+      - dd-agent
     networks:
       - storedog-network
     environment:
-      - WORKER=true
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog
+      - CATALOG_URL=http://store-catalog:8000
+      - DISCOUNTS_URL=http://discounts:2814
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-production}
-      - DD_SERVICE=store-worker
-      - DD_VERSION=${DD_VERSION_BACKEND:-1.0.0}
+      - DD_SERVICE=store-cart
+      - DD_VERSION=${DD_VERSION_CART:-1.0.0}
       - DD_RUNTIME_METRICS_ENABLED=true
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
+      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
+      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
     labels:
-      com.datadoghq.ad.logs: '[{"source": "ruby", "auto_multi_line_detection": true }]'
+      com.datadoghq.ad.logs: '[{"source": "python"}]'
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
   discounts:
     image: ghcr.io/datadog/storedog/discounts:${STOREDOG_IMAGE_VERSION:-latest}
     command: wait-for-it postgres:5432 -- ddtrace-run flask run --port=2814 --host=0.0.0.0
     depends_on:
       - postgres
+      - redis
       - dd-agent
     environment:
       - DD_AGENT_HOST=dd-agent
@@ -102,6 +135,12 @@ services:
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
+      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
+      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
     networks:
       - storedog-network
     labels:
@@ -122,6 +161,10 @@ services:
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
+      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
+      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
     networks:
       - storedog-network
     labels:
@@ -192,6 +235,7 @@ services:
       - storedog-network
     depends_on:
       - frontend
+      - service-proxy
     shm_size: '4gb' # Increase shared memory size
     cap_add:
       - 'SYS_ADMIN' # Required for Puppeteer to run in Docker
