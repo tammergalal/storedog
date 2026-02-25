@@ -3,12 +3,16 @@
 }
 
 .sidebar {
-  @apply h-full flex flex-col text-base bg-accent-0 shadow-xl overflow-y-auto overflow-x-hidden;
+  @apply h-full flex flex-col text-base overflow-y-auto overflow-x-hidden;
+  background: #ffffff;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
+  border-radius: 14px 0 0 14px;
   -webkit-overflow-scrolling: touch !important;
 }
 
 .backdrop {
-  @apply absolute inset-0 bg-black bg-opacity-40 duration-100 ease-linear;
-  backdrop-filter: blur(0.8px);
-  -webkit-backdrop-filter: blur(0.8px);
+  @apply absolute inset-0 duration-100 ease-linear;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }

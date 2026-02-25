@@ -1,207 +1,267 @@
 [
   {
-    "slug": "trail-runner-pro",
-    "name": "Trail Runner Pro",
-    "description": "High-performance trail running shoes with advanced grip and cushioning for rugged terrain. Breathable mesh upper with reinforced toe cap.",
-    "price": 129.99,
+    "slug": "cool-bits",
+    "name": "Cool Bits",
+    "description": "Slap this onto your favorite water bottle and be as cool as Bits. Warning: may cause other attendees at your next conference to dramatically over-hydrate just to keep staring at your bottle. This durable vinyl sticker is weatherproof, sunproof, and cool-proof.",
+    "price": 19.99,
     "currency": "USD",
     "available": true,
-    "taxons": ["categories/footwear"],
+    "taxons": ["datadog/stickers", "datadog"],
     "images": [
-      {"url": "/public/images/trail-runner-pro.jpg", "alt": "Trail Runner Pro shoes", "position": 0}
+      {"url": "/images/products/cool-bits.jpeg", "alt": "Cool Bits sticker", "position": 0}
     ],
     "variants": [
-      {"sku": "TRP-08", "price": 129.99, "options_text": "Size: 8", "in_stock": true, "weight": 0.68, "image_url": "/public/images/trail-runner-pro.jpg"},
-      {"sku": "TRP-09", "price": 129.99, "options_text": "Size: 9", "in_stock": true, "weight": 0.70, "image_url": "/public/images/trail-runner-pro.jpg"},
-      {"sku": "TRP-10", "price": 129.99, "options_text": "Size: 10", "in_stock": true, "weight": 0.72, "image_url": "/public/images/trail-runner-pro.jpg"},
-      {"sku": "TRP-11", "price": 129.99, "options_text": "Size: 11", "in_stock": true, "weight": 0.74, "image_url": "/public/images/trail-runner-pro.jpg"},
-      {"sku": "TRP-12", "price": 129.99, "options_text": "Size: 12", "in_stock": false, "weight": 0.76, "image_url": "/public/images/trail-runner-pro.jpg"}
+      {"sku": "COOL-BITS-STD", "price": 19.99, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/cool-bits.jpeg"}
     ]
   },
   {
-    "slug": "hiking-backpack-45l",
-    "name": "Hiking Backpack 45L",
-    "description": "Durable 45-liter hiking backpack with ergonomic frame, multiple compartments, and hydration bladder compatibility. Rain cover included.",
-    "price": 189.99,
+    "slug": "bits-by-dre",
+    "name": "Bits by Dre",
+    "description": "Bits got some dope cans for his fat beats! Show the world that you like dogs who like hip hop with this tasteful vinyl sticker. Pairs well with a monitoring dashboard that slaps harder than your backlog. Bass-boosted. Latency-minimized.",
+    "price": 14.99,
     "currency": "USD",
     "available": true,
-    "taxons": ["categories/accessories"],
+    "taxons": ["datadog/stickers", "datadog/new", "datadog"],
     "images": [
-      {"url": "/public/images/hiking-backpack-45l.jpg", "alt": "Hiking Backpack 45L", "position": 0}
+      {"url": "/images/products/bits-by-dre.jpeg", "alt": "Bits by Dre sticker", "position": 0}
     ],
     "variants": [
-      {"sku": "HBP-45-BLK", "price": 189.99, "options_text": "Color: Black", "in_stock": true, "weight": 1.80, "image_url": "/public/images/hiking-backpack-45l.jpg"},
-      {"sku": "HBP-45-GRN", "price": 189.99, "options_text": "Color: Forest Green", "in_stock": true, "weight": 1.80, "image_url": "/public/images/hiking-backpack-45l.jpg"},
-      {"sku": "HBP-45-NVY", "price": 189.99, "options_text": "Color: Navy", "in_stock": true, "weight": 1.80, "image_url": "/public/images/hiking-backpack-45l.jpg"}
+      {"sku": "BITS-DRE-STD", "price": 14.99, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/bits-by-dre.jpeg"}
     ]
   },
   {
-    "slug": "performance-running-jacket",
-    "name": "Performance Running Jacket",
-    "description": "Lightweight, waterproof running jacket with reflective details for visibility. Packable design fits in its own pocket.",
-    "price": 95.00,
+    "slug": "hockey-bits",
+    "name": "Hockey Bits",
+    "description": "Just as iconic as Gritty, and significantly less chaotic. Bits has laced up the skates and hit the ice, proving that a dog who can monitor your entire infrastructure can also stick-handle through any penalty kill. Five-on-five uptime guaranteed.",
+    "price": 5.00,
     "currency": "USD",
     "available": true,
-    "taxons": ["categories/apparel"],
+    "taxons": ["datadog/stickers", "datadog/bestsellers", "datadog"],
     "images": [
-      {"url": "/public/images/performance-running-jacket.jpg", "alt": "Performance Running Jacket", "position": 0}
+      {"url": "/images/products/hockey-bits.jpeg", "alt": "Hockey Bits sticker", "position": 0}
     ],
     "variants": [
-      {"sku": "PRJ-S", "price": 95.00, "options_text": "Size: S", "in_stock": true, "weight": 0.22, "image_url": "/public/images/performance-running-jacket.jpg"},
-      {"sku": "PRJ-M", "price": 95.00, "options_text": "Size: M", "in_stock": true, "weight": 0.24, "image_url": "/public/images/performance-running-jacket.jpg"},
-      {"sku": "PRJ-L", "price": 95.00, "options_text": "Size: L", "in_stock": true, "weight": 0.26, "image_url": "/public/images/performance-running-jacket.jpg"},
-      {"sku": "PRJ-XL", "price": 95.00, "options_text": "Size: XL", "in_stock": true, "weight": 0.28, "image_url": "/public/images/performance-running-jacket.jpg"}
+      {"sku": "HOCKEY-BITS-STD", "price": 5.00, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/hockey-bits.jpeg"}
     ]
   },
   {
-    "slug": "compression-shorts",
-    "name": "Compression Shorts",
-    "description": "Moisture-wicking compression shorts with four-way stretch fabric. Built-in brief liner and zippered pocket for keys.",
+    "slug": "learning-bits",
+    "name": "Learning Bits",
+    "description": "Show that you're the head of the class. Bits has been hitting the books and acing every exam — much like your alert thresholds. Slap it on your laptop and let everyone in the coffee shop know that you take learning seriously. Gold star not included.",
+    "price": 9.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog/bestsellers", "datadog"],
+    "images": [
+      {"url": "/images/products/learning-bits.jpeg", "alt": "Learning Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "LEARNING-BITS-STD", "price": 9.99, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/learning-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "money-bits",
+    "name": "Money Bits",
+    "description": "With good breeding and a little bit of luck, a good dog can rise to the top. Show your admiration for the top 1% with this fancy vinyl sticker. Monocle not included. Neither is the yacht. But the sticker? Absolutely.",
+    "price": 3.50,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog"],
+    "images": [
+      {"url": "/images/products/money-bits.jpeg", "alt": "Money Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "MONEY-BITS-STD", "price": 3.50, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/money-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "octo-bits",
+    "name": "Octo Bits",
+    "description": "Last we saw Bits, he was snorkeling in the Cayman Islands. Not sure who this octopus is, but they're wearing his collar and they seem to have eight times the monitoring coverage. Suspicious. Delightful. Definitely sticker-worthy.",
+    "price": 18.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog"],
+    "images": [
+      {"url": "/images/products/octo-bits.jpeg", "alt": "Octo Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "OCTO-BITS-STD", "price": 18.99, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/octo-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "og-bits",
+    "name": "OG Bits",
+    "description": "It's hard to beat a classic. The original Datadog logo on a durable vinyl sticker that belongs on every laptop, water bottle, and server rack in a 10-mile radius. Some say the OG Bits sticker has been running at 99.999% uptime since 2010. We believe it.",
+    "price": 5.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog/bestsellers", "datadog"],
+    "images": [
+      {"url": "/images/products/og-bits.jpeg", "alt": "OG Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "OG-BITS-STD", "price": 5.99, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/og-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "rainbow-bits",
+    "name": "Rainbow Bits",
+    "description": "Be as proud as Bits with this colorful vinyl sticker. Bits has always believed that the more colors you use, the easier it is to read your dashboards. This sticker is proof. Weatherproof, fade-proof, and ready to fly the full spectrum.",
+    "price": 12.99,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog/bestsellers", "datadog"],
+    "images": [
+      {"url": "/images/products/rainbow-bits.jpeg", "alt": "Rainbow Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "RAINBOW-BITS-STD", "price": 12.99, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/rainbow-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "space-bits",
+    "name": "Space Bits",
+    "description": "Everybody Laikas this vinyl sticker! (We would never send Bits into space alone without a safe recovery plan.) If our telemetry is correct, Bits is currently in low-earth orbit with a p99 latency of under 100ms and zero downtime. Houston has no problems.",
+    "price": 10.00,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog/new", "datadog"],
+    "images": [
+      {"url": "/images/products/space-bits.jpeg", "alt": "Space Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "SPACE-BITS-STD", "price": 10.00, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/space-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "student-bits",
+    "name": "Student Bits",
+    "description": "Show the folks at the cafe that you're as smart (and obedient) as Bits! Bits graduates at the top of every cohort, even when the curriculum was written in six different programming languages. Lifelong vinyl sticker. The knowledge, sadly, is not included.",
+    "price": 11.01,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog/new", "datadog"],
+    "images": [
+      {"url": "/images/products/student-bits.jpeg", "alt": "Student Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "STUDENT-BITS-STD", "price": 11.01, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/student-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "stonk-bits",
+    "name": "Stonk Bits",
+    "description": "This sticker is so hot we're legally not allowed to tell you how valuable it is. It has consistently outperformed the broader sticker market since Q3 2021. Past performance is not indicative of future returns. This is not financial advice. Please monitor responsibly.",
+    "price": 27.00,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog"],
+    "images": [
+      {"url": "/images/products/stonk-bits.jpeg", "alt": "Stonk Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "STONK-BITS-STD", "price": 27.00, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/stonk-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "april-2022-summit-denver-sticker",
+    "name": "April 2022 Summit Denver Sticker",
+    "description": "The year was 2022. Hundreds of observability enthusiasts converged on Denver to discuss the finer points of metrics, logs, and traces. The air was thin, the talks were excellent, and this commemorative vinyl sticker is the only proof you were there. Altitude not included.",
+    "price": 4.13,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog"],
+    "images": [
+      {"url": "/images/products/summit-denver.jpeg", "alt": "April 2022 Summit Denver Sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "SUMMIT-DENVER-STD", "price": 4.13, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/summit-denver.jpeg"}
+    ]
+  },
+  {
+    "slug": "sunset-bits",
+    "name": "Sunset Bits",
+    "description": "Remember the amazing Miami sunsets of the 80s? Bits sure does. Pastel skies, neon dashboards, and Bits cruising on a jet ski with aviators on. Slap this everlasting vinyl sticker on your surfboard, standing desk, or vintage DeLorean. Bit-colored sunglasses not included.",
+    "price": 19.84,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog/new", "datadog"],
+    "images": [
+      {"url": "/images/products/sunset-bits.jpeg", "alt": "Sunset Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "SUNSET-BITS-STD", "price": 19.84, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/sunset-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "aapi-heritage-month-bits",
+    "name": "AAPI Heritage Month Bits",
+    "description": "Celebrate Asian American Pacific Islander Heritage Month with Bits! Vibrant, joyful, and impossible to look at without smiling — just like the engineers building our industry every day. Stick it somewhere it'll be seen. Representation matters, even in sticker form.",
+    "price": 19.92,
+    "currency": "USD",
+    "available": true,
+    "taxons": ["datadog/stickers", "datadog/bestsellers", "datadog"],
+    "images": [
+      {"url": "/images/products/aapihm-bits.jpeg", "alt": "AAPI Heritage Month Bits sticker", "position": 0}
+    ],
+    "variants": [
+      {"sku": "AAPI-BITS-STD", "price": 19.92, "options_text": "Default Title", "in_stock": true, "weight": 0.05, "image_url": "/images/products/aapihm-bits.jpeg"}
+    ]
+  },
+  {
+    "slug": "sweatshirt-crewneck",
+    "name": "Sweatshirt (Crewneck)",
+    "description": "Because you can't wear a hooded sweatshirt with a hooded jacket — that's too many hoods. This 100% cotton crewneck is engineered for maximum comfort during long debugging sessions, post-incident retros, and staring at dashboards waiting for that deploy to go green. Fits great. Washes well. Holds up under pressure.",
     "price": 45.00,
     "currency": "USD",
     "available": true,
-    "taxons": ["categories/apparel"],
+    "taxons": ["datadog/tops", "datadog"],
     "images": [
-      {"url": "/public/images/compression-shorts.jpg", "alt": "Compression Shorts", "position": 0}
+      {"url": "/images/products/sweatshirt_white.jpg", "alt": "Crewneck Sweatshirt", "position": 0},
+      {"url": "/images/products/sweatshirt_blue.jpg", "alt": "Crewneck Sweatshirt Blue", "position": 1}
     ],
     "variants": [
-      {"sku": "CS-S-BLK", "price": 45.00, "options_text": "Size: S / Color: Black", "in_stock": true, "weight": 0.14, "image_url": "/public/images/compression-shorts.jpg"},
-      {"sku": "CS-M-BLK", "price": 45.00, "options_text": "Size: M / Color: Black", "in_stock": true, "weight": 0.15, "image_url": "/public/images/compression-shorts.jpg"},
-      {"sku": "CS-L-BLK", "price": 45.00, "options_text": "Size: L / Color: Black", "in_stock": true, "weight": 0.16, "image_url": "/public/images/compression-shorts.jpg"},
-      {"sku": "CS-M-NVY", "price": 45.00, "options_text": "Size: M / Color: Navy", "in_stock": true, "weight": 0.15, "image_url": "/public/images/compression-shorts.jpg"}
+      {"sku": "SWEAT-S", "price": 45.00, "options_text": "Size: S", "in_stock": true, "weight": 0.50, "image_url": "/images/products/sweatshirt_white.jpg"},
+      {"sku": "SWEAT-M", "price": 45.00, "options_text": "Size: M", "in_stock": true, "weight": 0.52, "image_url": "/images/products/sweatshirt_white.jpg"},
+      {"sku": "SWEAT-L", "price": 45.00, "options_text": "Size: L", "in_stock": true, "weight": 0.54, "image_url": "/images/products/sweatshirt_white.jpg"},
+      {"sku": "SWEAT-XL", "price": 45.00, "options_text": "Size: XL", "in_stock": true, "weight": 0.56, "image_url": "/images/products/sweatshirt_white.jpg"}
     ]
   },
   {
-    "slug": "water-bottle-32oz",
-    "name": "Water Bottle 32oz",
-    "description": "Insulated stainless steel water bottle that keeps drinks cold for 24 hours or hot for 12. BPA-free lid with built-in straw.",
-    "price": 34.99,
+    "slug": "blue-jeans",
+    "name": "Blue Jeans",
+    "description": "Pairs well with our t-shirts, a strong cup of coffee, and a SLO holding steady in the green. Classic 5-pocket construction, durable denim, and a fit that says 'I ship code but I also own real pants.' Waist sizes 28–34. The waist size 34 is temporarily out of stock — blame the on-call rotation.",
+    "price": 64.95,
     "currency": "USD",
     "available": true,
-    "taxons": ["categories/accessories"],
+    "taxons": ["datadog/pants", "datadog/bestsellers", "datadog"],
     "images": [
-      {"url": "/public/images/water-bottle-32oz.jpg", "alt": "Water Bottle 32oz", "position": 0}
+      {"url": "/images/products/blue_jeans.jpeg", "alt": "Blue Jeans", "position": 0}
     ],
     "variants": [
-      {"sku": "WB32-BLK", "price": 34.99, "options_text": "Color: Matte Black", "in_stock": true, "weight": 0.45, "image_url": "/public/images/water-bottle-32oz.jpg"},
-      {"sku": "WB32-RED", "price": 34.99, "options_text": "Color: Red", "in_stock": true, "weight": 0.45, "image_url": "/public/images/water-bottle-32oz.jpg"},
-      {"sku": "WB32-BLU", "price": 34.99, "options_text": "Color: Ocean Blue", "in_stock": true, "weight": 0.45, "image_url": "/public/images/water-bottle-32oz.jpg"}
+      {"sku": "JEANS-28", "price": 64.95, "options_text": "Waist: 28", "in_stock": true, "weight": 0.70, "image_url": "/images/products/blue_jeans.jpeg"},
+      {"sku": "JEANS-30", "price": 64.95, "options_text": "Waist: 30", "in_stock": true, "weight": 0.72, "image_url": "/images/products/blue_jeans.jpeg"},
+      {"sku": "JEANS-32", "price": 64.95, "options_text": "Waist: 32", "in_stock": true, "weight": 0.74, "image_url": "/images/products/blue_jeans.jpeg"},
+      {"sku": "JEANS-34", "price": 64.95, "options_text": "Waist: 34", "in_stock": false, "weight": 0.76, "image_url": "/images/products/blue_jeans.jpeg"}
     ]
   },
   {
-    "slug": "trail-mix-variety-pack",
-    "name": "Trail Mix Variety Pack",
-    "description": "Assorted trail mix pack with 12 individual servings. Includes classic nut blend, tropical fruit mix, and chocolate energy mix.",
-    "price": 24.99,
+    "slug": "circle-logo-t-shirt",
+    "name": "Circle Logo T-Shirt",
+    "description": "Pairs perfectly with our blue jeans — and your production dashboard. A clean, minimalist Datadog circle logo on a soft, pre-shrunk tee. Whether you're presenting at all-hands, deploying to prod, or just getting groceries, this shirt communicates that you're the kind of person who has their monitoring set up. Respect.",
+    "price": 16.95,
     "currency": "USD",
     "available": true,
-    "taxons": ["categories/nutrition"],
+    "taxons": ["datadog/tops", "datadog/bestsellers", "datadog"],
     "images": [
-      {"url": "/public/images/trail-mix-variety-pack.jpg", "alt": "Trail Mix Variety Pack", "position": 0}
+      {"url": "/images/products/white-shirt-circle.jpeg", "alt": "Circle Logo T-Shirt", "position": 0}
     ],
     "variants": [
-      {"sku": "TMVP-12", "price": 24.99, "options_text": "12 Pack", "in_stock": true, "weight": 0.90, "image_url": "/public/images/trail-mix-variety-pack.jpg"},
-      {"sku": "TMVP-24", "price": 42.99, "options_text": "24 Pack", "in_stock": true, "weight": 1.80, "image_url": "/public/images/trail-mix-variety-pack.jpg"}
-    ]
-  },
-  {
-    "slug": "sunglasses-sport-pro",
-    "name": "Sunglasses Sport Pro",
-    "description": "Polarized sport sunglasses with wraparound frame and anti-slip nose pads. UV400 protection with interchangeable lenses.",
-    "price": 79.99,
-    "currency": "USD",
-    "available": true,
-    "taxons": ["categories/accessories"],
-    "images": [
-      {"url": "/public/images/sunglasses-sport-pro.jpg", "alt": "Sunglasses Sport Pro", "position": 0}
-    ],
-    "variants": [
-      {"sku": "SSP-BLK", "price": 79.99, "options_text": "Frame: Black", "in_stock": true, "weight": 0.03, "image_url": "/public/images/sunglasses-sport-pro.jpg"},
-      {"sku": "SSP-WHT", "price": 79.99, "options_text": "Frame: White", "in_stock": true, "weight": 0.03, "image_url": "/public/images/sunglasses-sport-pro.jpg"}
-    ]
-  },
-  {
-    "slug": "headlamp-300-lumen",
-    "name": "Headlamp 300 Lumen",
-    "description": "Rechargeable LED headlamp with 300 lumens output, five lighting modes, and red night vision mode. IPX6 waterproof rating.",
-    "price": 39.99,
-    "currency": "USD",
-    "available": true,
-    "taxons": ["categories/electronics"],
-    "images": [
-      {"url": "/public/images/headlamp-300-lumen.jpg", "alt": "Headlamp 300 Lumen", "position": 0}
-    ],
-    "variants": [
-      {"sku": "HL300-BLK", "price": 39.99, "options_text": "Color: Black", "in_stock": true, "weight": 0.08, "image_url": "/public/images/headlamp-300-lumen.jpg"},
-      {"sku": "HL300-ORG", "price": 39.99, "options_text": "Color: Orange", "in_stock": true, "weight": 0.08, "image_url": "/public/images/headlamp-300-lumen.jpg"}
-    ]
-  },
-  {
-    "slug": "gps-sport-watch",
-    "name": "GPS Sport Watch",
-    "description": "Multi-sport GPS watch with heart rate monitor, altimeter, and 7-day battery life. Tracks running, cycling, swimming, and hiking with route mapping.",
-    "price": 249.99,
-    "currency": "USD",
-    "available": true,
-    "taxons": ["categories/electronics"],
-    "images": [
-      {"url": "/public/images/gps-sport-watch.jpg", "alt": "GPS Sport Watch", "position": 0}
-    ],
-    "variants": [
-      {"sku": "GSW-BLK-SM", "price": 249.99, "options_text": "Color: Black / Band: S-M", "in_stock": true, "weight": 0.05, "image_url": "/public/images/gps-sport-watch.jpg"},
-      {"sku": "GSW-BLK-LG", "price": 249.99, "options_text": "Color: Black / Band: L-XL", "in_stock": true, "weight": 0.06, "image_url": "/public/images/gps-sport-watch.jpg"},
-      {"sku": "GSW-GRY-SM", "price": 249.99, "options_text": "Color: Grey / Band: S-M", "in_stock": true, "weight": 0.05, "image_url": "/public/images/gps-sport-watch.jpg"}
-    ]
-  },
-  {
-    "slug": "yoga-mat-premium",
-    "name": "Yoga Mat Premium",
-    "description": "Extra-thick 6mm yoga mat with non-slip surface and alignment markers. Made from eco-friendly TPE material with carrying strap included.",
-    "price": 59.99,
-    "currency": "USD",
-    "available": true,
-    "taxons": ["categories/accessories"],
-    "images": [
-      {"url": "/public/images/yoga-mat-premium.jpg", "alt": "Yoga Mat Premium", "position": 0}
-    ],
-    "variants": [
-      {"sku": "YMP-PRP", "price": 59.99, "options_text": "Color: Purple", "in_stock": true, "weight": 1.20, "image_url": "/public/images/yoga-mat-premium.jpg"},
-      {"sku": "YMP-BLU", "price": 59.99, "options_text": "Color: Blue", "in_stock": true, "weight": 1.20, "image_url": "/public/images/yoga-mat-premium.jpg"},
-      {"sku": "YMP-BLK", "price": 59.99, "options_text": "Color: Black", "in_stock": true, "weight": 1.20, "image_url": "/public/images/yoga-mat-premium.jpg"}
-    ]
-  },
-  {
-    "slug": "energy-gel-pack",
-    "name": "Energy Gel Pack",
-    "description": "Quick-absorbing energy gel with electrolytes for endurance activities. Variety pack includes citrus, berry, and coffee flavors.",
-    "price": 29.99,
-    "currency": "USD",
-    "available": true,
-    "taxons": ["categories/nutrition"],
-    "images": [
-      {"url": "/public/images/energy-gel-pack.jpg", "alt": "Energy Gel Pack", "position": 0}
-    ],
-    "variants": [
-      {"sku": "EGP-8", "price": 29.99, "options_text": "8 Pack", "in_stock": true, "weight": 0.32, "image_url": "/public/images/energy-gel-pack.jpg"},
-      {"sku": "EGP-16", "price": 49.99, "options_text": "16 Pack", "in_stock": true, "weight": 0.64, "image_url": "/public/images/energy-gel-pack.jpg"}
-    ]
-  },
-  {
-    "slug": "hiking-boots-alpine",
-    "name": "Hiking Boots Alpine",
-    "description": "Waterproof leather hiking boots with Vibram soles and ankle support. Insulated for cold weather with breathable Gore-Tex lining.",
-    "price": 219.99,
-    "currency": "USD",
-    "available": true,
-    "taxons": ["categories/footwear"],
-    "images": [
-      {"url": "/public/images/hiking-boots-alpine.jpg", "alt": "Hiking Boots Alpine", "position": 0}
-    ],
-    "variants": [
-      {"sku": "HBA-09", "price": 219.99, "options_text": "Size: 9", "in_stock": true, "weight": 0.95, "image_url": "/public/images/hiking-boots-alpine.jpg"},
-      {"sku": "HBA-10", "price": 219.99, "options_text": "Size: 10", "in_stock": true, "weight": 0.98, "image_url": "/public/images/hiking-boots-alpine.jpg"},
-      {"sku": "HBA-11", "price": 219.99, "options_text": "Size: 11", "in_stock": true, "weight": 1.01, "image_url": "/public/images/hiking-boots-alpine.jpg"},
-      {"sku": "HBA-12", "price": 219.99, "options_text": "Size: 12", "in_stock": true, "weight": 1.04, "image_url": "/public/images/hiking-boots-alpine.jpg"}
+      {"sku": "CIRCLE-TEE-S", "price": 16.95, "options_text": "Size: S", "in_stock": true, "weight": 0.20, "image_url": "/images/products/white-shirt-circle.jpeg"},
+      {"sku": "CIRCLE-TEE-M", "price": 16.95, "options_text": "Size: M", "in_stock": true, "weight": 0.22, "image_url": "/images/products/white-shirt-circle.jpeg"},
+      {"sku": "CIRCLE-TEE-L", "price": 16.95, "options_text": "Size: L", "in_stock": true, "weight": 0.24, "image_url": "/images/products/white-shirt-circle.jpeg"},
+      {"sku": "CIRCLE-TEE-XL", "price": 16.95, "options_text": "Size: XL", "in_stock": true, "weight": 0.26, "image_url": "/images/products/white-shirt-circle.jpeg"}
     ]
   }
 ]

@@ -1,10 +1,13 @@
 .root {
-  @apply relative w-full h-full select-none;
+  @apply relative w-full select-none;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 }
 
 .slider {
-  @apply relative h-full transition-opacity duration-150;
+  @apply relative transition-opacity duration-150;
+  height: 100%;
   opacity: 0;
 }
 
@@ -13,28 +16,35 @@
 }
 
 .thumb {
-  @apply overflow-hidden inline-block cursor-pointer h-full;
-  width: 125px;
-  width: calc(100% / 3);
+  @apply overflow-hidden inline-block cursor-pointer;
+  border-radius: 6px;
+  width: 80px;
+  height: 80px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+  margin-right: 8px;
 }
 
 .thumb.selected {
-  @apply bg-white;
+  border: 2px solid var(--brand);
+  background: #ffffff;
 }
 
 .thumb img {
-  height: 85% !important;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
 }
 
 .album {
   width: 100%;
-  height: 100%;
-  @apply bg-primary;
+  background: #ffffff;
   box-sizing: content-box;
   overflow-y: hidden;
   overflow-x: auto;
   white-space: nowrap;
-  height: 125px;
+  padding: 12px 8px;
   scrollbar-width: none;
 }
 
@@ -45,13 +55,11 @@
 
 @screen md {
   .thumb:hover {
-    transform: scale(1.02);
+    transform: scale(1.05);
   }
 
-  .album {
-    height: 182px;
-  }
   .thumb {
-    width: 235px;
+    width: 100px;
+    height: 100px;
   }
 }

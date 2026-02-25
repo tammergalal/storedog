@@ -1,75 +1,106 @@
 .body {
-  @apply text-base leading-7 max-w-6xl mx-auto;
+  font-family: var(--font-sans);
+  color: var(--text-base);
+  line-height: 1.6;
+  font-size: 1rem;
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .heading {
-  @apply text-5xl pt-1 pb-2 font-semibold tracking-wide cursor-pointer mb-2;
+  font-family: var(--font-heading);
+  color: var(--text-base);
+  letter-spacing: -0.02em;
+  font-size: 3rem;
+  font-weight: 600;
+  padding-top: 0.25rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
 }
 
 .pageHeading {
-  @apply pt-1 pb-4 text-2xl leading-7 font-bold tracking-wide;
+  font-family: var(--font-heading);
+  color: var(--text-base);
+  letter-spacing: -0.02em;
+  font-size: 1.5rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+  padding-top: 0.25rem;
+  padding-bottom: 1rem;
 }
 
 .sectionHeading {
-  @apply pt-1 pb-2 text-2xl font-bold tracking-wide cursor-pointer mb-2;
+  font-family: var(--font-heading);
+  color: var(--text-base);
+  letter-spacing: -0.02em;
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding-top: 0.25rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
 }
 
-/* Apply base font sizes and styles for typography markup (h2, h2, ul, p, etc.).
-   A helpful addition for whenn page content is consumed from a source managed through a wysiwyg editor. */
+/* Rich content styles for body variant */
 
 .body :is(h1, h2, h3, h4, h5, h6, p, ul, ol) {
-  @apply mb-4;
+  margin-bottom: 1rem;
 }
 
 .body :is(h1, h2, h3, h4, h5, h6):not(:first-child) {
-  @apply mt-8;
+  margin-top: 2rem;
 }
 
 .body :is(h1, h2, h3, h4, h5, h6) {
-  @apply font-semibold tracking-wide;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .body h1 {
-  @apply text-5xl;
+  font-size: 3rem;
 }
 
 .body h2 {
-  @apply text-4xl;
+  font-size: 2.25rem;
 }
 
 .body h3 {
-  @apply text-3xl;
+  font-size: 1.875rem;
 }
 
 .body h4 {
-  @apply text-2xl;
+  font-size: 1.5rem;
 }
 
 .body h5 {
-  @apply text-xl;
+  font-size: 1.25rem;
 }
 
 .body h6 {
-  @apply text-lg;
+  font-size: 1.125rem;
 }
 
 .body ul,
 .body ol {
-  @apply pl-6;
+  padding-left: 1.5rem;
 }
 
 .body ul {
-  @apply list-disc;
+  list-style-type: disc;
 }
 
 .body ol {
-  @apply list-decimal;
+  list-style-type: decimal;
 }
 
 .body a {
-  @apply underline;
+  color: var(--brand);
+  text-decoration: underline;
 }
 
 .body a:hover {
-  @apply no-underline;
+  text-decoration: none;
 }

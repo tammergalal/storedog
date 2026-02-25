@@ -47,6 +47,8 @@ module.exports = {
         'border-default': 'var(--border-default)',
         'text-muted': 'var(--text-muted)',
         'text-on-brand': 'var(--text-on-brand)',
+        'accent-sage': 'var(--accent-sage)',
+        'accent-amber': 'var(--accent-amber)',
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Helvetica Neue', 'sans-serif'],
@@ -61,6 +63,15 @@ module.exports = {
         'outline-normal': '0 0 0 2px var(--accent-2)',
         magical:
           'rgba(0, 0, 0, 0.02) 0px 30px 30px, rgba(0, 0, 0, 0.03) 0px 0px 8px, rgba(0, 0, 0, 0.05) 0px 1px 0px',
+        'card': '0 1px 4px rgba(0,0,0,0.08)',
+        'card-hover': '0 6px 16px rgba(0,0,0,0.12)',
+        'modal': '0 12px 40px rgba(0,0,0,0.16)',
+      },
+      borderRadius: {
+        'btn': '6px',
+        'card': '10px',
+        'modal': '14px',
+        'pill': '9999px',
       },
       lineHeight: {
         'extra-loose': '2.2',

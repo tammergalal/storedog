@@ -1,15 +1,10 @@
-import React, { FC, useState, useEffect } from 'react'
+import React, { FC } from 'react'
 import cn from 'clsx'
 import { Link } from '@remix-run/react'
-import { Logo, Container } from '@components/ui'
+import { Container } from '@components/ui'
 import s from './Footer.module.css'
 
 import { Page } from '@customTypes/page'
-
-interface FooterLink {
-  name: string
-  url: string
-}
 
 interface Props {
   className?: string
@@ -17,66 +12,63 @@ interface Props {
   pages?: Page[]
 }
 
-const links: FooterLink[] = [
-  {
-    name: 'Home',
-    url: '/',
-  },
-]
-
 const Footer: FC<Props> = ({ className, pages = [] }) => {
   const rootClassName = cn(s.root, className)
 
-  const pageLinks: FooterLink[] = pages.map((p) => ({
-    name: p.title,
-    url: `/${p.slug}`,
-  }))
-
-  const linkList = pageLinks.length > 0 ? [...links, ...pageLinks] : links
   return (
     <footer className={rootClassName}>
       <Container>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 border-b border-accent-2 py-12 text-primary bg-primary transition-colors duration-150">
-          <div className="col-span-1 lg:col-span-2">
-            <Link to="/" className="flex flex-initial items-center font-bold md:mr-24">
-              <span className="mr-2 bg-primary-2 text-white px-3 py-2">
-                <Logo />
-              </span>
+        <div className={s.grid}>
+          {/* Column 1: Brand */}
+          <div className={s.brandCol}>
+            <span className={s.wordmark}>Storedog</span>
+            <p className={s.tagline}>Gear for the trail ahead.</p>
+          </div>
+
+          {/* Column 2: Navigation */}
+          <div className={s.navCol}>
+            <span className={s.navHeading}>Shop</span>
+            <Link to="/products" className={`${s.navLink} footer-link`}>
+              Products
+            </Link>
+            <Link to="/taxonomies/categories/bestsellers" className={`${s.navLink} footer-link`}>
+              Bestsellers
+            </Link>
+            <Link to="/taxonomies/categories/new" className={`${s.navLink} footer-link`}>
+              New
+            </Link>
+            <Link to="/taxonomies/categories/tops" className={`${s.navLink} footer-link`}>
+              Tops
             </Link>
           </div>
-          <div className="col-span-1 lg:col-span-8">
-            <div className="grid md:grid-rows-4 md:grid-cols-3 md:grid-flow-col">
-              {linkList.map((page) => (
-                <span key={page.name} className="py-3 md:py-0 md:pb-4">
-                  <Link to={page.url!} className="text-accent-9 hover:text-accent-6 transition ease-in-out duration-150 footer-link">
-                    {page.name}
-                  </Link>
-                </span>
-              ))}
+
+          {/* Column 3: Newsletter signup (visual only) */}
+          <div className={s.signupCol}>
+            <span className={s.signupHeading}>Stay in the loop</span>
+            <div className={s.signupForm}>
+              <input
+                type="email"
+                className={s.signupInput}
+                placeholder="Enter your email"
+                aria-label="Email for newsletter"
+              />
+              <button type="button" className={s.signupButton}>
+                Subscribe
+              </button>
             </div>
           </div>
         </div>
-        <div className="pt-6 pb-10 flex flex-col md:flex-row justify-between items-center space-y-4 text-accent-6 text-sm">
-          <div>
-            <span>
-              &copy; {new Date().getFullYear()} Storedog, Inc. All rights
-              reserved.
-            </span>
-            <br />
-            <span>
-              *Unfortunately, nothing here is actually for sale. This site is
-              for{' '}
-              <a
-                href="https://datadoghq.com"
-                target="_blank"
-                className="underline"
-                rel="noreferrer"
-              >
-                Datadog
-              </a>{' '}
-              training lab purposes only.*
-            </span>
-          </div>
+
+        <div className={s.bottomBar}>
+          <span className={s.copyright}>
+            &copy; {new Date().getFullYear()} Storedog, Inc. All rights reserved.
+          </span>
+          <span className={s.disclaimer}>
+            Datadog training demo application &mdash; nothing here is actually for sale.{' '}
+            <a href="https://datadoghq.com" target="_blank" rel="noreferrer">
+              datadoghq.com
+            </a>
+          </span>
         </div>
       </Container>
     </footer>

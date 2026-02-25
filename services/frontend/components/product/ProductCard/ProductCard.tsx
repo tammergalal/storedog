@@ -4,7 +4,6 @@ import { Link } from '@remix-run/react'
 import { Product } from '@customTypes/product'
 import s from './ProductCard.module.css'
 import usePrice from '@lib/hooks/usePrice'
-import ProductTag from '../ProductTag'
 import { datadogRum } from '@datadog/browser-rum'
 
 interface Props {
@@ -39,9 +38,8 @@ const ProductCard: FC<Props> = ({
   )
 
   const handleQuickAdd = async (e: React.MouseEvent) => {
-    e.preventDefault() // prevent navigation to product page
+    e.preventDefault()
     e.stopPropagation()
-    // Get first variant ID from product
     const variantId = product.variants?.[0]?.id ?? product.id
     if (!variantId) return
     await fetch('/api/cart/add', {
@@ -59,87 +57,67 @@ const ProductCard: FC<Props> = ({
     setTimeout(() => setAdded(false), 1500)
   }
 
-  if (variant === 'simple') {
+  // Slim variant — text overlay for marquee
+  if (variant === 'slim') {
     return (
-      <div className="relative group">
-        <Link to={`/products/${product.slug}`} className={`${rootClassName} product-item`} aria-label={product.name}>
-          {!noNameTag && (
-            <div className={s.header}>
-              <h3 className={s.name}>
-                <span>{product.name}</span>
-              </h3>
-              <div className={s.price}>
-                {`${price} ${product.price?.currency}`}
-              </div>
-            </div>
+      <Link
+        to={`/products/${product.slug}`}
+        className={`${rootClassName} product-item`}
+        aria-label={product.name}
+      >
+        <div className={s.imageContainer}>
+          {product?.images && (
+            <img
+              loading="lazy"
+              alt={product.name || 'Product Image'}
+              className={s.productImage}
+              src={product.images[0]?.url || placeholderImg}
+              height={320}
+              width={320}
+              {...imgProps}
+            />
           )}
-          <div className={`${s.imageContainer} relative`}>
-            {product?.images && (
-              <div>
-                <img
-                  alt={product.name || 'Product Image'}
-                  className={s.productImage}
-                  src={product.images[0]?.url || placeholderImg}
-                  height={540}
-                  width={540}
-                  {...imgProps}
-                />
-              </div>
-            )}
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-center p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button
-                onClick={handleQuickAdd}
-                className="add-to-cart-btn w-full bg-brand text-white text-sm font-medium py-2 px-4 rounded hover:bg-brand-dark transition-colors"
-              >
-                {added ? '✓ Added' : 'Add to Cart'}
-              </button>
-            </div>
-          </div>
-        </Link>
-      </div>
+        </div>
+        <div className={s.slimOverlay}>
+          <span className={s.slimName}>{product.name}</span>
+          <span className={s.slimPrice}>{price}</span>
+        </div>
+      </Link>
     )
   }
 
+  // Default and Simple variants — card with info band + quick-add overlay
   return (
-    <Link to={`/products/${product.slug}`} className={`${rootClassName} product-item`} aria-label={product.name}>
-      {variant === 'slim' && (
-        <>
-          <div className={s.header}>
-            <span>{product.name}</span>
-          </div>
-          {product?.images && (
-            <div>
-              <img
-                src={product.images[0]?.url || placeholderImg}
-                alt={product.name || 'Product Image'}
-                height={320}
-                width={320}
-                {...imgProps}
-              />
-            </div>
-          )}
-        </>
-      )}
-
-      {variant === 'default' && (
-        <>
-          <ProductTag name={product.name} price={price} />
-          <div className={s.imageContainer}>
-            {product?.images && (
-              <div>
-                <img
-                  alt={product.name || 'Product Image'}
-                  className={s.productImage}
-                  src={product.images[0]?.url || placeholderImg}
-                  height={540}
-                  width={540}
-                  {...imgProps}
-                />
-              </div>
-            )}
-          </div>
-        </>
-      )}
+    <Link
+      to={`/products/${product.slug}`}
+      className={`${rootClassName} product-item`}
+      aria-label={product.name}
+    >
+      <div className={s.imageContainer}>
+        {product?.images && (
+          <img
+            loading="lazy"
+            alt={product.name || 'Product Image'}
+            className={s.productImage}
+            src={product.images[0]?.url || placeholderImg}
+            height={540}
+            width={540}
+            {...imgProps}
+          />
+        )}
+        <div className={s.quickAddOverlay}>
+          <button
+            onClick={handleQuickAdd}
+            className={`add-to-cart-btn ${s.quickAddBtn}`}
+          >
+            {added ? 'Added!' : 'Add to Cart'}
+          </button>
+        </div>
+      </div>
+      <div className={s.infoBand}>
+        <h3 className={s.productName}>{product.name}</h3>
+        <div className={s.productPrice}>{price}</div>
+      </div>
     </Link>
   )
 }

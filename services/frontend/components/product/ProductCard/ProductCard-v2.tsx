@@ -4,7 +4,6 @@ import { Link } from '@remix-run/react'
 import { Product } from '@customTypes/product'
 import s from './ProductCard.module.css'
 import usePrice from '@lib/hooks/usePrice'
-import ProductTag from '../ProductTag'
 
 interface Props {
   className?: string
@@ -35,85 +34,55 @@ export const ProductCard: FC<Props> = ({
     className
   )
 
-  return (
-    <div className={`${rootClassName} product-item`}>
-      {variant === 'slim' && (
-        <>
-          <div className={s.header}>
-            <Link to={`/products/${product.slug}`} aria-label={product.name}>
-              {product.name}
-            </Link>
-          </div>
+  if (variant === 'slim') {
+    return (
+      <div className={`${rootClassName} product-item`} aria-label={product.name}>
+        <div className={s.imageContainer}>
           {product?.images && (
-            <div>
-              <img
-                src={product.images[0]?.url || placeholderImg}
-                alt={product.name || 'Product Image'}
-                height={320}
-                width={320}
-                {...imgProps}
-              />
-            </div>
-          )}
-        </>
-      )}
-
-      {variant === 'simple' && (
-        <>
-          {!noNameTag && (
-            <div className={s.header}>
-              <h3 className={s.name}>
-                <Link to={`/products/${product.slug}`} aria-label={product.name} className={s.link}>
-                  {product.name}
-                </Link>
-              </h3>
-              <div className={s.price}>
-                {`${price} ${product.price?.currency}`}
-              </div>
-            </div>
-          )}
-          <div className={s.imageContainer}>
-            {product?.images && (
-              <div>
-                <img
-                  alt={product.name || 'Product Image'}
-                  className={s.productImage}
-                  src={product.images[0]?.url || placeholderImg}
-                  height={540}
-                  width={540}
-                  {...imgProps}
-                />
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {variant === 'default' && (
-        <>
-          <Link to={`/products/${product.slug}`} aria-label={product.name}>
-            <ProductTag
-              name={product.name}
-              price={`${price} ${product.price?.currency}`}
+            <img
+              src={product.images[0]?.url || placeholderImg}
+              alt={product.name || 'Product Image'}
+              className={s.productImage}
+              height={320}
+              width={320}
+              {...imgProps}
             />
+          )}
+        </div>
+        <div className={s.slimOverlay}>
+          <Link to={`/products/${product.slug}`} aria-label={product.name}>
+            <span className={s.slimName}>{product.name}</span>
           </Link>
+        </div>
+      </div>
+    )
+  }
 
-          <div className={s.imageContainer}>
-            {product?.images && (
-              <div>
-                <img
-                  alt={product.name || 'Product Image'}
-                  className={s.productImage}
-                  src={product.images[0]?.url || placeholderImg}
-                  height={540}
-                  width={540}
-                  {...imgProps}
-                />
-              </div>
-            )}
+  // Default and Simple variants — card with info band
+  return (
+    <div className={`${rootClassName} product-item`} aria-label={product.name}>
+      <Link to={`/products/${product.slug}`} aria-label={product.name}>
+        <div className={s.imageContainer}>
+          {product?.images && (
+            <img
+              alt={product.name || 'Product Image'}
+              className={s.productImage}
+              src={product.images[0]?.url || placeholderImg}
+              height={540}
+              width={540}
+              {...imgProps}
+            />
+          )}
+        </div>
+        {!noNameTag && (
+          <div className={s.infoBand}>
+            <h3 className={s.productName}>{product.name}</h3>
+            <div className={s.productPrice}>
+              {`${price} ${product.price?.currency}`}
+            </div>
           </div>
-        </>
-      )}
+        )}
+      </Link>
     </div>
   )
 }

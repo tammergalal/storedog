@@ -16,10 +16,12 @@ import {
 } from '@remix-run/react'
 import { CartProvider, useCart } from '@lib/CartContext'
 import { ManagedUIContext } from '@components/ui/context'
+import { Layout } from '@components/common'
 import { datadogRum } from '@datadog/browser-rum'
 import { useEffect } from 'react'
 import type { ReactNode } from 'react'
 
+import fontsStyles from '~/styles/fonts.css?url'
 import mainStyles from '~/styles/main.css?url'
 import chromeBugStyles from '~/styles/chrome-bug.css?url'
 import keenSliderCss from 'keen-slider/keen-slider.min.css?url'
@@ -33,6 +35,8 @@ declare global {
       DD_SERVICE: string
       DD_VERSION: string
       DD_ENV: string
+      ADS_ROUTE: string
+      DISCOUNTS_ROUTE: string
     }
   }
 }
@@ -43,12 +47,9 @@ export const meta: MetaFunction = () => [
 ]
 
 export const links: LinksFunction = () => [
-  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-  { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap',
-  },
+  // Preload the primary Inter latin font so it starts downloading immediately
+  { rel: 'preload', href: '/fonts/inter-v20-latin.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
+  { rel: 'stylesheet', href: fontsStyles },
   { rel: 'stylesheet', href: mainStyles },
   { rel: 'stylesheet', href: chromeBugStyles },
   { rel: 'stylesheet', href: keenSliderCss },
@@ -66,6 +67,8 @@ export async function loader() {
       DD_SERVICE: process.env.NEXT_PUBLIC_DD_SERVICE_FRONTEND || 'store-frontend',
       DD_VERSION: process.env.NEXT_PUBLIC_DD_VERSION_FRONTEND || '1.0.0',
       DD_ENV: process.env.NEXT_PUBLIC_DD_ENV || 'development',
+      ADS_ROUTE: process.env.NEXT_PUBLIC_ADS_ROUTE || '/services/ads',
+      DISCOUNTS_ROUTE: process.env.NEXT_PUBLIC_DISCOUNTS_ROUTE || '/services/discounts',
     },
   })
 }
@@ -120,7 +123,9 @@ export default function Root() {
           <ManagedUIContext>
             <CartWatcher />
             <AppInit />
-            <Outlet />
+            <Layout>
+              <Outlet />
+            </Layout>
           </ManagedUIContext>
         </CartProvider>
         <ScrollRestoration />

@@ -84,30 +84,47 @@ const CartItem = ({
       })}
       {...rest}
     >
-      <div className="flex flex-row space-x-4 py-4">
-        <div className="w-16 h-16 bg-violet relative overflow-hidden cursor-pointer z-0">
+      <div className="flex flex-row" style={{ gap: '12px' }}>
+        <div
+          style={{
+            width: '72px',
+            height: '72px',
+            borderRadius: '4px',
+            overflow: 'hidden',
+            flexShrink: 0,
+          }}
+        >
           <Link to={`/products/${item.slug || item.product_id}`} onClick={() => closeSidebarIfPresent()}>
             <img
               className={s.productImage}
-              width={150}
-              height={150}
+              width={72}
+              height={72}
               src={item.image_url || placeholderImg}
               alt={item.name || 'Product Image'}
             />
           </Link>
         </div>
-        <div className="flex-1 flex flex-col text-base">
+        <div className="flex-1 flex flex-col" style={{ minWidth: 0 }}>
           <Link to={`/products/${item.slug || item.product_id}`} onClick={() => closeSidebarIfPresent()}>
             <span className={s.productName}>
               {item.name}
             </span>
           </Link>
+          <span
+            className="mt-1"
+            style={{
+              fontSize: '14px',
+              fontWeight: 600,
+              color: 'var(--brand)',
+            }}
+          >
+            {price}
+          </span>
           {variant === 'display' && (
-            <div className="text-sm tracking-wider">{quantity}x</div>
+            <div className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
+              Qty: {quantity}
+            </div>
           )}
-        </div>
-        <div className="flex flex-col justify-between space-y-2 text-sm">
-          <span>{price}</span>
         </div>
       </div>
       {variant === 'default' && (

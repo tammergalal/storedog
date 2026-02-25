@@ -4,10 +4,9 @@ import { FC } from 'react'
 import type { Product } from '@customTypes/product'
 import usePrice from '@lib/hooks/usePrice'
 import { ProductSlider, ProductCard } from '@components/product'
-import { Container, Text } from '@components/ui'
+import { Container } from '@components/ui'
 import { SEO } from '@components/common'
 import ProductSidebar from '../ProductSidebar'
-import ProductTag from '../ProductTag'
 interface ProductViewProps {
   product: Product
   relatedProducts: Product[]
@@ -25,11 +24,6 @@ const ProductView: FC<ProductViewProps> = ({ product, relatedProducts }) => {
       <Container className="max-w-none w-full" clean>
         <div className={cn(s.root, 'fit')}>
           <div className={cn(s.main, 'fit')}>
-            <ProductTag
-              name={product.name}
-              price={`${price} ${product.price?.currency}`}
-              fontSize={32}
-            />
             <div className={s.sliderContainer}>
               <ProductSlider key={product.id}>
                 {product.images.map((image, i) => (
@@ -51,17 +45,14 @@ const ProductView: FC<ProductViewProps> = ({ product, relatedProducts }) => {
             key={product.id}
             product={product}
             className={s.sidebar}
+            price={`${price} ${product.price?.currency}`}
           />
         </div>
-        <hr className="mt-7 border-accent-2" />
-        <section className="py-12 px-6 mb-10">
-          <Text variant="sectionHeading">Related Products</Text>
+        <section className={s.relatedSection}>
+          <h2 className={s.relatedHeading}>Related Products</h2>
           <div className={s.relatedProductsGrid}>
             {relatedProducts.map((p) => (
-              <div
-                key={p.slug}
-                className="animated fadeIn bg-accent-0 border border-accent-2"
-              >
+              <div key={p.slug} className="animated fadeIn">
                 <ProductCard
                   noNameTag
                   product={p}

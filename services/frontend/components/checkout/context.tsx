@@ -60,24 +60,24 @@ const initialState: State = {
   cardFields: {
     payment_method_id: '1',
     source_attributes: {
-      name: 'Jade Angelou',
-      number: '4111111111111111',
+      name: 'John Doe',
+      number: '1234567890123456789012345', // 25 digits — no real card can have this
       month: '01',
-      year: '2027',
-      verification_value: '123',
+      year: '2099',
+      verification_value: '000',
     },
   } as PaymentAttributes,
   addressFields: {
-    firstname: 'Jade',
-    lastname: 'Angelou',
-    email: 'jade@ddtraining.datadoghq.com',
-    address1: '32 Stenson Drive',
+    firstname: 'John',
+    lastname: 'Doe',
+    email: 'john@ddtraining.datadoghq.com',
+    address1: '1 Penguin Lane',
     address2: '',
-    zipcode: '94016',
-    city: 'San Francisco',
-    phone: '555-555-5555',
-    state_name: 'CA',
-    country_iso: 'US',
+    zipcode: '00000',
+    city: 'McMurdo Station',
+    phone: '555-555-0000',
+    state_name: 'Ross Island',
+    country_iso: 'AQ',
   } as AddressAttributes,
 }
 
@@ -112,9 +112,10 @@ export const CheckoutProvider: FC = (props) => {
   const [state, dispatch] = useReducer(checkoutReducer, initialState)
   const [paymentMethods, setPaymentMethods] = useState([])
   const [shippingRate, setShippingRate] = useState<ShippingRate | null>(null)
-  const [addressStatus, setAddressError] = useState({ ok: null, message: null })
-  const [paymentStatus, setPaymentError] = useState({ ok: null, message: null })
-  const { cart, cartToken, cartUser } = useCart()
+  // Pre-validated — fake data is always ready, no user entry needed
+  const [addressStatus, setAddressError] = useState<{ ok: boolean | null; message: any }>({ ok: true, message: null })
+  const [paymentStatus, setPaymentError] = useState<{ ok: boolean | null; message: any }>({ ok: true, message: null })
+  const { cartToken } = useCart()
 
   const getPaymentMethods = useCallback(async () => {
     const result = await listPaymentMethods(cartToken)
@@ -156,47 +157,9 @@ export const CheckoutProvider: FC = (props) => {
     [cartToken, getShippingRates]
   )
 
-  const handleCompleteCheckout = useCallback(async () => {
-    const completedCart = await completeCheckout(cartToken!)
-    return completedCart
-  }, [cartToken])
-
-  const updatePayment = useCallback(
-    async (payment: PaymentAttributes) => {
-      try {
-        await updateCheckout(cartToken, {
-          order: {
-            payments_attributes: [payment],
-          },
-        })
-        setPaymentError({ ok: true, message: null })
-      } catch (error) {
-        console.log(error)
-        setPaymentError({ ok: false, message: error })
-      }
-    },
-    [cartToken]
-  )
-
-  const updateShipping = useCallback(
-    async (rate: ShippingRate) => {
-      try {
-        await updateCheckout(cartToken, {
-          order: {
-            shipments_attributes: [
-              {
-                id: rate.id,
-                selected_shipping_rate_id: rate.id,
-              },
-            ],
-          },
-        })
-      } catch (error) {
-        console.log(error)
-      }
-    },
-    [cartToken]
-  )
+  // Declare memos before any callback that references them (temporal dead zone)
+  const cardFields = useMemo(() => state.cardFields, [state.cardFields])
+  const addressFields = useMemo(() => state.addressFields, [state.addressFields])
 
   const setCardFields = useCallback(
     (card: PaymentAttributes) => dispatch({ type: 'SET_CARD_FIELDS', card }),
@@ -214,12 +177,26 @@ export const CheckoutProvider: FC = (props) => {
     [dispatch]
   )
 
-  const cardFields = useMemo(() => state.cardFields, [state.cardFields])
-
-  const addressFields = useMemo(
-    () => state.addressFields,
-    [state.addressFields]
-  )
+  // Simulated checkout — advances cart state for real APM traces, always resolves as success
+  const handleCompleteCheckout = useCallback(async () => {
+    if (!cartToken) return {}
+    const payload = {
+      email: addressFields.email,
+      ship_address: addressFields,
+      bill_address: addressFields,
+      payment_method_id: 1,
+    }
+    try {
+      // Drive through state machine: cart → address → delivery → payment → complete
+      await updateCheckout(cartToken, payload)
+      await updateCheckout(cartToken, payload)
+      await updateCheckout(cartToken, payload)
+      return await completeCheckout(cartToken)
+    } catch {
+      // Return success regardless — this is a demo, no real payment processing
+      return {}
+    }
+  }, [cartToken, addressFields])
 
   useEffect(() => {
     if (cartToken) {
@@ -227,35 +204,7 @@ export const CheckoutProvider: FC = (props) => {
     }
   }, [cartToken, getPaymentMethods])
 
-  useEffect(() => {
-    if (cartToken && cart?.line_items.length && addressFields.country_iso) {
-      updateAddress(addressFields)
-    }
-  }, [cart, cartToken, addressFields, updateAddress])
-
-  useEffect(() => {
-    if (cartToken && cardFields.source_attributes.number) {
-      updatePayment(cardFields)
-    }
-  }, [cartToken, cardFields, updatePayment])
-
-  useEffect(() => {
-    if (cartToken && shippingRate?.id) {
-      updateShipping(shippingRate)
-    }
-  }, [cartToken, shippingRate, updateShipping])
-
-  // set user name and email based on rum user
-  useEffect(() => {
-    if (cartUser && cartUser.name && cartUser.email) {
-      setAddressFields({
-        ...initialState.addressFields,
-        email: cartUser.email,
-        firstname: cartUser.name.split(' ')[0],
-        lastname: cartUser.name.split(' ')[1],
-      })
-    }
-  }, [cartUser, setAddressFields])
+  // Note: address/payment/shipping updates happen in handleCompleteCheckout for real APM traces
 
   const value = useMemo(
     () => ({

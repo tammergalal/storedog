@@ -24,10 +24,9 @@ const SidebarLayout: FC<ComponentProps> = ({
             onClick={handleClose}
             aria-label="Close"
             id="close-sidebar"
-            className="hover:text-accent-5 transition ease-in-out duration-150 flex items-center focus:outline-none mr-6"
+            className="hover:text-accent-5 transition ease-in-out duration-150 flex items-center focus:outline-none"
           >
-            <Cross className="h-6 w-6 hover:text-accent-3" />
-            <span className="ml-2 text-accent-7 text-sm ">Close</span>
+            <Cross className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
           </button>
         )}
         {handleBack && (
@@ -36,8 +35,8 @@ const SidebarLayout: FC<ComponentProps> = ({
             aria-label="Go back"
             className="hover:text-accent-5 transition ease-in-out duration-150 flex items-center focus:outline-none"
           >
-            <ChevronLeft className="h-6 w-6 hover:text-accent-3" />
-            <span className="ml-2 text-accent-7 text-xs">Back</span>
+            <ChevronLeft className="h-5 w-5" style={{ color: 'var(--text-muted)' }} />
+            <span className="ml-1 text-sm" style={{ color: 'var(--text-muted)' }}>Back</span>
           </button>
         )}
 

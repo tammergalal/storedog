@@ -1,9 +1,6 @@
 .root {
-  @apply flex flex-col py-4;
-}
-
-.root:first-child {
-  padding-top: 0;
+  @apply flex flex-col;
+  padding: 16px 0;
 }
 
 .quantity {
@@ -17,16 +14,21 @@
 }
 
 .productImage {
-  /* position: absolute;
   width: 100%;
   height: 100%;
-  left: 30% !important;
-  top: 30% !important; */
-  transform: scale(1.3);
+  object-fit: cover;
   z-index: 1;
 }
 
 .productName {
-  @apply font-medium cursor-pointer pb-1;
-  margin-top: -4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-base);
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
 }

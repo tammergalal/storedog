@@ -1,13 +1,155 @@
 .root {
-  @apply border-t border-accent-2;
+  background: #1A1A1A;
+  color: #ffffff;
 }
 
-.link {
-  & > svg {
-    @apply transform duration-75 ease-linear;
-  }
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  padding: 48px 0;
+}
 
-  &:hover > svg {
-    @apply scale-110;
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1fr 1fr;
   }
+}
+
+.brandCol {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wordmark {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--brand);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+.tagline {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+}
+
+.navCol {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.navHeading {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 4px;
+}
+
+.navLink {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: color 200ms ease;
+  line-height: 1;
+}
+
+.navLink:hover {
+  color: #ffffff;
+}
+
+.signupCol {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.signupHeading {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.signupForm {
+  display: flex;
+  gap: 8px;
+}
+
+.signupInput {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #ffffff;
+  outline: none;
+  font-family: var(--font-sans);
+  transition: border-color 200ms ease;
+}
+
+.signupInput::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.signupInput:focus {
+  border-color: var(--brand);
+}
+
+.signupButton {
+  background: var(--brand);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background 200ms ease;
+  white-space: nowrap;
+}
+
+.signupButton:hover {
+  background: var(--brand-light);
+}
+
+.bottomBar {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .bottomBar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.copyright {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.disclaimer {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.disclaimer a {
+  color: var(--brand-light);
+  text-decoration: underline;
 }

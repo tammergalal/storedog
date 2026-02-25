@@ -53,6 +53,8 @@ datadogRum.init({
   },
 })
 
+datadogRum.startSessionReplayRecording()
+
 startTransition(() => {
   hydrateRoot(
     document,

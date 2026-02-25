@@ -6,26 +6,19 @@ interface ProductTagProps {
   name: string
   price: string
   fontSize?: number
+  variant?: 'default' | 'new'
 }
 
 const ProductTag: React.FC<ProductTagProps> = ({
   name,
   price,
   className = '',
-  fontSize = 32,
+  variant = 'default',
 }) => {
   return (
-    <div className={cn(s.root, className)}>
+    <div className={cn(s.root, { [s.new]: variant === 'new' }, className)}>
       <h3 className={s.name}>
-        <span
-          className={cn({ [s.fontsizing]: fontSize < 32 })}
-          style={{
-            fontSize: `${fontSize}px`,
-            lineHeight: `${fontSize}px`,
-          }}
-        >
-          {name}
-        </span>
+        <span>{name}</span>
       </h3>
       <div className={s.price}>{price}</div>
     </div>
