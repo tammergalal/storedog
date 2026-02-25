@@ -12,7 +12,7 @@ services:
       - DD_APM_NON_LOCAL_TRAFFIC=true
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
-      - DD_CONTAINER_EXCLUDE=image:agent name:puppeteer
+      - DD_CONTAINER_EXCLUDE=image:agent name:puppeteer name:storedog-original
       - DD_CLOUD_PROVIDER_METADATA=[]
       - DD_HOSTNAME=${DD_HOSTNAME:-development-host}
       - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
@@ -41,6 +41,7 @@ services:
       - storedog-network
     environment:
       - NODE_ENV=development
+      - NODE_OPTIONS=--import /app/node_modules/dd-trace/initialize.mjs
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-development}
       - DD_SERVICE=store-frontend-api # used for Next.js API routes
@@ -196,8 +197,6 @@ services:
     build:
       context: ./services/nginx
     restart: always
-    ports:
-      - '80:80'
     networks:
       - storedog-network
     depends_on:

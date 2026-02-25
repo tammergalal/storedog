@@ -1,447 +1,409 @@
-# Storedog
+# Storedog Fork — Observability Demo
 
-Storedog is a Dockerized e-commerce site used primarily in labs run at [learn.datadoghq.com](https://learn.datadoghq.com). It consists of multiple services:
+> A modernized fork of [Storedog](https://github.com/DataDog/storedog) built for Datadog APM, Profiling, Logs, and RUM demonstrations. It replaces the original Ruby on Rails backend with purpose-built Python microservices, migrates the frontend to Remix, and adds configurable failure modes for lab scenarios.
 
-- **Frontend**: A Next.js app that serves the homepage and product pages.
-- **Backend**: A Rails app built using the Spree e-commerce framework that provides the main product catalog and order management APIs. Also includes a Redis cache.
-- **Ads**: A service that serves banner ads to the homepage. The Java version of the service is primarily used, but see [the Python service's README](./services/ads/python/README.md) for details on how to run that one in it's place
-- **Discounts**: A Python service that provides a discount API for the frontend.
-- **Postgres**: A Postgres database that stores the product catalog and order data, as well as the Discount service's data.
-- **Nginx**: A reverse proxy that routes requests to the appropriate service. Also known as `service-proxy`. 
-- **DBM**: An optional Python service that runs a long-running query to demonstrate Database Monitoring. See [the DBM service's README](./services/dbm/README.md) for details on how to run this service.
-- **The Datadog Agent**: collects metrics and traces from the other services and sends them to Datadog.
-- **Puppeteer**: A Node.js service that runs a headless browser to generate RUM data for the frontend.
+---
 
-> [!NOTE]
-> This application is built and tested to run within [Datadog Learning Center](https://learn.datadoghq.com/) lab environments. This application can be run outside of the Datadog Learning Center lab environments, but some features may not work as expected. 
-> 
-> This documentation includes instructions for running the application locally and in lab environments.
+## What Changed From the Original
 
-Many parts of this application were intentionally modified to introduce performance issues, security vulnerabilities, and other intentionally problematic code. This is to help you learn how to use Datadog to troubleshoot and fix these issues. This application is not intended to be used in production.
+| Area | Original | This Fork |
+|---|---|---|
+| **Frontend** | Next.js 12, React 17 | Remix (React Router v2), React 18 |
+| **Product Catalog** | Ruby on Rails + Spree API | Python / FastAPI (`store-catalog`) |
+| **Shopping Cart** | Ruby on Rails + Spree API | Python / FastAPI (`store-cart`) |
+| **Backend** | Ruby on Rails + Spree (full) | Removed — catalog + cart replace it |
+| **Worker** | Sidekiq (Ruby) | Removed — no background jobs needed |
+| **Port** | `80` | `9090` (via `docker-compose.port-9090.yml`) |
+| **Node.js APM** | Not initialized in dev mode | `NODE_OPTIONS` injects `dd-trace` in all modes |
+| **Trace propagation** | Datadog headers only | W3C TraceContext + Datadog (dual-format) |
+| **Flash Sales** | Not present | `/flash-sale` endpoint + countdown banner |
+| **Rate Limiting** | Not present | Redis-backed per-IP rate limiting on discount validation |
+| **Session Debug Panel** | Not present | Collapsible RUM event viewer in-browser |
+| **Chaos / Failure Modes** | Discounts only | Discounts + catalog + ads (all env-var controlled) |
 
-## Local development
+Services that are **unchanged**: Ads (Java), nginx/service-proxy, PostgreSQL, Redis, Puppeteer, Datadog Agent.
 
-The Storedog application comes pre-configured with default environment variable values for all services. You just need to run `docker compose -f docker-compose.dev.yml up -d` and you're good to go. These defaults are baked into the following files for your convenience and reference:
+---
 
-- Service Dockerfiles
-- docker-compose.dev.yml
-- .env.template
+## Architecture
 
-> [!NOTE]
-> The production `docker-compose.yml` file is primarily used for lab environments. If you want to run the application in production, you can use the `docker-compose.yml` file, but you'll need to set image versions or build local images of the services.
->
-> You'll also notice the `docker-compose.yml` file has less environment variables set. This is to make it easier to run in lab environments and rely more on default values.
+```
+Browser
+  │
+  └─► nginx (service-proxy :9090)
+        ├─► /                       → frontend (Remix :3000)
+        ├─► /services/catalog       → store-catalog (FastAPI :8000)
+        ├─► /services/cart          → store-cart (FastAPI :8001)
+        ├─► /services/discounts     → discounts (Flask :2814)
+        └─► /services/ads           → ads (Java Spring Boot :3030)
+                                       [optional A/B → ads-python :3030]
 
-The only values you need to provide are your Datadog credentials to enable Datadog features. You can set these in the Docker Compose file, on the host, or in a `.env` file. If you use the `.env` file, you can use the `.env.template` file as a reference for the available variables.
+Shared infrastructure:
+  PostgreSQL :5432  ◄── catalog, cart, discounts, ads
+  Redis :6379       ◄── discounts (rate limiting + flash sale cache)
+  Datadog Agent     ◄── all services (APM, logs, metrics, profiling)
+  Puppeteer         ──► nginx (synthetic user sessions)
+```
 
-See the [Environment Variables](#environment-variables) section below for more details on the available environment variables.
+### Service Summary
 
-> [!WARNING]
-> While you can mix and match the environment variables in the Docker Compose file, host, and `.env` file, be mindful of the order of precedence. See the [Docker Compose documentation](https://docs.docker.com/compose/compose-file/compose-file-v3/#environment-variables) for more details.
+| Service | Language | Port | `DD_SERVICE` |
+|---|---|---|---|
+| Frontend | TypeScript / Remix | 3000 (internal) | `store-frontend-api` (server), `store-frontend` (RUM) |
+| Catalog | Python / FastAPI | 8000 | `store-catalog` |
+| Cart | Python / FastAPI | 8001 | `store-cart` |
+| Discounts | Python / Flask | 2814 | `store-discounts` |
+| Ads | Java / Spring Boot | 3030 | `store-ads` |
+| Nginx | C (nginx + DD module) | 9090 | `service-proxy` |
+| PostgreSQL | — | 5432 | `store-db` |
+| Redis | — | 6379 | `redis` |
 
-### Using the Docker Compose file
+---
 
-1. Go into the Docker Compose file and set or overwrite the environment variables you need to override.
+## Quick Start
 
-  ```yaml
-  environment:
-    - DD_API_KEY=your_datadog_api_key
-    - DD_APP_KEY=your_datadog_app_key
-  ```
+### Prerequisites
 
-### Using the host
+- Docker + Docker Compose V2
+- A Datadog account with an API key (optional — app runs without one, APM/logs won't ship)
 
-1. Set the environment variables in your shell
+### 1. Copy and configure environment
 
-  ```sh
-  export DD_API_KEY=your_datadog_api_key
-  export DD_APP_KEY=your_datadog_app_key
-  ```
+```bash
+cp .env.template .env
+```
 
-### Using the `.env` file
+Open `.env` and fill in your Datadog credentials:
 
-1. Copy the environment template:
+```bash
+DD_API_KEY=your_api_key_here
+NEXT_PUBLIC_DD_APPLICATION_ID=your_rum_application_id   # optional
+NEXT_PUBLIC_DD_CLIENT_TOKEN=your_rum_client_token       # optional
+```
 
-  ```sh
-  cp .env.template .env
-  ```
+All other values have sensible defaults and can be left as-is for local development.
 
-1. Open the `.env` file and provide your Datadog credentials:
-   - `DD_API_KEY`: Required for Datadog Agent and APM
-   - `DD_APP_KEY`: Required for Datadog API access
-   - `NEXT_PUBLIC_DD_APPLICATION_ID`: Required for RUM in frontend service
-   - `NEXT_PUBLIC_DD_CLIENT_TOKEN`: Required for RUM in frontend service
+### 2. Start the fork
 
-   You can find or create these values in your Datadog organization. All other variables have sensible defaults and can be left as-is.
+The fork always uses **two** compose files: the base dev config and the port override.
 
-### Starting the application
+```bash
+docker compose -p storedog-fork \
+  -f docker-compose.dev.yml \
+  -f docker-compose.port-9090.yml \
+  up -d
+```
 
-1. Start the application:
+### 3. Open the app
 
-  ```sh
-  docker compose -f docker-compose.dev.yml up -d
-  ```
+Visit **http://localhost:9090**
 
-  > [!NOTE]
-  > You can also use the commands in the [Makefile](./Makefile) to start the application. For example, `make dev` will start the application in development mode.
-  >
-  > Run `make help` to see all of the available commands.
+The frontend takes ~15 seconds on first start while services initialize. If you see a loading screen, wait a moment and refresh.
 
-1. Visit http://localhost to use the app. The homepage will take a few seconds to load as the backend services initialize.
+> **Running alongside the original?**
+> The `-p storedog-fork` project flag isolates containers and volumes. The original storedog (if running) stays on port 80 and is unaffected.
 
-   If you see a 502 error for an extended period, check the service health with:
+### 4. Verify Datadog connectivity
 
-   ```sh
-   docker compose -f docker-compose.dev.yml logs <service-name>
-   ```
+```bash
+docker exec storedog-fork-dd-agent-1 agent status | grep -A 5 "APM Agent"
+docker exec storedog-fork-dd-agent-1 agent status | grep -A 5 "Logs Agent"
+```
 
-> [!NOTE]
-> By default, the frontend service runs in development mode when using `docker compose -f docker-compose.dev.yml up -d`. If you want to run it in production, you can set the `FRONTEND_COMMAND` environment variable to `npm run prod`. This can be done either in the compose file, on the host, or in the `.env` file.
+All language runtimes should appear under `Receiver (previous minute)`:
+`python` (×3), `nodejs`, `java`, `cpp` (nginx)
+
+---
 
 ## Environment Variables
 
-### Core Datadog Variables
-
-These variables must be set for core functionality with Datadog, but will not affect the application's behavior. Find these values in your Datadog organization's settings, you'll need to create a RUM application for the `DD_APPLICATION_ID` and `DD_CLIENT_TOKEN` values.
-
-- `DD_API_KEY`: Your Datadog API key (required for monitoring)
-- `DD_APP_KEY`: Your Datadog application key (required for API access)
-- `NEXT_PUBLIC_DD_APPLICATION_ID`: Datadog RUM application ID (required for RUM in frontend service)
-- `NEXT_PUBLIC_DD_CLIENT_TOKEN`: Datadog RUM client token (required for RUM in frontend service)
-
-### Frontend Service Variables
-
-- `FRONTEND_COMMAND`: Command to run the frontend service (default: `npm run dev`)
-
-> [!IMPORTANT]
-> This variable is set on the host or in the `.env` file. It is not set in the Docker Compose file, as `command` attribute values in compose files cannot reference variable definitions directly set in the `environment` attribute.
-
-- `NEXT_PUBLIC_ADS_ROUTE`: Route to the ads service (default: `/services/ads`)
-- `NEXT_PUBLIC_DISCOUNTS_ROUTE`: Route to the discounts service (default: `/services/discounts`)
-- `NEXT_PUBLIC_DBM_ROUTE`: Route to the DBM service (default: `/services/dbm`)
-- `NEXT_PUBLIC_FRONTEND_API_ROUTE`: Frontend API host (default: `http://service-proxy:80`)
-- `NEXT_PUBLIC_SPREE_API_HOST`: Spree API host (default: `http://service-proxy/services/backend`)
-- `NEXT_PUBLIC_SPREE_CLIENT_HOST`: Spree client host (default: `/services/backend`)
-- `NEXT_PUBLIC_SPREE_IMAGE_HOST`: Spree image host (default: `/services/backend`)
-- `NEXT_PUBLIC_SPREE_ALLOWED_IMAGE_DOMAIN`: Allowed image domain (default: `service-proxy`)
-
-> [!NOTE]
-> You'll notice some need the `http://service-proxy` prefix is used in some of the variables. The reason for this difference those specific calls are made from Next.js API routes, which require a full URL to the service. 
->
-> The ones without the `http://service-proxy` prefix are used in the frontend service's `fetch` calls, which are made from the browser and are caught by the nginx service, because it intercepts calls to Next.js API routes and routes them to the appropriate service.
-
-### Database Variables
-
-- `POSTGRES_USER`: Database username (default: `postgres`)
-- `POSTGRES_PASSWORD`: Database password (default: `postgres`)
-- `DB_HOST`: PostgreSQL host (default: `postgres`)
-- `DB_PORT`: PostgreSQL port (default: `5432`)
-- `DB_POOL`: Database connection pool size (default: `25`)
-
-### Backend and Worker Variables
-
-- `REDIS_URL`: Redis connection URL (default: `redis://redis:6379/0`)
-- `MAX_THREADS`: Maximum worker threads (default: `5`)
-- `RAILS_ENV`: Rails environment (default: `production`)
-
-### Datadog Configuration Variables
-
-Common Datadog variables that can be set in application services:
-
-- `DD_ENV`: Environment name
-- `DD_SITE`: Datadog site (e.g., `datadoghq.com`, `datadoghq.eu`)
-- `DD_HOSTNAME`: Override default hostname
-- `DD_LOGS_INJECTION`: Enable log injection into traces. Some languages' trace libraries turn this on by default, but we turn it on explicitly to prevent confusion.
-- `DD_PROFILING_ENABLED`: Enable the Continuous Profiler 
-- `DD_RUNTIME_METRICS_ENABLED`: Enable runtime metrics
-
-Service-specific versions:
-- `DD_VERSION_FRONTEND`: Frontend version (default: `1.0.0`)
-- `DD_VERSION_BACKEND`: Backend version (default: `1.0.0`)
-- `DD_VERSION_DISCOUNTS`: Discounts service version (default: `1.0.0`)
-- `DD_VERSION_ADS`: Ads service version (default: `1.0.0`)
-- `DD_VERSION_ADS_PYTHON`: Ads Python service version (default: `1.0.0`)
-- `DD_VERSION_NGINX`: nginx service version (default: `1.28.0`)
-- `DD_VERSION_POSTGRES`: PostgreSQL service version (default: `15.0`)
-- `DD_VERSION_REDIS`: Redis version (default: `6.2`)
-
-> [!NOTE]
-> Most of the time, these service versions will remain at the same version as one another. The reason for having them defined separately is to allow for the ability to change the version of one service without having to change the version of all of the other services, something that may be common when working in a lab environment.
-
-### Puppeteer user session simulation variables
-
-Puppeteer service configuration:
-- `STOREDOG_URL`: Application URL to run user sessions on (default: `http://service-proxy:80`) 
-  - In lab environments, use the URL running on the host instead to have more realistic looking URLs in your session data.
-
-  ```
-  STOREDOG_URL=$HOSTNAME.$_SANDBOX_ID.instruqt.io
-  ```
-
-  > [!NOTE]
-  > The `$HOSTNAME` and `$_SANDBOX_ID` variables are automatically set by Instruqt. Notice how this differs from what is used in the Storedog website tab in lab environments (`https://[HOSTNAME]-[PORT]-[PARTICIPANT_ID].env.play.instruqt.com`), as that is for authenticated traffic and the Puppeteer service is using an unauthenticated session.
-  >
-  > There is no need for a port in the URL, as the nginx service is configured to listen on port 80.
-
-- `PUPPETEER_TIMEOUT`: Sets max timeout for Puppeteer, in case the session is unresponsive
-- `SKIP_SESSION_CLOSE`: Skip closing browser sessions
-
-### Nginx/Service Proxy Configuration Variables
-
-These variables control the upstream configuration for the ads services in the Nginx (service-proxy) container, enabling A/B testing and traffic splitting between the Java and Python ads services.
-
-> [!IMPORTANT]
-> When `ADS_B_PERCENT` is greater than zero, the `ADS_B_UPSTREAM` endpoint must be reachable. Otherwise, the service-proxy will crash and restart. Uncomment the `ads-python` section in `docker-compose.yml` to enable the service.
-
-- `ADS_A_UPSTREAM`: Host and port for the primary (A) ads service (default: `ads:3030`)
-- `ADS_B_UPSTREAM`: Host and port for the secondary (B) ads service (default: `ads-python:3030`)
-- `ADS_B_PERCENT`: Percentage of traffic to route to the B (Python) ads service (default: `0`). The remainder goes to the A (Java) ads service.
-  - Set to a value between `0` and `100` to control the split.
-
-## Optional features
-
-There are several features that can be enabled by setting environment variables and feature flags.
-
-### A/B Testing Ads services
-
-Run two Ads services and split traffic between them. The amount of traffic sent to each service is set with a percent value.
-
-This requires running a second Ads service in addition to the default Java Ads service and setting environment variables in the `service-proxy` service. The Python Ads service is typically used as the secondary service.
-
-1. Set an environment variable for the Python Ads service version.
-
-    ```bash
-    export DD_VERSION_ADS_PYTHON=1.0.0
-    ```
-
-1. These environment variables need to be set for the `service-proxy` service.
-
-    - `ADS_A_UPSTREAM`: Host and port for the primary (A) ads service (default: `ads:3030`)
-    - `ADS_B_UPSTREAM`: Host and port for the secondary (B) ads service (default: `ads-python:3030`)
-    - `ADS_B_PERCENT`: Percentage of traffic to route to the B (Python) ads service (default: `0`). The remainder goes to the A ads (Java) service.
-      - Set a value between `0` and `100` to control the split.
-
-**How to use**
-
-#### Docker Compose
-1. Add a second Ads service to the `docker-compose.yml`
-
-    ```yaml
-      # OPTIONAL: Advertisement service (Python)
-      ads-python:
-        image: ghcr.io/datadog/storedog/ads-python:${STOREDOG_IMAGE_VERSION:-latest}
-        build: # Only used if building from source in development
-          context: ./services/ads/python
-        depends_on:
-          - postgres
-          - dd-agent
-        environment:
-          - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-          - POSTGRES_USER=${POSTGRES_USER:-postgres}
-          - POSTGRES_HOST=postgres
-          - DD_AGENT_HOST=dd-agent
-          - DD_ENV=${DD_ENV:-production}
-          - DD_SERVICE=store-ads-python
-          - DD_VERSION=${DD_VERSION_ADS_PYTHON:-1.0.0}
-          - DD_PROFILING_ENABLED=true
-          - DD_PROFILING_TIMELINE_ENABLED=true
-          - DD_PROFILING_ALLOCATION_ENABLED=true
-        volumes: # Only used in development
-          - ./services/ads/python:/app
-        networks:
-          - storedog-network
-        labels:
-          com.datadoghq.ad.logs: '[{"source": "python"}]'
-    ```
-
-1. Add these environment variables to the `service-proxy` service in the `docker-compose.yml` file:
-
-    ```yaml
-    environment:
-      - ADS_A_UPSTREAM=${ADS_A_UPSTREAM:-ads:3030}
-      - ADS_B_UPSTREAM=${ADS_B_UPSTREAM:-ads-python:3030}
-      - ADS_B_PERCENT=${ADS_B_PERCENT:-0}
-    ```
-
-1. Start the app via `docker compose up -d`
-
-#### Kubernetes
-
-A Kubernetes manifest for the Python Ads service is available in the `services/ads/k8s-manifests/` directory.
-
-1. Add the `ads-python.yaml` file to the `k8s-manifests/storedog-app/deployments/` directory.
-
-1. Add the following environment variables to the `nginx.yaml` file and adjust as needed:
-
-    ```yaml
-    # A/B testing ads services
-    - name: ADS_A_UPSTREAM
-      value: "ads:3030"
-    - name: ADS_B_UPSTREAM
-      value: "ads-python:3030"
-    - name: ADS_B_PERCENT
-      value: "50"
-    ```
-
-1. Follow the instructions in the [Kubernetes README](./k8s-manifests/README.md) to run Storedog in Kubernetes.
-
-1. If the Storedog is already running, apply the manifests to the cluster:
-
-    ```bash
-    envsubst < k8s-manifests/storedog-app/deployments/ads-python.yaml | kubectl apply -n storedog -f -
-    envsubst < k8s-manifests/storedog-app/deployments/nginx.yaml | kubectl apply -n storedog -f -
-    ```
-
-> [!IMPORTANT]
-> Be sure to set the `DD_VERSION_ADS_PYTHON` environment variable so that it will be applied to the file by `envsubst`.
-
-### Feature flags
-
-Some capabilities are hidden behind feature flags, which can be controlled via `services/frontend/site/featureFlags.config.json`. 
-
-> [!NOTE]
-> Feature flags are available by default when running the application in development mode. If running in production, you'll need update the file and mount it into the frontend service container in the `docker-compose.yml` file.
->
-> ```yaml
-> volumes:
->   - ./services/frontend/site/featureFlags.config.json:/app/featureFlags.config.json
-> ```
-
-#### dbm 
-
-Enables a product ticker on the homepage with a long-running query to demonstrate DBM. 
-
-**How to use**:
-1. First, set up the DBM service as described in the [DBM README](./services/dbm/README.md)
-1. Start the app via `docker compose up`
-1. Set the `dbm` feature flag to true
-1. Visit http://localhost and reload the home page a few times
-1. The ticker will appear after 5 seconds and will subsequently update every 5 seconds with a new product and amount ordered
-
-You can modify the ticker functionality in `services/frontend/components/common/NavBar.tsx`.
-
-#### error-tracking 
-
-Introduces an exception in the Ads services to demonstrate Error Tracking by setting a header in to a value that is not expected by the Ads service.
-
-**How to use**:
-1. Start the app via `docker compose up`
-1. Set the `error-tracking` feature flag to true
-1. Visit http://localhost and reload the home page a few times
-1. You should start seeing 500s being generated in the logs, in addition to the banner ads not loading on the homepage
-
-Modify this functionality in `services/frontend/components/common/Ad/Ad.tsx` and respective Ads service being used.
-
-#### api-errors
-
-This introduces random errors that occur in the frontend service's `/api` routes.
-
-**How to use**:
-1. Start the app via `docker compose up`
-1. Set the `api-errors` feature flag to true
-1. Visit http://localhost and reload the home page a few times, footer links will randomly return 400s and 500s.
-
-Modify this functionality in `services/frontend/pages/api/*`.
-
-#### product-card-frustration
-
-This will swap out the product card component with a version that doesn't have the thumbnails linked to the product page. When paired with the Puppeteer service, this can be used to demonstrate Frustration Signals in RUM.
-
-**How to use**:
-1. Start the app via `docker compose up`
-1. Set the `product-card-frustration` feature flag to true
-1. Visit http://localhost/products and try clicking on the product thumbnails to see the frustration signal in action.
-
-Modify this functionality in `services/frontend/components/Product/ProductCard.tsx` and `services/frontend/components/Product/ProductCard-v2.tsx`.
-
-## Image publication
-
-Images are stored in GHCR. On PR merges, only the affected services will be pushed to GHCR, using the `latest` tag. For example, if you only made changes to the `backend` service, then only the `backend` Github workflow will trigger and publish `ghcr.io/datadog/storedog/backend:latest`. 
-
-Separately, we tag and publish *all* images when a new release is created with the corresponding release tag e.g. `ghcr.io/datadog/storedog/backend:1.0.1`. New releases are made on an ad-hoc basis, depending on the recent features that are added.
-
-## Breakdown of services
-
-All of the services in the Storedog application are Dockerized and run in containers. See the [docker-compose.yml](./docker-compose.yml) file for the full list of services and how they are connected. You'll also find specific Datadog configurations, volume mounts, and environment variables for each service in there.
-
-Below is a breakdown of services and some instructions on how to use them.
-
-### Ads
-
-There are two advertisement services, the default service is built in Java and there is another option available in Python. These services do the same thing, have the same endpoints, run on the same port (`3030`), and have the same failure modes. These ads are served through the `Ads.tsx` component in the frontend service.
-
-To switch between the Java and Python services, see the instructions in the [Ads service README](./services/ads/README.md).
-
-### Backend
-
-The backend service is where all of the product and order data is managed. It is built using the Spree e-commerce framework, which is a Ruby on Rails application.
-
-It's accessible at `http://localhost:4000`, but there's nothing at that path since we run the service as a headless API. The admin interface is available at `http://localhost:4000/admin`. Login with the following credentials to access the admin interface if you would like to add products or manage orders:
-
-```
-Username: admin@storedog.com
-Password: password
-```
-
-If you make any changes to the backend service, you will need to rebuild the Docker image to ensure new images uploaded are saved. You'll also need to create a restore point to ensure the new images are available in the database. 
-
-#### Database rebuild
-
-To create a new `.sql` restore file, run the following command while the application is running.
-
-```sh
-sh ./scripts/backup-db.sh
-```
-
-This will create a new `restore.sql` file in the `services/postgres/db/` directory and get it set up with all of necessary SQL statements to prepare the database for Datadog monitoring. When done running, you'll want to rebuild the Postgres database image with the new restore point. 
-
-#### Worker
-
-The Spree application has a worker process that runs in the background. There is a specific Datadog tracer configuration for it in the `services/worker/` directory and is mounted into the worker container.
-
-### Discounts
-
-The discounts service is a Python service that provides an API for serving discount codes to the frontend that can be used to apply discounts to orders. The discounts are stored in a Postgres database and are served through the `Discounts.tsx` component in the frontend service.
-
-Currently, when applying a successful discount code, we it will automatically apply a "Free shipping" discount that exists in the backend service. This is to demonstrate the discount functionality in the frontend, but is a bit of a hack.
+### Datadog Credentials
+
+| Variable | Required | Description |
+|---|---|---|
+| `DD_API_KEY` | Yes (to ship data) | Datadog API key |
+| `DD_APP_KEY` | No | Datadog application key |
+| `NEXT_PUBLIC_DD_APPLICATION_ID` | No | RUM application ID |
+| `NEXT_PUBLIC_DD_CLIENT_TOKEN` | No | RUM client token |
+| `NEXT_PUBLIC_DD_SITE` | No | Datadog site (default: `datadoghq.com`) |
+
+### Environment and Versioning
+
+| Variable | Default | Description |
+|---|---|---|
+| `DD_ENV` | `development` | Datadog environment tag |
+| `DD_HOSTNAME` | `development-host` | Agent hostname |
+| `NEXT_PUBLIC_DD_VERSION_FRONTEND` | `1.0.0` | Frontend service version |
+| `DD_VERSION_CATALOG` | `1.0.0` | Catalog service version |
+| `DD_VERSION_CART` | `1.0.0` | Cart service version |
+| `DD_VERSION_DISCOUNTS` | `1.0.0` | Discounts service version |
+| `DD_VERSION_ADS` | `1.0.0` | Ads service version |
+| `DD_VERSION_NGINX` | `1.28.0` | Nginx version tag |
+| `DD_VERSION_POSTGRES` | `15.0` | PostgreSQL version tag |
+| `DD_VERSION_REDIS` | `6.2` | Redis version tag |
+
+### Database
+
+| Variable | Default | Description |
+|---|---|---|
+| `POSTGRES_USER` | `postgres` | Database username |
+| `POSTGRES_PASSWORD` | `postgres` | Database password |
 
 ### Frontend
 
-The frontend service is a Next.js application that serves the homepage and product pages. It is accessible at `http://localhost`.
+| Variable | Default | Description |
+|---|---|---|
+| `FRONTEND_COMMAND` | `npm run dev` | Command used to start the frontend |
+| `NEXT_PUBLIC_ADS_ROUTE` | `/services/ads` | Client-side path to ads service |
+| `NEXT_PUBLIC_DISCOUNTS_ROUTE` | `/services/discounts` | Client-side path to discounts service |
+| `CATALOG_API_HOST` | `http://service-proxy/services/catalog` | Catalog URL for server-side Remix loaders |
+| `CART_API_HOST` | `http://service-proxy/services/cart` | Cart URL for server-side Remix loaders |
 
-In the shipped `docker-compose.yml` file, the frontend service is set to run in development mode, which means it will automatically reload when you make changes to the code. If you want to run the frontend service in production mode, you can do so by changing the `command` in the `frontend` service in the `docker-compose.yml` file to `npm run build && npm run start`.
+### Nginx A/B Traffic Splitting
 
-### Postgres
+Controls traffic split between the Java ads service (A) and optional Python ads service (B).
 
-The Postgres service is a Postgres database that stores the product catalog and order data, as well as the discount data for the discounts service.
-
-There's information under the [Backend](#backend) section on how to rebuild the Postgres database image with a new restore point.
-
-The Postgres service also has logging set up to write to a JSON file and a fairly quick log rotation, which get saved in a Docker volume. 
-
-### nginx
-
-The nginx service is a reverse proxy that handles requests for both the frontend and backend API services. It is accessible at `http://localhost`.
-
-When viewing information about the application in Datadog, you'll see it referenced as `service-proxy`.
-
-### DBM
-
-The DBM service is an optional Python service that runs a long-running query to demonstrate Database Monitoring. See [the DBM service's README](./services/dbm/README.md) for details on how to run this service.
+| Variable | Default | Description |
+|---|---|---|
+| `ADS_A_UPSTREAM` | `ads:3030` | Primary (Java) ads service |
+| `ADS_B_UPSTREAM` | `ads-python:3030` | Secondary (Python) ads service |
+| `ADS_B_PERCENT` | `0` | % of traffic routed to B. Set >0 only when `ads-python` is running |
 
 ### Puppeteer
 
-The Puppeteer service is a Node.js service that runs a headless browser to generate RUM data for the frontend.
+| Variable | Default | Description |
+|---|---|---|
+| `STOREDOG_URL` | `http://service-proxy:80` | URL Puppeteer browses |
+| `PUPPETEER_TIMEOUT` | `30000` | Session timeout in ms |
+| `SKIP_SESSION_CLOSE` | _(empty)_ | Set to `true` to leave sessions open |
 
-It's a pre-built image that has sessions defined to run on the application, found in `services/puppeteer/scripts/puppeteer.js` but you can use Docker volume mounts to bring in your own customized sessions.
+---
 
-```sh
-# add this to puppeteer service definition in a Docker Compose file
-volumes:
-  - ./services/puppeteer/scripts/puppeteer.js:/home/pptruser/puppeteer.js
+## Failure Modes and Feature Flags
+
+These variables inject specific failure patterns for demonstrating APM, Profiling, and Error Tracking. **None are enabled by default.** Set them in `.env` or directly in the service's `environment:` block in `docker-compose.dev.yml`, then restart the affected service.
+
+---
+
+### Discounts — Chaos Middleware
+
+Applies to **every request** on `store-discounts` via a Flask `before_request` hook (`services/discounts/chaos.py`).
+
+| Variable | Default | Effect when set |
+|---|---|---|
+| `SERVICE_DELAY_MS` | `0` | Adds a fixed delay (ms) to every request. Visible as increased latency on the `flask.request` span in APM. |
+| `SERVICE_ERROR_RATE` | `0.0` | Probability (0.0–1.0) that any request returns HTTP 500. Useful for Error Tracking demos. |
+| `SERVICE_CHAOS_MODE` | `false` | When `true`, delay and error rate become random per request (0–2000ms, random errors), simulating a flapping service. |
+
+**Example — add 400ms latency to all discount calls:**
+
+```bash
+# .env
+SERVICE_DELAY_MS=400
 ```
 
-## Contributing
+```bash
+docker compose -p storedog-fork -f docker-compose.dev.yml -f docker-compose.port-9090.yml \
+  up -d --no-deps discounts
+```
 
-While we don't accept contributions to the Storedog project from members outside of Datadog, we encourage you to fork the project and make it your own! 
+**What to look for in Datadog:** The `store-discounts` service latency spikes in APM. The `store-cart` service shows increased `cart.apply_coupon_code` duration as it waits on the downstream discount call. This is a good demo of how latency cascades through a distributed trace.
 
+---
+
+### Discounts — Broken Validation
+
+Controlled via `services/discounts/discounts.py`.
+
+| Variable | Values | Effect |
+|---|---|---|
+| `BROKEN_DISCOUNTS` | `ENABLED` / _(unset)_ | When `ENABLED`, the `/discount-code` endpoint raises an exception on ~50% of valid lookups (returns HTTP 500). The remaining 50% succeed normally. |
+
+**What to look for in Datadog:** Error spans on `GET /discount-code`, error logs with Python stack traces in the Logs tab of the trace, and a rising error rate on the `store-discounts` service card in APM.
+
+---
+
+### Catalog — N+1 Query Problem *(planned)*
+
+> **Status:** Implementation in progress. See `services/catalog/main.py`.
+
+| Variable | Default | Effect when set |
+|---|---|---|
+| `CATALOG_N_PLUS_ONE` | `false` | Removes SQLAlchemy `selectinload` from `GET /products`. Each product's variants, images, and taxons are lazy-loaded one-by-one, producing ~1 + 4N SQL queries per page load instead of 4. With 15 products in the seed data, this yields ~61 queries per homepage load. |
+
+**What to look for in Datadog:** A single `GET /products` span containing a waterfall of 40–60 `postgresql.query` child spans in the trace flame graph. The N+1 pattern is immediately visible. In Continuous Profiler, the function `_product_to_schema` will appear as a hotspot.
+
+---
+
+### Ads — Chaos Interceptor
+
+The Java ads service has a `ChaosInterceptor` (`services/ads/java/src/main/java/adsjava/ChaosInterceptor.java`) that follows the same contract as the Python middleware.
+
+| Variable | Default | Effect when set |
+|---|---|---|
+| `SERVICE_DELAY_MS` | `0` | Fixed delay on ad requests |
+| `SERVICE_ERROR_RATE` | `0.0` | Random HTTP 500 error rate (0.0–1.0) |
+| `SERVICE_CHAOS_MODE` | `false` | Random delay + error combination |
+
+**What to look for in Datadog:** Failed ad fetches appear in the frontend's `store-frontend-api` traces as 5xx upstream errors from `service-proxy`. The `store-ads` service shows error spans and `error.message` tags in APM.
+
+---
+
+### Frontend — Session Debug Panel
+
+Built into the frontend at `services/frontend/components/SessionDebugPanel.tsx`. No environment variable needed.
+
+The panel starts **minimized**. Click **"Show Session Debug"** in the bottom-right corner to expand it. It captures RUM events via `datadogRum.beforeSend` and displays them in real time — useful for verifying RUM instrumentation without opening browser DevTools.
+
+Source: `services/frontend/components/SessionDebugPanel.tsx`
+
+---
+
+## Datadog Instrumentation Details
+
+### APM Tracing
+
+All services send traces to the Datadog Agent at `dd-agent:8126`.
+
+| Service | Tracer | How it's loaded |
+|---|---|---|
+| Frontend (server) | `dd-trace` v5 (Node.js) | `NODE_OPTIONS=--import /app/node_modules/dd-trace/initialize.mjs` |
+| Catalog | `ddtrace` (Python) | `ddtrace-run uvicorn ...` |
+| Cart | `ddtrace` (Python) | `ddtrace-run uvicorn ...` |
+| Discounts | `ddtrace` (Python) | `ddtrace-run flask run ...` |
+| Ads | Datadog Java Agent | `-javaagent` JVM flag in Dockerfile |
+| Nginx | nginx-datadog C++ module | `load_module` in `nginx.conf` |
+
+> **Why `NODE_OPTIONS` and not `--require`?**
+> The frontend package is `"type": "module"` (ESM). CommonJS `--require` does not work in ESM scope. `dd-trace` v5 ships `initialize.mjs` specifically for ESM projects; `--import` loads it before any application code runs. The `npm start` script uses `node --require ./datadog-tracer.js` for production builds — that works because compiled Remix output is CommonJS.
+
+### Trace Propagation
+
+All services use **dual-format propagation**: W3C TraceContext (`traceparent`/`tracestate`) as primary, Datadog headers (`x-datadog-trace-id` etc.) as secondary.
+
+```yaml
+DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+```
+
+This means a request that enters via nginx carries a `traceparent` header that the frontend, catalog, cart, and discounts services all read and continue — producing a single distributed trace across all five services for a user checkout.
+
+### Custom Span Tags
+
+These tags are set on key spans and can be used in Trace Explorer and dashboards:
+
+| Tag | Service | Endpoint |
+|---|---|---|
+| `catalog.result.count` | store-catalog | `GET /products` |
+| `catalog.filter.taxon` | store-catalog | `GET /products?taxon=` |
+| `catalog.product.slug` | store-catalog | `GET /products/{slug}` |
+| `catalog.product.price` | store-catalog | `GET /products/{slug}` |
+| `cart.total` | store-cart | `POST /cart/add_item`, `PATCH /checkout/complete` |
+| `cart.item_count` | store-cart | `POST /cart/add_item`, `PATCH /checkout/complete` |
+| `cart.variant_id` | store-cart | `POST /cart/add_item` |
+| `discount.code` | store-cart | `PATCH /cart/apply_coupon_code` |
+| `discount.tier` | store-discounts | `GET /discount-code` |
+| `discount.value` | store-discounts | `GET /discount-code` |
+| `order.id` | store-cart | `PATCH /checkout/complete` |
+
+### Profiling
+
+Continuous profiling is enabled on all services in dev:
+
+```yaml
+DD_PROFILING_ENABLED=true
+DD_PROFILING_TIMELINE_ENABLED=true
+DD_PROFILING_ALLOCATION_ENABLED=true
+```
+
+### Logs
+
+Python services emit structured JSON logs with `dd.trace_id` and `dd.span_id` injected via `DD_LOGS_INJECTION=true`. The agent tails container stdout/stderr and ships to Datadog via HTTPS.
+
+The agent excludes original-storedog containers from log and metric collection:
+
+```yaml
+DD_CONTAINER_EXCLUDE=image:agent name:puppeteer name:storedog-original
+```
+
+### RUM
+
+Client-side RUM is initialized in `services/frontend/app/entry.client.tsx`. With real `NEXT_PUBLIC_DD_APPLICATION_ID` and `NEXT_PUBLIC_DD_CLIENT_TOKEN` values, session replays and RUM events ship to Datadog. With the default placeholder values, RUM initializes silently and the Session Debug Panel still captures events locally.
+
+---
+
+## Development Workflow
+
+### Rebuild a single service after code changes
+
+```bash
+docker compose -p storedog-fork \
+  -f docker-compose.dev.yml \
+  -f docker-compose.port-9090.yml \
+  up -d --no-deps --build <service-name>
+```
+
+Catalog and cart reload automatically on file save (uvicorn `--reload`). The frontend hot-reloads via Vite. Only the ads service (Java) requires a full `--build`.
+
+### View logs
+
+```bash
+# All services
+docker compose -p storedog-fork -f docker-compose.dev.yml -f docker-compose.port-9090.yml logs -f
+
+# Single service
+docker compose -p storedog-fork -f docker-compose.dev.yml -f docker-compose.port-9090.yml logs -f store-catalog
+```
+
+### Check agent health
+
+```bash
+docker exec storedog-fork-dd-agent-1 agent status
+```
+
+### Run E2E tests
+
+Playwright tests live in `e2e/` and cover the Session Debug Panel and key user flows.
+
+```bash
+cd e2e
+BASE_URL=http://localhost:9090 npx playwright test
+```
+
+---
+
+## Key Source Files
+
+| File | What it does |
+|---|---|
+| `docker-compose.dev.yml` | Full development stack definition |
+| `docker-compose.port-9090.yml` | Port override — exposes nginx on 9090 |
+| `.env` | Local environment configuration |
+| `services/frontend/app/root.tsx` | Remix document root — ENV passthrough, RUM user init, Session Debug Panel |
+| `services/frontend/app/entry.client.tsx` | Client hydration — Datadog RUM SDK initialization |
+| `services/frontend/components/SessionDebugPanel.tsx` | In-browser RUM event viewer |
+| `services/frontend/components/common/Discount/Discount.tsx` | Discount banner with flash sale countdown and copy button |
+| `services/frontend/app/routes/_index.tsx` | Homepage — hero, category grid, product marquee |
+| `services/catalog/main.py` | FastAPI catalog — all product and taxon endpoints |
+| `services/cart/main.py` | FastAPI cart — cart, checkout, coupon endpoints |
+| `services/cart/promotions.py` | Coupon validation — calls discounts service with trace propagation |
+| `services/discounts/discounts.py` | Flask discounts — code lookup, flash sales, referral, rate limiting |
+| `services/discounts/chaos.py` | Chaos middleware — delay and error injection |
+| `services/ads/java/src/main/java/adsjava/ChaosInterceptor.java` | Java chaos interceptor |
+| `services/nginx/default.conf.template` | Nginx routing and A/B ads traffic split |
+| `e2e/tests/` | Playwright E2E tests |
+
+---
+
+## Architecture Decisions
+
+**Why replace Rails with FastAPI?**
+The original Spree backend was a large Ruby monolith that obscured service boundaries. Splitting it into a dedicated `store-catalog` (read-only products) and `store-cart` (session-scoped orders) service creates a realistic microservice boundary that produces interesting distributed traces — a catalog lookup during `add_item` creates a cross-service span from `store-cart` → `store-catalog`, visible in the APM trace flame graph.
+
+**Why Remix instead of Next.js?**
+Remix provides a clean server/client boundary with Vite-powered hot reload in dev. Each page load produces both a `nodejs` APM span (server-side loader) and a RUM page view (client-side), connected by the same trace ID. This makes the frontend a good vehicle for demonstrating full-stack trace correlation.
+
+**Why dual-format trace propagation?**
+W3C TraceContext (`traceparent`) is the emerging standard and is compatible with OpenTelemetry-instrumented services. Keeping Datadog headers as a secondary format ensures all existing instrumentation continues to work without modification.
+
+**Why `NODE_OPTIONS` for dd-trace in dev?**
+Remix dev mode uses Vite's dev server (`remix vite:dev`), which does not pass through flags you add to `npm start`. `NODE_OPTIONS` is the only hook that Node respects regardless of how the process is launched. The `.mjs` path is required because the project is `"type": "module"` — CommonJS `require()` is unavailable in ESM scope.

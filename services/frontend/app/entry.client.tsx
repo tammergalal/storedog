@@ -2,6 +2,17 @@ import { RemixBrowser } from '@remix-run/react'
 import { startTransition, StrictMode } from 'react'
 import { hydrateRoot } from 'react-dom/client'
 import { datadogRum } from '@datadog/browser-rum'
+import {
+  MockSession,
+  ViewEvent,
+  ResourceEvent,
+  ErrorEvent,
+  ActionEvent,
+  LongTaskEvent,
+  GenericEvent,
+} from '@lib/sessionMocking'
+
+const mockSession = new MockSession()
 
 datadogRum.init({
   applicationId:
@@ -40,13 +51,28 @@ datadogRum.init({
   ],
   traceSampleRate: 100,
   allowUntrustedEvents: true,
-  beforeSend: (event) => {
+  beforeSend: (event: any) => {
+    // Route to appropriate session mock handler to power the debug panel
+    if (event.type === 'view') {
+      ViewEvent.handle(event, mockSession)
+    } else if (event.type === 'resource') {
+      ResourceEvent.handle(event, mockSession)
+    } else if (event.type === 'error') {
+      ErrorEvent.handle(event, mockSession)
+    } else if (event.type === 'action') {
+      ActionEvent.handle(event, mockSession)
+    } else if (event.type === 'long_task') {
+      LongTaskEvent.handle(event, mockSession)
+    } else {
+      GenericEvent.handle(event, mockSession)
+    }
+
+    // Filter out specific errors
     if (
       event.type === 'error' &&
       event.error.message ===
         'The resource you were looking for could not be found.'
     ) {
-      console.log(event)
       return false
     }
     return true

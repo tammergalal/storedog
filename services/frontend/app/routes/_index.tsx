@@ -15,13 +15,18 @@ export async function loader() {
     products = []
   }
 
-  const taxons = await getTaxons()
+  const taxonsData = await getTaxons()
+  // Use children of root taxons as display categories (e.g. Stickers, Tops, Pants…)
+  // Fall back to root taxons if no children exist
+  const allRoots = Object.values(taxonsData) as any[]
+  const children = allRoots.flatMap((t: any) => t.children ?? [])
+  const categories = children.length > 0 ? children : allRoots
 
-  return json({ products, taxons })
+  return json({ products, categories })
 }
 
 export default function Home() {
-  const { products, taxons } = useLoaderData<typeof loader>()
+  const { products, categories } = useLoaderData<typeof loader>()
 
   function handleHeroCtaClick() {
     import('@datadog/browser-rum').then(({ datadogRum }) => {
@@ -96,7 +101,7 @@ export default function Home() {
       </section>
 
       {/* Zone 2 — Shop by Category (real taxons) */}
-      {taxons && Object.keys(taxons).length > 0 && (
+      {categories && categories.length > 0 && (
         <section style={{ padding: '48px 48px', backgroundColor: 'var(--surface)', maxWidth: '1600px', margin: '0 auto' }}>
           <h2 style={{
             fontFamily: 'var(--font-heading)',
@@ -106,18 +111,20 @@ export default function Home() {
             marginBottom: '32px',
             letterSpacing: '-0.02em',
           }}>Shop by Category</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-            {Object.values(taxons).slice(0, 4).map((taxon: any, i: number) => {
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px' }}>
+            {categories.map((taxon: any, i: number) => {
               const gradients = [
                 'linear-gradient(135deg, #2d1b4e, #632ca6)',
                 'linear-gradient(135deg, #1a2a3a, #2d5a8e)',
                 'linear-gradient(135deg, #1a3a2a, #4A7C59)',
                 'linear-gradient(135deg, #3a2a1a, #C47D2A)',
+                'linear-gradient(135deg, #3a1a2a, #8e2d5a)',
+                'linear-gradient(135deg, #1a1a3a, #5a4e8e)',
               ]
               return (
                 <a
                   key={taxon.id}
-                  href={`/products?taxon=${taxon.permalink || taxon.id}`}
+                  href={`/taxonomies/${taxon.permalink || taxon.id}`}
                   style={{
                     display: 'block',
                     borderRadius: '10px',

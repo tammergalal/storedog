@@ -16,6 +16,8 @@ function Discount() {
   const [flashSale, setFlashSale] = React.useState<FlashSale | null>(null)
   const [dismissed, setDismissed] = React.useState(false)
   const [timeRemaining, setTimeRemaining] = React.useState('')
+  const [loading, setLoading] = React.useState(true)
+  const [copied, setCopied] = React.useState(false)
   const discountPath =
     (typeof window !== 'undefined' ? window.ENV?.DISCOUNTS_ROUTE : undefined) ||
     '/services/discounts'
@@ -41,9 +43,11 @@ function Discount() {
           } else {
             setFlashSale(null)
           }
+          setLoading(false)
         })
         .catch((e) => {
           console.error('An error occurred while fetching flash sale:', e)
+          setLoading(false)
         })
     }
 
@@ -99,6 +103,8 @@ function Discount() {
     }
   }
 
+  if (loading) return null
+
   if (flashSale && !dismissed && timeRemaining) {
     return (
       <div
@@ -113,7 +119,7 @@ function Discount() {
           padding: '8px 16px',
           background: 'var(--brand)',
           color: '#ffffff',
-          fontSize: '13px',
+          fontSize: '15px',
           fontFamily: 'var(--font-sans)',
         }}
       >
@@ -125,21 +131,23 @@ function Discount() {
             onClick={() => {
               navigator.clipboard.writeText(flashSale.code)
               datadogRum.addAction('Flash Sale Code Copied', { code: flashSale.code })
+              setCopied(true)
+              setTimeout(() => setCopied(false), 2000)
             }}
             style={{
               padding: '2px 10px',
               fontSize: '12px',
               border: '1px solid rgba(255,255,255,0.6)',
               borderRadius: '4px',
-              background: 'transparent',
+              background: copied ? 'rgba(255,255,255,0.2)' : 'transparent',
               color: '#ffffff',
               cursor: 'pointer',
               fontFamily: 'var(--font-sans)',
-              transition: 'background 200ms ease, color 200ms ease',
+              transition: 'background 200ms ease',
             }}
             aria-label="Copy discount code"
           >
-            Copy Code
+            {copied ? 'Copied!' : 'Copy Code'}
           </button>
           <button
             onClick={handleDismiss}
@@ -169,10 +177,11 @@ function Discount() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
+        gap: '12px',
         padding: '8px 16px',
         background: 'var(--surface-alt)',
         borderBottom: '1px solid var(--border-subtle)',
-        fontSize: '13px',
+        fontSize: '15px',
         fontFamily: 'var(--font-sans)',
         color: 'var(--text-base)',
         height: '40px',
@@ -181,6 +190,27 @@ function Discount() {
       <span>
         Save 10% with code <strong>BRONZE10</strong>
       </span>
+      <button
+        onClick={() => {
+          navigator.clipboard.writeText('BRONZE10')
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
+        }}
+        style={{
+          padding: '2px 10px',
+          fontSize: '12px',
+          border: '1px solid var(--border-subtle)',
+          borderRadius: '4px',
+          background: copied ? 'var(--brand)' : 'transparent',
+          color: copied ? '#ffffff' : 'var(--text-base)',
+          cursor: 'pointer',
+          fontFamily: 'var(--font-sans)',
+          transition: 'background 200ms ease, color 200ms ease',
+        }}
+        aria-label="Copy discount code"
+      >
+        {copied ? 'Copied!' : 'Copy Code'}
+      </button>
     </div>
   )
 }

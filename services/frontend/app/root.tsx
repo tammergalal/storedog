@@ -18,8 +18,9 @@ import { CartProvider, useCart } from '@lib/CartContext'
 import { ManagedUIContext } from '@components/ui/context'
 import { Layout } from '@components/common'
 import { datadogRum } from '@datadog/browser-rum'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import SessionDebugPanel from '@components/SessionDebugPanel'
 
 import fontsStyles from '~/styles/fonts.css?url'
 import mainStyles from '~/styles/main.css?url'
@@ -44,6 +45,7 @@ declare global {
 export const meta: MetaFunction = () => [
   { charset: 'utf-8' },
   { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+  { title: 'Storedog Experiment' },
 ]
 
 export const links: LinksFunction = () => [
@@ -106,6 +108,27 @@ function AppInit() {
 
 export default function Root() {
   const { ENV } = useLoaderData<typeof loader>()
+  const [showDebugPanel, setShowDebugPanel] = useState(false)
+
+  useEffect(() => {
+    setShowDebugPanel(true)
+    try {
+      if (localStorage.getItem('rum_user')) {
+        const user = JSON.parse(localStorage.getItem('rum_user') || '')
+        datadogRum.setUser(user)
+      } else {
+        const anonymousUser = {
+          id: Math.random().toString(36).substring(2, 15),
+          name: 'Learning Center User',
+          email: 'learning-center-user@example.com',
+        }
+        localStorage.setItem('rum_user', JSON.stringify(anonymousUser))
+        datadogRum.setUser(anonymousUser)
+      }
+    } catch (e) {
+      // ignore RUM errors — panel is already shown above
+    }
+  }, [])
 
   return (
     <html lang="en">
@@ -128,6 +151,7 @@ export default function Root() {
             </Layout>
           </ManagedUIContext>
         </CartProvider>
+        {showDebugPanel && <SessionDebugPanel />}
         <ScrollRestoration />
         <Scripts />
       </body>

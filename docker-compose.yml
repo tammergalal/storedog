@@ -174,8 +174,6 @@ services:
   service-proxy:
     image: ghcr.io/datadog/storedog/nginx:${STOREDOG_IMAGE_VERSION:-latest}
     restart: always
-    ports:
-      - '80:80'
     networks:
       - storedog-network
     depends_on:

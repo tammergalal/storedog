@@ -77,10 +77,9 @@ const ProductCard: FC<Props> = ({
               {...imgProps}
             />
           )}
-        </div>
-        <div className={s.slimOverlay}>
-          <span className={s.slimName}>{product.name}</span>
-          <span className={s.slimPrice}>{price}</span>
+          <div className={s.slimOverlay}>
+            <span className={s.slimName}>{product.name}</span>
+          </div>
         </div>
       </Link>
     )

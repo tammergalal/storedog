@@ -1,0 +1,4 @@
+services:
+  service-proxy:
+    ports:
+      - '9090:80'

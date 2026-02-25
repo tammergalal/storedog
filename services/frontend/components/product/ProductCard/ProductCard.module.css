@@ -113,28 +113,24 @@
 
 .slimOverlay {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
+  inset: 0;
   z-index: 20;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 9999px;
-  padding: 6px 14px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: flex-end;
+  padding-right: 24px;
 }
 
 .slimName {
+  background: rgba(17, 17, 17, 0.75);
   color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   font-family: var(--font-sans, Inter, sans-serif);
-}
-
-.slimPrice {
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 12px;
-  font-weight: 500;
+  padding: 8px 16px;
+  display: inline-block;
+  word-break: break-word;
+  max-width: 60%;
 }
 
 /* ── Variant: Simple (product list pages) ────────────── */
