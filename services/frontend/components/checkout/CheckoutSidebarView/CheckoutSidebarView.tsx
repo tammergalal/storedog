@@ -103,7 +103,9 @@ const CheckoutSidebarView: FC = () => {
     }
 
     try {
-      const discountPath = process.env.NEXT_PUBLIC_DISCOUNTS_ROUTE
+      const discountPath =
+        (typeof window !== 'undefined' ? window.ENV?.DISCOUNTS_ROUTE : undefined) ||
+        '/services/discounts'
       const discountCode = discountInput.toUpperCase()
       const discountCodeUrl = `${discountPath}/discount-code?discount_code=${discountCode}`
       // call discounts service
@@ -166,9 +168,27 @@ const CheckoutSidebarView: FC = () => {
       handleBack={() => setSidebarView('CART_VIEW')}
     >
       <div className="px-4 sm:px-6 flex-1">
-        <Text variant="sectionHeading">Checkout</Text>
+        <h2
+          className="pt-2 pb-4"
+          style={{
+            fontFamily: 'var(--font-heading)',
+            fontSize: '18px',
+            fontWeight: 600,
+            color: 'var(--text-base)',
+          }}
+        >
+          Checkout
+        </h2>
         {checkoutError && (
-          <div className="text-red border border-red p-3 mb-3">
+          <div
+            className="p-3 mb-3 text-sm"
+            style={{
+              color: '#dc2626',
+              border: '1px solid #dc2626',
+              borderRadius: '6px',
+              backgroundColor: '#fef2f2',
+            }}
+          >
             {checkoutError}
           </div>
         )}
@@ -208,18 +228,39 @@ const CheckoutSidebarView: FC = () => {
             />
           </div>
           <div className="w-full">
-            <Button
+            <button
               type="submit"
-              width="100%"
-              variant="ghost"
-              className="!py-2 !border-1"
               data-dd-action-name="Apply Discount"
+              style={{
+                width: '100%',
+                padding: '10px 24px',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: 'var(--brand)',
+                backgroundColor: 'transparent',
+                border: '1px solid var(--brand)',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontFamily: 'var(--font-sans)',
+                transition: 'background-color 150ms ease, color 150ms ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--brand)'
+                e.currentTarget.style.color = '#ffffff'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.color = 'var(--brand)'
+              }}
             >
               Apply Discount
-            </Button>
+            </button>
           </div>
           {discountResult && (
-            <p className="text-green text-sm mt-2">
+            <p
+              className="text-sm mt-2"
+              style={{ color: 'var(--accent-sage)' }}
+            >
               &#10003; {discountResult.label}
             </p>
           )}
@@ -229,40 +270,72 @@ const CheckoutSidebarView: FC = () => {
       <form
         onSubmit={handleSubmit}
         id="checkout-form"
-        className="flex-shrink-0 px-6 py-6 sm:px-6 sticky z-20 bottom-0 w-full right-0 left-0 bg-accent-0 border-t text-sm"
+        className="flex-shrink-0 px-6 py-6 sm:px-6 sticky z-20 bottom-0 w-full right-0 left-0 text-sm"
+        style={{
+          backgroundColor: '#ffffff',
+          borderTop: '1px solid var(--border-subtle)',
+        }}
       >
         <ul className="pb-2">
           <li className="flex justify-between py-1">
-            <span>Subtotal</span>
-            <span>{subTotal}</span>
+            <span style={{ color: 'var(--text-muted)' }}>Subtotal</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-base)' }}>{subTotal}</span>
           </li>
           <li className="flex justify-between py-1">
-            <span>Taxes</span>
-            <span>Calculated at checkout</span>
+            <span style={{ color: 'var(--text-muted)' }}>Taxes</span>
+            <span style={{ color: 'var(--text-muted)' }}>Calculated at checkout</span>
           </li>
           <li className="flex justify-between py-1">
-            <span>Shipping</span>
-            <span className="font-bold tracking-wide" id="shipping-rate">
+            <span style={{ color: 'var(--text-muted)' }}>Shipping</span>
+            <span style={{ fontWeight: 600, color: 'var(--text-base)' }} id="shipping-rate">
               {shippingRate?.cost != null ? Number(shippingRate.cost).toFixed(2) : 'TBD'}
             </span>
           </li>
         </ul>
-        <div className="flex justify-between border-t border-accent-2 py-3 font-bold mb-2">
+        <div
+          className="flex justify-between py-3 mb-2"
+          style={{
+            borderTop: '1px solid var(--border-subtle)',
+            fontSize: '16px',
+            fontWeight: 600,
+            color: 'var(--text-base)',
+          }}
+        >
           <span>Total</span>
           <span>{total}</span>
         </div>
         <div>
-          {/* Once data is correctly filled */}
-          <Button
+          <button
             type="submit"
-            width="100%"
-            loading={loadingSubmit}
-            className="confirm-purchase-btn"
             data-dd-action-name="Confirm Purchase"
-            disabled={!(addressStatus.ok && paymentStatus.ok)}
+            disabled={!(addressStatus.ok && paymentStatus.ok) || loadingSubmit}
+            style={{
+              width: '100%',
+              backgroundColor: (addressStatus.ok && paymentStatus.ok) ? 'var(--brand)' : 'var(--border-subtle)',
+              color: (addressStatus.ok && paymentStatus.ok) ? '#ffffff' : 'var(--text-muted)',
+              borderRadius: '6px',
+              padding: '14px 24px',
+              fontSize: '15px',
+              fontWeight: 600,
+              border: 'none',
+              cursor: (addressStatus.ok && paymentStatus.ok) ? 'pointer' : 'not-allowed',
+              fontFamily: 'var(--font-sans)',
+              transition: 'background-color 150ms ease',
+              opacity: loadingSubmit ? 0.7 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (addressStatus.ok && paymentStatus.ok) {
+                e.currentTarget.style.backgroundColor = 'var(--brand-dark)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (addressStatus.ok && paymentStatus.ok) {
+                e.currentTarget.style.backgroundColor = 'var(--brand)'
+              }
+            }}
           >
-            Confirm Purchase
-          </Button>
+            {loadingSubmit ? 'Processing...' : 'Confirm Purchase'}
+          </button>
         </div>
       </form>
     </SidebarLayout>

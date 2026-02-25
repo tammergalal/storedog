@@ -1,10 +1,9 @@
-import { Link } from '@remix-run/react'
+import { Link, useLocation } from '@remix-run/react'
 import { useState, useEffect } from 'react'
-import cn from 'clsx'
 import { Layout } from '@components/common'
 import ProductCard from '@components/product/ProductCard'
 import { ProductCard as ProductCardV2 } from '@components/product/ProductCard/ProductCard-v2'
-import { Container, Skeleton } from '@components/ui'
+import { Skeleton } from '@components/ui'
 import rangeMap from '@lib/range-map'
 
 import { Product } from '@customTypes/product'
@@ -13,7 +12,6 @@ import type { Taxon } from '@customTypes/taxons'
 
 interface Props {
   products: Product[]
-  /** Passed by callers but not currently rendered. Kept for API compatibility. */
   pages?: Page[]
   taxons: Record<string, Taxon>
   taxon?: Taxon
@@ -26,96 +24,215 @@ export default function ProductList({
   taxon,
   cardVersion,
 }: Props) {
-  // if products prop is still empty after 5 seconds, show not found message
   const [notFound, setNotFound] = useState(false)
+  const location = useLocation()
+
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (products.length === 0) {
-        setNotFound(true)
-      }
+      if (products.length === 0) setNotFound(true)
     }, 5000)
     return () => clearTimeout(timeout)
   }, [products])
 
-  function renderTaxonsList(nodes: Taxon[]) {
-    return nodes.filter((node) => node?.name).map((node) => (
-      <li
-        className={node.children?.length ? 'list-none' : 'list-disc'}
-        key={node.id}
-      >
-        {node.children?.length ? (
-          node.name
-        ) : (
-          <Link to={`/taxonomies/${node.permalink}`}>
-            {node.name}
-          </Link>
-        )}
-        {node.children && node.children.length > 0 && (
-          <ul className="ps-5 mt-2 space-y-1 list-disc list-inside">
-            {renderTaxonsList(node.children)}
-          </ul>
-        )}
-      </li>
-    ))
-  }
-
   const ProductCardComponent =
     cardVersion === 'v2' ? ProductCardV2 : ProductCard
 
+  // Flatten the taxon tree into a list of leaf/child taxons for the filter sidebar
+  const filterTaxons: Taxon[] = Object.values(taxons).flatMap((root) =>
+    root.children?.length ? root.children : [root]
+  )
+
   return (
-    <Container>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mt-3 mb-20">
-        <div className="col-span-8 lg:col-span-2 order-1 lg:order-none">
-          <ul
-            id="taxons-list"
-            className="space-y-4 text-gray-500 list-disc list-inside dark:text-gray-400"
-          >
-            {renderTaxonsList(Object.values(taxons))}
+    <div style={{ backgroundColor: 'var(--surface)', minHeight: '100vh' }}>
+
+      {/* ── Page Header ─────────────────────────────────────────── */}
+      <div style={{
+        background: 'linear-gradient(135deg, #2d1b4e 0%, #632ca6 60%, #8a5cbf 100%)',
+        padding: '40px 48px 36px',
+      }}>
+        <p style={{
+          fontSize: '11px',
+          fontWeight: 700,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'rgba(255,255,255,0.6)',
+          marginBottom: '8px',
+          fontFamily: 'var(--font-sans)',
+        }}>
+          {taxon ? `${taxon.name}` : 'Storedog'}
+        </p>
+        <h1 style={{
+          fontFamily: 'var(--font-heading)',
+          fontSize: 'clamp(28px, 4vw, 40px)',
+          fontWeight: 800,
+          color: '#ffffff',
+          margin: 0,
+          letterSpacing: '-0.02em',
+          lineHeight: 1.1,
+        }}>
+          {taxon ? taxon.name : 'All Products'}
+        </h1>
+        {products.length > 0 && (
+          <p style={{
+            fontSize: '14px',
+            color: 'rgba(255,255,255,0.65)',
+            marginTop: '10px',
+            fontFamily: 'var(--font-sans)',
+          }}>
+            {products.length} {products.length === 1 ? 'item' : 'items'}
+          </p>
+        )}
+      </div>
+
+      {/* ── Body: Sidebar + Grid ────────────────────────────────── */}
+      <div style={{
+        maxWidth: '1440px',
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: '220px 1fr',
+        gap: '32px',
+        padding: '32px 48px 64px',
+        alignItems: 'start',
+      }}>
+
+        {/* ── Sidebar ─────────────────────────────────────────── */}
+        <aside>
+          <p style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+            marginBottom: '12px',
+            fontFamily: 'var(--font-sans)',
+          }}>
+            Categories
+          </p>
+          <ul id="taxons-list" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {/* "All" option */}
+            <li>
+              <Link
+                to="/products"
+                style={{
+                  display: 'block',
+                  padding: '8px 14px',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: !taxon ? 600 : 400,
+                  color: !taxon ? 'var(--brand)' : 'var(--text-base)',
+                  backgroundColor: !taxon ? 'rgba(99,44,166,0.08)' : 'transparent',
+                  textDecoration: 'none',
+                  fontFamily: 'var(--font-sans)',
+                  transition: 'background 150ms ease, color 150ms ease',
+                }}
+                onMouseEnter={e => {
+                  if (taxon) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'var(--surface-alt)'
+                }}
+                onMouseLeave={e => {
+                  if (taxon) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'transparent'
+                }}
+              >
+                All Products
+              </Link>
+            </li>
+            {filterTaxons.map((node) => {
+              const isActive = taxon?.id === node.id
+              return (
+                <li key={node.id}>
+                  <Link
+                    to={`/taxonomies/${node.permalink}`}
+                    style={{
+                      display: 'block',
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: isActive ? 600 : 400,
+                      color: isActive ? 'var(--brand)' : 'var(--text-base)',
+                      backgroundColor: isActive ? 'rgba(99,44,166,0.08)' : 'transparent',
+                      textDecoration: 'none',
+                      fontFamily: 'var(--font-sans)',
+                      transition: 'background 150ms ease, color 150ms ease',
+                    }}
+                    onMouseEnter={e => {
+                      if (!isActive) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'var(--surface-alt)'
+                    }}
+                    onMouseLeave={e => {
+                      if (!isActive) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'transparent'
+                    }}
+                  >
+                    {node.name}
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
-        </div>
-        {/* Products */}
-        <div className="col-span-8 order-3 lg:order-none">
-          <h2 className="mb-4 text-3xl font-bold">
-            Products{' '}
-            {taxon?.id ? (
-              <span className="text-accent">in {taxon.name}</span>
-            ) : null}
-          </h2>
+
+          {/* Divider */}
+          <div style={{ height: '1px', backgroundColor: 'var(--border-subtle)', margin: '20px 0' }} />
+
+          {/* Promo block */}
+          <div style={{
+            backgroundColor: '#f3eefa',
+            borderRadius: '10px',
+            padding: '16px',
+            border: '1px solid rgba(99,44,166,0.12)',
+          }}>
+            <p style={{
+              fontSize: '13px',
+              fontWeight: 600,
+              color: 'var(--brand)',
+              margin: '0 0 4px',
+              fontFamily: 'var(--font-heading)',
+            }}>Free Shipping</p>
+            <p style={{
+              fontSize: '12px',
+              color: 'var(--text-muted)',
+              margin: 0,
+              lineHeight: 1.5,
+              fontFamily: 'var(--font-sans)',
+            }}>On all orders over $50.</p>
+          </div>
+        </aside>
+
+        {/* ── Product Grid ─────────────────────────────────────── */}
+        <main>
           {products?.length ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 product-grid">
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+              gap: '20px',
+            }} className="product-grid">
               {products.map((product: Product) => (
                 <ProductCardComponent
                   variant="simple"
                   key={product.slug}
                   className="animated fadeIn"
                   product={product}
-                  imgProps={{
-                    width: 480,
-                    height: 480,
-                  }}
+                  imgProps={{ width: 480, height: 480 }}
                 />
               ))}
             </div>
           ) : notFound ? (
-            <div className="">
-              <p>No products found!</p>
+            <div style={{ padding: '64px 0', textAlign: 'center' }}>
+              <p style={{ fontSize: '18px', color: 'var(--text-muted)', fontFamily: 'var(--font-sans)' }}>
+                No products found.
+              </p>
+              <Link to="/products" style={{ color: 'var(--brand)', fontSize: '14px', marginTop: '8px', display: 'inline-block' }}>
+                View all products →
+              </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
               {rangeMap(12, (i) => (
                 <Skeleton key={i}>
                   <div className="w-60 h-60" />
                 </Skeleton>
               ))}
             </div>
-          )}{' '}
-        </div>
-
-        <div className="col-span-8 lg:col-span-2 order-2 lg:order-none">
-          {/* do nothing here for now */}
-        </div>
+          )}
+        </main>
       </div>
-    </Container>
+    </div>
   )
 }
 

@@ -3,7 +3,15 @@
 }
 
 .lineItemsList {
-  @apply py-4 space-y-6 sm:py-0 sm:space-y-0 sm:divide-y sm:divide-accent-2 border-accent-2;
+  @apply py-2;
+}
+
+.lineItemsList li {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.lineItemsList li:last-child {
+  border-bottom: none;
 }
 
 .fieldset {
@@ -11,17 +19,34 @@
 }
 
 .fieldset .label {
-  @apply text-accent-7 uppercase text-xs font-medium mb-2;
+  font-family: var(--font-heading);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
 }
 
 .fieldset .input,
 .fieldset .select {
-  @apply p-2 border border-accent-8 w-full text-sm font-normal bg-primary;
+  height: 44px;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  font-size: 14px;
+  padding: 0 12px;
+  width: 100%;
+  font-weight: 400;
+  background: #ffffff;
+  color: var(--text-base);
+  transition: border-color 150ms ease;
 }
 
 .fieldset .input:focus,
 .fieldset .select:focus {
-  @apply outline-none shadow-outline-normal;
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 2px rgba(99, 44, 166, 0.15);
 }
 
 .radio {

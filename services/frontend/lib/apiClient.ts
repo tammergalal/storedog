@@ -1,5 +1,13 @@
-const CATALOG_API_HOST = process.env.CATALOG_API_HOST || 'http://localhost:8000'
-const CART_API_HOST = process.env.CART_API_HOST || 'http://localhost:8001'
+// Server uses internal Docker hostnames from env vars;
+// browser uses relative paths that nginx reverse-proxies.
+// Use typeof window === 'undefined' instead of process check — Vite polyfills process in the browser.
+const isServer = typeof window === 'undefined'
+const CATALOG_API_HOST = isServer
+  ? (process.env.CATALOG_API_HOST || 'http://localhost:8000')
+  : '/services/catalog'
+const CART_API_HOST = isServer
+  ? (process.env.CART_API_HOST || 'http://localhost:8001')
+  : '/services/cart'
 
 export async function catalogRequest<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${CATALOG_API_HOST}${path}`

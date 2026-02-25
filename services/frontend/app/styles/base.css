@@ -50,6 +50,10 @@
   --text-muted: #6B6560;     /* Muted text, captions */
   --text-on-brand: #ffffff;  /* Text on brand-colored backgrounds */
 
+  /* Accent */
+  --accent-sage: #4A7C59;    /* "New" arrival badges, success states */
+  --accent-amber: #C47D2A;   /* Sale prices, promotional highlights */
+
   /* Border */
   --border-subtle: #D4CFC9;  /* Subtle dividers and card borders */
   --border-default: #A09A93; /* Default form borders */
@@ -100,8 +104,8 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--primary);
-  color: var(--text-primary);
+  background-color: var(--surface);
+  color: var(--text-base);
   overscroll-behavior-x: none;
 }
 
@@ -144,5 +148,15 @@ a {
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
   }
 }

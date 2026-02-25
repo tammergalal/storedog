@@ -13,7 +13,7 @@ const ShippingWidget: FC<ComponentProps> = ({ onClick, isValid }) => {
       <div className="flex flex-1 items-center">
         <MapPin className="w-5 flex" />
         <span className="ml-5 text-sm text-center font-medium">
-          Add Shipping Address
+          {isValid ? 'McMurdo Station, Antarctica' : 'Add Shipping Address'}
         </span>
       </div>
       <div>{isValid ? <Check /> : <ChevronRight />}</div>

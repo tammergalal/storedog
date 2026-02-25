@@ -1,31 +1,42 @@
+/* ── Pill Badge ──────────────────────────────────────── */
 .root {
-  @apply transition-colors ease-in-out duration-500
-  absolute top-0 left-0 z-20 pr-16;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--surface-alt, #E8E4DF);
+  color: var(--text-muted, #6B6560);
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans, Inter, sans-serif);
+  line-height: 1.5;
 }
 
-.root .name {
-  @apply pt-0 w-full max-w-3xl leading-10;
-  font-size: 1.725rem;
-  letter-spacing: 0.4px;
-}
-
-.root .name span {
-  @apply py-1 px-3 bg-primary text-primary font-bold;
-  line-height: 1.4;
-  min-height: 70px;
+.name {
+  margin: 0;
   font-size: inherit;
-  letter-spacing: inherit;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
+  font-weight: inherit;
+  color: inherit;
 }
 
-.root .name span.fontsizing {
-  display: flex;
-  padding-top: 1.5rem;
+.name span {
+  font-size: inherit;
+  line-height: inherit;
 }
 
-.root .price {
-  @apply py-2 px-3 text-sm bg-primary text-accent-9
-  font-semibold inline-block tracking-wide;
-  margin-top: -1px;
+.price {
+  color: inherit;
+  font-size: inherit;
+  opacity: 0.8;
+}
+
+/* ── Variant: New ────────────────────────────────────── */
+.new {
+  background-color: var(--accent-sage, #4A7C59);
+  color: #ffffff;
+}
+
+.new .price {
+  opacity: 1;
 }

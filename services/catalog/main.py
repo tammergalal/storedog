@@ -106,6 +106,8 @@ def list_products(
             ).distinct()
 
     if q:
+        if span:
+            span.set_tag("catalog.search.query", q)
         query = query.filter(Product.name.ilike(f"%{q}%"))
 
     total = query.count()
@@ -130,6 +132,12 @@ def get_product(slug: str, db: Session = Depends(get_db)):
     ).filter(Product.slug == slug).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
+    span = tracer.current_span()
+    if span:
+        span.set_tag("catalog.product.slug", product.slug)
+        span.set_tag("catalog.product.name", product.name)
+        span.set_tag("catalog.product.price", float(product.price))
+        span.set_tag("catalog.product.available", product.available)
     return _product_to_schema(product)
 
 

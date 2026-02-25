@@ -8,9 +8,11 @@ services:
     environment:
       - DD_API_KEY=${DD_API_KEY}
       - DD_ENV=${DD_ENV:-development}
+      - DD_APM_ENABLED=true
+      - DD_APM_NON_LOCAL_TRAFFIC=true
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
-      - DD_CONTAINER_EXCLUDE=image:agent name:puppeteer
+      - DD_CONTAINER_EXCLUDE=image:agent name:puppeteer name:storedog-original
       - DD_CLOUD_PROVIDER_METADATA=[]
       - DD_HOSTNAME=${DD_HOSTNAME:-development-host}
       - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
@@ -38,6 +40,8 @@ services:
     networks:
       - storedog-network
     environment:
+      - NODE_ENV=development
+      - NODE_OPTIONS=--import /app/node_modules/dd-trace/initialize.mjs
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-development}
       - DD_SERVICE=store-frontend-api # used for Next.js API routes
@@ -73,12 +77,13 @@ services:
     volumes:
       - ./services/catalog:/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog_db
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-development}
       - DD_SERVICE=store-catalog
       - DD_VERSION=${DD_VERSION_CATALOG:-1.0.0}
       - DD_RUNTIME_METRICS_ENABLED=true
+      - DD_LOGS_INJECTION=true
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
@@ -107,7 +112,7 @@ services:
     volumes:
       - ./services/cart:/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog_db
       - CATALOG_URL=http://store-catalog:8000
       - DISCOUNTS_URL=http://discounts:2814
       - DD_AGENT_HOST=dd-agent
@@ -115,6 +120,7 @@ services:
       - DD_SERVICE=store-cart
       - DD_VERSION=${DD_VERSION_CART:-1.0.0}
       - DD_RUNTIME_METRICS_ENABLED=true
+      - DD_LOGS_INJECTION=true
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
@@ -146,6 +152,7 @@ services:
       - DD_SERVICE=store-discounts
       - DD_VERSION=${DD_VERSION_DISCOUNTS:-1.0.0}
       - DD_RUNTIME_METRICS_ENABLED=true
+      - DD_LOGS_INJECTION=true
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
@@ -174,6 +181,8 @@ services:
       - DD_ENV=${DD_ENV:-development}
       - DD_SERVICE=store-ads
       - DD_VERSION=${DD_VERSION_ADS:-1.0.0}
+      - DD_RUNTIME_METRICS_ENABLED=true
+      - DD_LOGS_INJECTION=true
       - DD_PROFILING_ENABLED=true
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
@@ -188,12 +197,11 @@ services:
     build:
       context: ./services/nginx
     restart: always
-    ports:
-      - '80:80'
     networks:
       - storedog-network
     depends_on:
       - frontend
+      - ads
       - dd-agent
     environment:
       - DD_AGENT_HOST=dd-agent

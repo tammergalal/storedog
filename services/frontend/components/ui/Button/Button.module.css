@@ -1,61 +1,106 @@
+/* Primary / flat (default) */
 .root {
-  @apply bg-accent-9 text-accent-0 cursor-pointer inline-flex
-  px-10 py-5 leading-6 transition ease-in-out duration-150
-  shadow-sm text-center justify-center uppercase
-  border border-transparent items-center text-sm font-semibold
-  tracking-wide;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: var(--brand);
+  color: var(--text-on-brand);
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-family: var(--font-sans);
+  border: none;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease,
+    box-shadow 150ms ease;
   max-height: 64px;
+  line-height: 1.5;
 }
 
 .root:hover {
-  @apply border-accent-9 bg-accent-6;
+  background-color: var(--brand-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 44, 166, 0.25);
+}
+
+.root:active {
+  background-color: var(--brand-dark);
+  transform: translateY(0);
 }
 
 .root:focus {
-  @apply shadow-outline-normal outline-none;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 44, 166, 0.3);
 }
 
 .root[data-active] {
-  @apply bg-accent-6;
+  background-color: var(--brand-dark);
 }
 
-.loading {
-  @apply bg-accent-1 text-accent-3 border-accent-2 cursor-not-allowed;
-}
-
-.slim {
-  @apply py-2 transform-none normal-case;
-}
-
+/* Ghost variant */
 .ghost {
-  @apply border border-accent-2 bg-accent-0 text-accent-9 text-sm;
+  background-color: transparent;
+  color: var(--brand);
+  border: 1.5px solid var(--brand);
+  border-radius: 6px;
+  padding: 11px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .ghost:hover {
-  @apply border-accent-9 bg-accent-9 text-accent-0;
+  background-color: var(--brand);
+  color: var(--text-on-brand);
+  transform: none;
+  box-shadow: none;
 }
 
+/* Slim variant */
+.slim {
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 6px;
+  text-transform: none;
+}
+
+/* Naked / text variant */
 .naked {
-  @apply bg-transparent font-semibold border-none shadow-none outline-none py-0 px-0;
-  color: var(--text-primary) !important;
+  background-color: transparent;
+  color: var(--brand);
+  border: none;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: none;
 }
 
 .naked:hover,
 .naked:focus {
-  @apply bg-transparent border-none;
-  color: var(--text-primary) !important;
+  background-color: transparent;
+  color: var(--brand);
+  text-decoration: underline;
+  transform: none;
+  box-shadow: none;
 }
 
+/* Loading state */
+.loading {
+  background-color: var(--brand-light);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Disabled state */
 .disabled,
 .disabled:hover {
-  @apply text-accent-4 border-accent-2 bg-accent-1 cursor-not-allowed;
-  filter: grayscale(1);
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-perspective: 1000;
-  perspective: 1000;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .progress {

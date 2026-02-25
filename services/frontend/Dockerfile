@@ -9,7 +9,7 @@ ARG DD_GIT_COMMIT_SHA
 
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --frozen-lockfile
+RUN npm ci --frozen-lockfile --legacy-peer-deps
 COPY . .
 
 # Build-time env vars required by the framework

@@ -1,44 +1,44 @@
 [
   {
-    "name": "Categories",
-    "permalink": "categories",
-    "pretty_name": "Categories",
-    "taxonomy": "categories",
+    "name": "Datadog",
+    "permalink": "datadog",
+    "pretty_name": "Datadog",
+    "taxonomy": "datadog",
     "position": 0,
     "children": [
       {
-        "name": "Footwear",
-        "permalink": "categories/footwear",
-        "pretty_name": "Categories > Footwear",
-        "taxonomy": "categories",
+        "name": "Stickers",
+        "permalink": "datadog/stickers",
+        "pretty_name": "Datadog > Stickers",
+        "taxonomy": "datadog",
         "position": 0
       },
       {
-        "name": "Apparel",
-        "permalink": "categories/apparel",
-        "pretty_name": "Categories > Apparel",
-        "taxonomy": "categories",
+        "name": "Tops",
+        "permalink": "datadog/tops",
+        "pretty_name": "Datadog > Tops",
+        "taxonomy": "datadog",
         "position": 1
       },
       {
-        "name": "Accessories",
-        "permalink": "categories/accessories",
-        "pretty_name": "Categories > Accessories",
-        "taxonomy": "categories",
+        "name": "Pants",
+        "permalink": "datadog/pants",
+        "pretty_name": "Datadog > Pants",
+        "taxonomy": "datadog",
         "position": 2
       },
       {
-        "name": "Nutrition",
-        "permalink": "categories/nutrition",
-        "pretty_name": "Categories > Nutrition",
-        "taxonomy": "categories",
+        "name": "Bestsellers",
+        "permalink": "datadog/bestsellers",
+        "pretty_name": "Datadog > Bestsellers",
+        "taxonomy": "datadog",
         "position": 3
       },
       {
-        "name": "Electronics",
-        "permalink": "categories/electronics",
-        "pretty_name": "Categories > Electronics",
-        "taxonomy": "categories",
+        "name": "New",
+        "permalink": "datadog/new",
+        "pretty_name": "Datadog > New",
+        "taxonomy": "datadog",
         "position": 4
       }
     ]

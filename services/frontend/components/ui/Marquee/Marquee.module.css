@@ -1,6 +1,7 @@
 .root {
   @apply w-full min-w-full relative flex flex-row items-center overflow-hidden py-0;
   max-height: 320px;
+  background: #1A1A1A;
 }
 
 .root > div {
@@ -14,9 +15,9 @@
 }
 
 .primary {
-  @apply bg-accent-0;
+  background: #1A1A1A;
 }
 
 .secondary {
-  @apply bg-accent-9;
+  background: var(--surface-alt, #E8E4DF);
 }

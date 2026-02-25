@@ -1,29 +1,32 @@
 .control {
-  @apply bg-violet absolute bottom-10 right-10 flex flex-row
-  border-accent-0 border text-accent-0 z-30 shadow-xl select-none;
-  height: 48px;
+  @apply absolute bottom-6 right-6 flex flex-row z-30 select-none;
+  gap: 8px;
 }
 
 .leftControl,
 .rightControl {
-  @apply px-9 cursor-pointer;
-  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  color: var(--text-base);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
 }
 
 .leftControl:hover,
 .rightControl:hover {
-  background-color: var(--violet-dark);
+  background: #ffffff;
+  transform: scale(1.08);
 }
 
 .leftControl:focus,
 .rightControl:focus {
   @apply outline-none;
-}
-
-.rightControl {
-  @apply border-l border-accent-0;
-}
-
-.leftControl {
-  margin-right: -1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12), 0 0 0 3px rgba(99, 44, 166, 0.12);
 }

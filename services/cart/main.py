@@ -138,7 +138,7 @@ async def add_item(
         async with httpx.AsyncClient() as client:
             resp = await client.get(
                 f"{CATALOG_URL}/products",
-                params={"per_page": 500},
+                params={"per_page": 100},
                 headers=prop_headers,
                 timeout=5.0,
             )
@@ -202,6 +202,15 @@ async def add_item(
     recalculate_order(order, db)
     db.commit()
     db.refresh(order)
+
+    span = tracer.current_span()
+    if span:
+        span.set_tag("cart.variant_id", body.variant_id)
+        span.set_tag("cart.product.name", product_data.get("name", ""))
+        span.set_tag("cart.item.price", float(variant_data.get("price", 0)))
+        span.set_tag("cart.total", float(order.total))
+        span.set_tag("cart.item_count", order.item_count)
+
     return order_to_dict(order)
 
 
@@ -260,7 +269,13 @@ async def apply_coupon_code(
 ):
     token = _require_token(x_spree_order_token)
     order = _get_order(token, db)
+    span = tracer.current_span()
+    if span:
+        span.set_tag("discount.code", body.coupon_code)
     order = await apply_coupon(order, body.coupon_code, db)
+    if span:
+        span.set_tag("cart.discount_amount", float(order.discount_amount))
+        span.set_tag("cart.total", float(order.total))
     return order_to_dict(order)
 
 

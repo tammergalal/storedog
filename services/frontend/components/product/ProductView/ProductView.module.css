@@ -1,23 +1,32 @@
 .root {
-  @apply relative grid items-start gap-1 grid-cols-1 overflow-x-hidden;
+  @apply relative grid items-start grid-cols-1;
+  gap: 40px;
+  padding: 32px 24px;
   min-height: auto;
+  background-color: var(--surface);
 }
 
 .main {
-  @apply relative px-0 pb-0 box-border  flex flex-col col-span-1;
-  min-height: 500px;
-}
-
-.sidebar {
-  @apply flex flex-col col-span-1 mx-auto max-w-8xl px-6 py-6 w-full h-full;
+  @apply relative box-border flex flex-col col-span-1;
+  min-height: auto;
 }
 
 .sliderContainer {
-  @apply flex items-center justify-center overflow-x-hidden bg-secondary;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .imageContainer {
-  @apply text-center h-full relative;
+  @apply text-center relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .imageContainer > span {
@@ -25,7 +34,17 @@
 }
 
 .sliderContainer .img {
-  @apply w-full h-full max-h-full object-cover;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  padding: 24px;
+}
+
+.sidebar {
+  @apply flex flex-col col-span-1 w-full;
+  padding: 0 0 24px 0;
 }
 
 .button {
@@ -37,20 +56,53 @@
 }
 
 .relatedProductsGrid {
-  @apply grid grid-cols-2 py-2 gap-2 md:grid-cols-4 md:gap-7;
+  @apply grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-7;
+  margin-top: 16px;
+}
+
+.relatedSection {
+  padding: 48px 0 32px;
+}
+
+.relatedHeading {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-base);
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+
+.productName {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-base);
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.productPrice {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--brand);
+  margin-bottom: 24px;
 }
 
 @screen lg {
   .root {
     @apply grid-cols-12;
+    padding: 40px 48px;
   }
 
   .main {
-    @apply mx-0 col-span-8;
+    @apply mx-0 col-span-7;
   }
 
   .sidebar {
-    @apply col-span-4 py-6;
+    @apply col-span-5;
+    padding: 0 0 24px 16px;
   }
 
   .imageContainer {

@@ -1,3 +1,122 @@
 .fit {
   min-height: calc(100vh - 88px);
 }
+
+/* === Storedog UI System: Reusable Component Utilities === */
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--brand);
+  color: var(--text-on-brand);
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: none;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--brand-light);
+  box-shadow: 0 4px 12px rgba(99, 44, 166, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  background-color: var(--brand-dark);
+  transform: translateY(0);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--brand);
+  border: 1.5px solid var(--brand);
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.btn-ghost:hover {
+  background-color: var(--brand);
+  color: var(--text-on-brand);
+}
+
+/* Cards */
+.card-base {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: box-shadow 200ms ease, transform 200ms ease;
+}
+
+.card-base:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+/* Badge/pill */
+.badge-sage {
+  background-color: var(--accent-sage);
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.badge-amber {
+  background-color: var(--accent-amber);
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Form inputs */
+.input-base {
+  height: 44px;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  color: var(--text-base);
+  background-color: #ffffff;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  outline: none;
+  width: 100%;
+}
+
+.input-base:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(99, 44, 166, 0.12);
+}
+
+/* Section headings */
+.heading-section {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-base);
+  letter-spacing: -0.02em;
+}
+
+.heading-page {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-base);
+  letter-spacing: -0.02em;
+}

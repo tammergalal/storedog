@@ -7,7 +7,7 @@ import { Searchbar, UserNav } from '@components/common'
 import { codeStash } from 'code-stash'
 import config from '../../../featureFlags.config.json'
 
-const dbmUrl = `${process.env.NEXT_PUBLIC_DBM_ROUTE}/get-item`
+const dbmUrl = `${typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_DBM_ROUTE ? process.env.NEXT_PUBLIC_DBM_ROUTE : '/services/dbm'}/get-item`
 
 const Navbar: FC<NavbarProps> = ({}) => {
   // Set the input value from the form to state
@@ -89,13 +89,13 @@ const Navbar: FC<NavbarProps> = ({}) => {
               <Link to="/products" className={s.link} id="all-products-link">
                 Products
               </Link>
-              <Link to="/taxonomies/categories/bestsellers" className={s.link} id="bestsellers-link">
+              <Link to="/taxonomies/datadog/bestsellers" className={s.link} id="bestsellers-link">
                 Best Sellers
               </Link>
-              <Link to="/taxonomies/categories/new" className={s.link} id="new-items-link">
+              <Link to="/taxonomies/datadog/new" className={s.link} id="new-items-link">
                 New
               </Link>
-              <Link to="/taxonomies/categories/tops" className={s.link} id="tops-link">
+              <Link to="/taxonomies/datadog/tops" className={s.link} id="tops-link">
                 Tops
               </Link>
             </nav>
@@ -108,7 +108,7 @@ const Navbar: FC<NavbarProps> = ({}) => {
         {dbmFlag && productInfo && (
           <p className="flex justify-center py-3 font-semibold">
             {productInfo.productName} was ordered {productInfo.count} times in
-            the last hour 🔥
+            the last hour
           </p>
         )}
       </Container>

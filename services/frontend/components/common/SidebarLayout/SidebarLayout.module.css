@@ -3,10 +3,12 @@
 }
 
 .header {
-  @apply sticky top-0 pl-4 py-4 pr-6
-  flex items-center justify-between 
-  bg-accent-0 box-border w-full z-10;
+  @apply sticky top-0 px-4 py-4
+  flex items-center justify-between
+  box-border w-full z-10;
+  background: #ffffff;
   min-height: 66px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .container {
