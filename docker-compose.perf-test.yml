@@ -96,6 +96,8 @@ services:
         condition: service_healthy
       discounts:
         condition: service_healthy
+      store-pricing-engine:
+        condition: service_started
     networks:
       - storedog-network
     environment:
@@ -106,8 +108,33 @@ services:
       - DD_ENV=production
       - DD_SERVICE=store-cart
       - DD_VERSION=1.0.0
+      - FEATURE_FLAG_DYNAMIC_PRICING=${FEATURE_FLAG_DYNAMIC_PRICING:-false}
+      - PRICING_ENGINE_URL=http://store-pricing-engine:8002
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  store-pricing-engine:
+    build:
+      context: ./services/pricing_engine
+    command: wait-for-it store-catalog:8000 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8002
+    restart: on-failure
+    networks:
+      - storedog-network
+    environment:
+      - DD_TRACE_ENABLED=false
+      - DD_ENV=production
+      - DD_SERVICE=store-pricing-engine
+      - DD_VERSION=1.0.0
+      - PRICING_RULES_COUNT=${PRICING_RULES_COUNT:-10000}
+      - PRICING_FETCH_DELAY_MS=${PRICING_FETCH_DELAY_MS:-2500}
+      - PRICING_CACHE_ENABLED=${PRICING_CACHE_ENABLED:-true}
+      - PRICING_DECISION_PADDING_KB=${PRICING_DECISION_PADDING_KB:-20}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
       interval: 10s
       timeout: 5s
       retries: 5

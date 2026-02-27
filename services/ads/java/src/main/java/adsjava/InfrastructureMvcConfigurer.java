@@ -5,13 +5,13 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Registers {@link ChaosInterceptor} with the Spring MVC interceptor chain.
+ * Registers {@link InfrastructureInterceptor} with the Spring MVC interceptor chain.
  */
 @Configuration
-public class ChaosWebMvcConfigurer implements WebMvcConfigurer {
+public class InfrastructureMvcConfigurer implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new ChaosInterceptor());
+        registry.addInterceptor(new InfrastructureInterceptor());
     }
 }

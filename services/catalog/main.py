@@ -23,6 +23,7 @@ from schemas import (
     VariantSchema,
 )
 from seed import seed_database
+from upstream_middleware import register_middleware
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +53,8 @@ app = FastAPI(
     description="Read-only product catalog service",
     lifespan=lifespan,
 )
+
+register_middleware(app)
 
 
 def _product_to_schema(p: Product) -> ProductSchema:

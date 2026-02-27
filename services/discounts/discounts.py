@@ -13,7 +13,7 @@ from flask import request as flask_request
 from flask_cors import CORS
 
 from bootstrap import create_app
-from chaos import register_chaos_middleware
+from promo_middleware import register_middleware
 from logging_utils import setup_logger
 from sqlalchemy import text
 from models import Discount, DiscountType, Influencer, db
@@ -30,7 +30,7 @@ app = create_app()
 CORS(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-register_chaos_middleware(app)
+register_middleware(app)
 
 # NOTE: This cache is not thread-safe under multi-threaded Flask workers.
 # For production use, replace with Redis-based caching.

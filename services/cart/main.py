@@ -1,5 +1,6 @@
 import bootstrap  # noqa: F401 — must be first for dd-trace
 
+import logging
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
@@ -15,6 +16,7 @@ from sqlalchemy.orm import Session
 from cart_utils import order_to_dict, recalculate_order
 from database import Base, engine, ensure_schema, get_db
 from models import LineItem, Order
+from pricing_client import PRICING_ENGINE_ENABLED, fetch_adjusted_price
 from promotions import apply_coupon
 from schemas import (
     AddItemRequest,
@@ -26,6 +28,8 @@ from schemas import (
 
 CATALOG_URL = os.environ.get("CATALOG_URL", "http://localhost:8000")
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,7 +38,11 @@ async def lifespan(app: FastAPI):
     yield
 
 
+from gateway_middleware import register_middleware
+
 app = FastAPI(title="Store Cart", lifespan=lifespan)
+
+register_middleware(app)
 
 
 def _get_order(token: str, db: Session) -> Order:
@@ -169,6 +177,14 @@ async def add_item(
             ),
         )
 
+    # Dynamic pricing: call pricing engine if enabled
+    adjusted_price = await fetch_adjusted_price(
+        variant_id=body.variant_id,
+        base_price=float(variant_data["price"]),
+        cart_total=float(order.total),
+        parent_span=tracer.current_span(),
+    )
+
     # C2: use SELECT FOR UPDATE to prevent race conditions on concurrent add_item
     existing = db.query(LineItem).filter(
         LineItem.order_id == order.id,
@@ -191,7 +207,7 @@ async def add_item(
             product_id=product_data["id"],
             variant_id=body.variant_id,
             quantity=body.quantity,
-            price=variant_data["price"],
+            price=adjusted_price,
             name=name,
             slug=product_data.get("slug"),
             image_url=image_url,
@@ -210,6 +226,7 @@ async def add_item(
         span.set_tag("cart.item.price", float(variant_data.get("price", 0)))
         span.set_tag("cart.total", float(order.total))
         span.set_tag("cart.item_count", order.item_count)
+        span.set_tag("pricing.enabled", PRICING_ENGINE_ENABLED)
 
     return order_to_dict(order)
 

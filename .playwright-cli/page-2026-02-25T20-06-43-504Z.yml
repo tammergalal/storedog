@@ -1,0 +1,126 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Logo" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e8]: Storedog
+        - navigation [ref=e9]:
+          - link "Products" [ref=e10] [cursor=pointer]:
+            - /url: /products
+          - link "Best Sellers" [ref=e11] [cursor=pointer]:
+            - /url: /taxonomies/datadog/bestsellers
+          - link "New" [ref=e12] [cursor=pointer]:
+            - /url: /taxonomies/datadog/new
+          - link "Tops" [ref=e13] [cursor=pointer]:
+            - /url: /taxonomies/datadog/tops
+      - navigation [ref=e15]:
+        - list [ref=e16]:
+          - listitem [ref=e17] [cursor=pointer]:
+            - 'button "Cart items: 0" [ref=e18]':
+              - img [ref=e19]
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - text: Flash Sale! Use code
+        - strong [ref=e24]: FLASH20
+        - text: for 20% off — 01:57:51 remaining
+      - generic [ref=e25]:
+        - button "Copy discount code" [ref=e26] [cursor=pointer]: Copy Code
+        - button "Dismiss flash sale" [ref=e27] [cursor=pointer]: ×
+    - main [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]:
+                - button "Previous Product Image" [ref=e36] [cursor=pointer]:
+                  - img [ref=e37]
+                - button "Next Product Image" [ref=e39] [cursor=pointer]:
+                  - img [ref=e40]
+              - img "Cool Bits sticker" [ref=e43]
+            - img "Cool Bits sticker" [ref=e46] [cursor=pointer]
+          - generic [ref=e48]:
+            - generic [ref=e49]:
+              - heading "Cool Bits" [level=1] [ref=e50]
+              - generic [ref=e51]: $19.99 USD
+            - generic [ref=e53]: "Slap this onto your favorite water bottle and be as cool as Bits. Warning: may cause other attendees at your next conference to dramatically over-hydrate just to keep staring at your bottle. This durable vinyl sticker is weatherproof, sunproof, and cool-proof."
+            - button "Add to Cart" [ref=e54] [cursor=pointer]: Add To Cart
+            - generic [ref=e55]:
+              - paragraph [ref=e56]: Details
+              - generic [ref=e57]:
+                - term [ref=e58]: Material
+                - definition [ref=e59]: Durable vinyl
+                - term [ref=e60]: Size
+                - definition [ref=e61]: Approx. 3" × 3"
+                - term [ref=e62]: Finish
+                - definition [ref=e63]: Glossy, UV & water resistant
+                - term [ref=e64]: Residue
+                - definition [ref=e65]: Removes cleanly — no sticky regrets
+                - term [ref=e66]: Ships
+                - definition [ref=e67]: Free on orders over $25
+                - term [ref=e68]: SKU
+                - definition [ref=e69]: COOL-BITS-STD
+        - generic [ref=e70]:
+          - heading "Related Products" [level=2] [ref=e71]
+          - generic [ref=e72]:
+            - link "Cool Bits" [ref=e74] [cursor=pointer]:
+              - /url: /products/cool-bits
+              - generic [ref=e75]:
+                - img "Cool Bits" [ref=e76]
+                - button "Add to Cart" [ref=e78]
+              - generic [ref=e79]:
+                - heading "Cool Bits" [level=3] [ref=e80]
+                - generic [ref=e81]: $19.99
+            - link "Bits by Dre" [ref=e83] [cursor=pointer]:
+              - /url: /products/bits-by-dre
+              - generic [ref=e84]:
+                - img "Bits by Dre" [ref=e85]
+                - button "Add to Cart" [ref=e87]
+              - generic [ref=e88]:
+                - heading "Bits by Dre" [level=3] [ref=e89]
+                - generic [ref=e90]: $14.99
+            - link "Hockey Bits" [ref=e92] [cursor=pointer]:
+              - /url: /products/hockey-bits
+              - generic [ref=e93]:
+                - img "Hockey Bits" [ref=e94]
+                - button "Add to Cart" [ref=e96]
+              - generic [ref=e97]:
+                - heading "Hockey Bits" [level=3] [ref=e98]
+                - generic [ref=e99]: $5.00
+            - link "Learning Bits" [ref=e101] [cursor=pointer]:
+              - /url: /products/learning-bits
+              - generic [ref=e102]:
+                - img "Learning Bits" [ref=e103]
+                - button "Add to Cart" [ref=e105]
+              - generic [ref=e106]:
+                - heading "Learning Bits" [level=3] [ref=e107]
+                - generic [ref=e108]: $9.99
+    - contentinfo [ref=e109]:
+      - generic [ref=e110]:
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - generic [ref=e113]: Storedog
+            - paragraph [ref=e114]: Gear for the trail ahead.
+          - generic [ref=e115]:
+            - generic [ref=e116]: Shop
+            - link "Products" [ref=e117] [cursor=pointer]:
+              - /url: /products
+            - link "Bestsellers" [ref=e118] [cursor=pointer]:
+              - /url: /taxonomies/categories/bestsellers
+            - link "New" [ref=e119] [cursor=pointer]:
+              - /url: /taxonomies/categories/new
+            - link "Tops" [ref=e120] [cursor=pointer]:
+              - /url: /taxonomies/categories/tops
+          - generic [ref=e121]:
+            - generic [ref=e122]: Stay in the loop
+            - generic [ref=e123]:
+              - textbox "Email for newsletter" [ref=e124]:
+                - /placeholder: Enter your email
+              - button "Subscribe" [ref=e125] [cursor=pointer]
+        - generic [ref=e126]:
+          - generic [ref=e127]: © 2026 Storedog, Inc. All rights reserved.
+          - generic [ref=e128]:
+            - text: Datadog training demo application — nothing here is actually for sale.
+            - link "datadoghq.com" [ref=e129] [cursor=pointer]:
+              - /url: https://datadoghq.com
+  - button "Show Session Debug" [ref=e130] [cursor=pointer]

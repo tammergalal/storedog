@@ -1,0 +1,227 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Logo" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e8]: Storedog
+        - navigation [ref=e9]:
+          - link "Products" [ref=e10] [cursor=pointer]:
+            - /url: /products
+          - link "Best Sellers" [ref=e11] [cursor=pointer]:
+            - /url: /taxonomies/datadog/bestsellers
+          - link "New" [ref=e12] [cursor=pointer]:
+            - /url: /taxonomies/datadog/new
+          - link "Tops" [ref=e13] [cursor=pointer]:
+            - /url: /taxonomies/datadog/tops
+      - navigation [ref=e15]:
+        - list [ref=e16]:
+          - listitem [ref=e17] [cursor=pointer]:
+            - 'button "Cart items: 0" [ref=e18]':
+              - img [ref=e19]
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - text: Flash Sale! Use code
+        - strong [ref=e24]: FLASH20
+        - text: for 20% off — 01:58:25 remaining
+      - generic [ref=e25]:
+        - button "Copy discount code" [ref=e26] [cursor=pointer]: Copy Code
+        - button "Dismiss flash sale" [ref=e27] [cursor=pointer]: ×
+    - main [ref=e28]:
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Storedog
+          - heading "All Products" [level=1] [ref=e32]
+          - paragraph [ref=e33]: 17 items
+        - generic [ref=e34]:
+          - complementary [ref=e35]:
+            - paragraph [ref=e36]: Categories
+            - list [ref=e37]:
+              - listitem [ref=e38]:
+                - link "All Products" [ref=e39] [cursor=pointer]:
+                  - /url: /products
+              - listitem [ref=e40]:
+                - link "Stickers" [ref=e41] [cursor=pointer]:
+                  - /url: /taxonomies/datadog/stickers
+              - listitem [ref=e42]:
+                - link "Tops" [ref=e43] [cursor=pointer]:
+                  - /url: /taxonomies/datadog/tops
+              - listitem [ref=e44]:
+                - link "Pants" [ref=e45] [cursor=pointer]:
+                  - /url: /taxonomies/datadog/pants
+              - listitem [ref=e46]:
+                - link "Bestsellers" [ref=e47] [cursor=pointer]:
+                  - /url: /taxonomies/datadog/bestsellers
+              - listitem [ref=e48]:
+                - link "New" [ref=e49] [cursor=pointer]:
+                  - /url: /taxonomies/datadog/new
+            - generic [ref=e51]:
+              - paragraph [ref=e52]: Free Shipping
+              - paragraph [ref=e53]: On all orders over $50.
+          - main [ref=e54]:
+            - generic [ref=e55]:
+              - link "Cool Bits" [ref=e56] [cursor=pointer]:
+                - /url: /products/cool-bits
+                - generic [ref=e57]:
+                  - img "Cool Bits" [ref=e58]
+                  - button "Add to Cart" [ref=e60]
+                - generic [ref=e61]:
+                  - heading "Cool Bits" [level=3] [ref=e62]
+                  - generic [ref=e63]: $19.99
+              - link "Bits by Dre" [ref=e64] [cursor=pointer]:
+                - /url: /products/bits-by-dre
+                - generic [ref=e65]:
+                  - img "Bits by Dre" [ref=e66]
+                  - button "Add to Cart" [ref=e68]
+                - generic [ref=e69]:
+                  - heading "Bits by Dre" [level=3] [ref=e70]
+                  - generic [ref=e71]: $14.99
+              - link "Hockey Bits" [ref=e72] [cursor=pointer]:
+                - /url: /products/hockey-bits
+                - generic [ref=e73]:
+                  - img "Hockey Bits" [ref=e74]
+                  - button "Add to Cart" [ref=e76]
+                - generic [ref=e77]:
+                  - heading "Hockey Bits" [level=3] [ref=e78]
+                  - generic [ref=e79]: $5.00
+              - link "Learning Bits" [ref=e80] [cursor=pointer]:
+                - /url: /products/learning-bits
+                - generic [ref=e81]:
+                  - img "Learning Bits" [ref=e82]
+                  - button "Add to Cart" [ref=e84]
+                - generic [ref=e85]:
+                  - heading "Learning Bits" [level=3] [ref=e86]
+                  - generic [ref=e87]: $9.99
+              - link "Money Bits" [ref=e88] [cursor=pointer]:
+                - /url: /products/money-bits
+                - generic [ref=e89]:
+                  - img "Money Bits" [ref=e90]
+                  - button "Add to Cart" [ref=e92]
+                - generic [ref=e93]:
+                  - heading "Money Bits" [level=3] [ref=e94]
+                  - generic [ref=e95]: $3.50
+              - link "Octo Bits" [ref=e96] [cursor=pointer]:
+                - /url: /products/octo-bits
+                - generic [ref=e97]:
+                  - img "Octo Bits" [ref=e98]
+                  - button "Add to Cart" [ref=e100]
+                - generic [ref=e101]:
+                  - heading "Octo Bits" [level=3] [ref=e102]
+                  - generic [ref=e103]: $18.99
+              - link "OG Bits" [ref=e104] [cursor=pointer]:
+                - /url: /products/og-bits
+                - generic [ref=e105]:
+                  - img "OG Bits" [ref=e106]
+                  - button "Add to Cart" [ref=e108]
+                - generic [ref=e109]:
+                  - heading "OG Bits" [level=3] [ref=e110]
+                  - generic [ref=e111]: $5.99
+              - link "Rainbow Bits" [ref=e112] [cursor=pointer]:
+                - /url: /products/rainbow-bits
+                - generic [ref=e113]:
+                  - img "Rainbow Bits" [ref=e114]
+                  - button "Add to Cart" [ref=e116]
+                - generic [ref=e117]:
+                  - heading "Rainbow Bits" [level=3] [ref=e118]
+                  - generic [ref=e119]: $12.99
+              - link "Space Bits" [ref=e120] [cursor=pointer]:
+                - /url: /products/space-bits
+                - generic [ref=e121]:
+                  - img "Space Bits" [ref=e122]
+                  - button "Add to Cart" [ref=e124]
+                - generic [ref=e125]:
+                  - heading "Space Bits" [level=3] [ref=e126]
+                  - generic [ref=e127]: $10.00
+              - link "Student Bits" [ref=e128] [cursor=pointer]:
+                - /url: /products/student-bits
+                - generic [ref=e129]:
+                  - img "Student Bits" [ref=e130]
+                  - button "Add to Cart" [ref=e132]
+                - generic [ref=e133]:
+                  - heading "Student Bits" [level=3] [ref=e134]
+                  - generic [ref=e135]: $11.01
+              - link "Stonk Bits" [ref=e136] [cursor=pointer]:
+                - /url: /products/stonk-bits
+                - generic [ref=e137]:
+                  - img "Stonk Bits" [ref=e138]
+                  - button "Add to Cart" [ref=e140]
+                - generic [ref=e141]:
+                  - heading "Stonk Bits" [level=3] [ref=e142]
+                  - generic [ref=e143]: $27.00
+              - link "April 2022 Summit Denver Sticker" [ref=e144] [cursor=pointer]:
+                - /url: /products/april-2022-summit-denver-sticker
+                - generic [ref=e145]:
+                  - img "April 2022 Summit Denver Sticker" [ref=e146]
+                  - button "Add to Cart" [ref=e148]
+                - generic [ref=e149]:
+                  - heading "April 2022 Summit Denver Sticker" [level=3] [ref=e150]
+                  - generic [ref=e151]: $4.13
+              - link "Sunset Bits" [ref=e152] [cursor=pointer]:
+                - /url: /products/sunset-bits
+                - generic [ref=e153]:
+                  - img "Sunset Bits" [ref=e154]
+                  - button "Add to Cart" [ref=e156]
+                - generic [ref=e157]:
+                  - heading "Sunset Bits" [level=3] [ref=e158]
+                  - generic [ref=e159]: $19.84
+              - link "AAPI Heritage Month Bits" [ref=e160] [cursor=pointer]:
+                - /url: /products/aapi-heritage-month-bits
+                - generic [ref=e161]:
+                  - img "AAPI Heritage Month Bits" [ref=e162]
+                  - button "Add to Cart" [ref=e164]
+                - generic [ref=e165]:
+                  - heading "AAPI Heritage Month Bits" [level=3] [ref=e166]
+                  - generic [ref=e167]: $19.92
+              - link "Sweatshirt (Crewneck)" [ref=e168] [cursor=pointer]:
+                - /url: /products/sweatshirt-crewneck
+                - generic [ref=e169]:
+                  - img "Sweatshirt (Crewneck)" [ref=e170]
+                  - button "Add to Cart" [ref=e172]
+                - generic [ref=e173]:
+                  - heading "Sweatshirt (Crewneck)" [level=3] [ref=e174]
+                  - generic [ref=e175]: $45.00
+              - link "Blue Jeans" [ref=e176] [cursor=pointer]:
+                - /url: /products/blue-jeans
+                - generic [ref=e177]:
+                  - img "Blue Jeans" [ref=e178]
+                  - button "Add to Cart" [ref=e180]
+                - generic [ref=e181]:
+                  - heading "Blue Jeans" [level=3] [ref=e182]
+                  - generic [ref=e183]: $64.95
+              - link "Circle Logo T-Shirt" [ref=e184] [cursor=pointer]:
+                - /url: /products/circle-logo-t-shirt
+                - generic [ref=e185]:
+                  - img "Circle Logo T-Shirt" [ref=e186]
+                  - button "Add to Cart" [ref=e188]
+                - generic [ref=e189]:
+                  - heading "Circle Logo T-Shirt" [level=3] [ref=e190]
+                  - generic [ref=e191]: $16.95
+    - contentinfo [ref=e192]:
+      - generic [ref=e193]:
+        - generic [ref=e194]:
+          - generic [ref=e195]:
+            - generic [ref=e196]: Storedog
+            - paragraph [ref=e197]: Gear for the trail ahead.
+          - generic [ref=e198]:
+            - generic [ref=e199]: Shop
+            - link "Products" [ref=e200] [cursor=pointer]:
+              - /url: /products
+            - link "Bestsellers" [ref=e201] [cursor=pointer]:
+              - /url: /taxonomies/categories/bestsellers
+            - link "New" [ref=e202] [cursor=pointer]:
+              - /url: /taxonomies/categories/new
+            - link "Tops" [ref=e203] [cursor=pointer]:
+              - /url: /taxonomies/categories/tops
+          - generic [ref=e204]:
+            - generic [ref=e205]: Stay in the loop
+            - generic [ref=e206]:
+              - textbox "Email for newsletter" [ref=e207]:
+                - /placeholder: Enter your email
+              - button "Subscribe" [ref=e208] [cursor=pointer]
+        - generic [ref=e209]:
+          - generic [ref=e210]: © 2026 Storedog, Inc. All rights reserved.
+          - generic [ref=e211]:
+            - text: Datadog training demo application — nothing here is actually for sale.
+            - link "datadoghq.com" [ref=e212] [cursor=pointer]:
+              - /url: https://datadoghq.com
+  - button "Show Session Debug" [ref=e213] [cursor=pointer]

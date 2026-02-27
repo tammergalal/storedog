@@ -19,7 +19,7 @@
 | **Flash Sales** | Not present | `/flash-sale` endpoint + countdown banner |
 | **Rate Limiting** | Not present | Redis-backed per-IP rate limiting on discount validation |
 | **Session Debug Panel** | Not present | Collapsible RUM event viewer in-browser |
-| **Chaos / Failure Modes** | Discounts only | Discounts + catalog + ads (all env-var controlled) |
+| **Failure Modes** | Discounts only | All services (env-var controlled per-service degradation) |
 
 Services that are **unchanged**: Ads (Java), nginx/service-proxy, PostgreSQL, Redis, Puppeteer, Datadog Agent.
 
@@ -52,6 +52,7 @@ Shared infrastructure:
 | Frontend | TypeScript / Remix | 3000 (internal) | `store-frontend-api` (server), `store-frontend` (RUM) |
 | Catalog | Python / FastAPI | 8000 | `store-catalog` |
 | Cart | Python / FastAPI | 8001 | `store-cart` |
+| Pricing Engine | Python / FastAPI | 8002 | `store-pricing-engine` |
 | Discounts | Python / Flask | 2814 | `store-discounts` |
 | Ads | Java / Spring Boot | 3030 | `store-ads` |
 | Nginx | C (nginx + DD module) | 9090 | `service-proxy` |
@@ -185,21 +186,21 @@ These variables inject specific failure patterns for demonstrating APM, Profilin
 
 ---
 
-### Discounts — Chaos Middleware
+### Discounts — Promotion Engine Degradation
 
-Applies to **every request** on `store-discounts` via a Flask `before_request` hook (`services/discounts/chaos.py`).
+Applies to **every request** on `store-discounts` via a Flask `before_request` hook (`services/discounts/promo_middleware.py`).
 
 | Variable | Default | Effect when set |
 |---|---|---|
-| `SERVICE_DELAY_MS` | `0` | Adds a fixed delay (ms) to every request. Visible as increased latency on the `flask.request` span in APM. |
-| `SERVICE_ERROR_RATE` | `0.0` | Probability (0.0–1.0) that any request returns HTTP 500. Useful for Error Tracking demos. |
-| `SERVICE_CHAOS_MODE` | `false` | When `true`, delay and error rate become random per request (0–2000ms, random errors), simulating a flapping service. |
+| `PROMO_ENGINE_RESPONSE_TIME_MS` | `0` | Adds a fixed delay (ms) to every request. Visible as increased latency on the `flask.request` span in APM. |
+| `PROMO_ENGINE_OUTAGE_RATE` | `0.0` | Probability (0.0–1.0) that any request returns HTTP 503. Useful for Error Tracking demos. |
+| `PROMO_ENGINE_DEGRADED` | `false` | When `true`, delay and error rate become random per request (0–2000ms, random errors), simulating a flapping service. |
 
 **Example — add 400ms latency to all discount calls:**
 
 ```bash
 # .env
-SERVICE_DELAY_MS=400
+PROMO_ENGINE_RESPONSE_TIME_MS=400
 ```
 
 ```bash
@@ -235,17 +236,47 @@ Controlled via `services/discounts/discounts.py`.
 
 ---
 
-### Ads — Chaos Interceptor
+### Ads — Campaign Service Degradation
 
-The Java ads service has a `ChaosInterceptor` (`services/ads/java/src/main/java/adsjava/ChaosInterceptor.java`) that follows the same contract as the Python middleware.
+The Java ads service has an `InfrastructureInterceptor` (`services/ads/java/src/main/java/adsjava/InfrastructureInterceptor.java`) that follows the same contract as the Python middleware.
 
 | Variable | Default | Effect when set |
 |---|---|---|
-| `SERVICE_DELAY_MS` | `0` | Fixed delay on ad requests |
-| `SERVICE_ERROR_RATE` | `0.0` | Random HTTP 500 error rate (0.0–1.0) |
-| `SERVICE_CHAOS_MODE` | `false` | Random delay + error combination |
+| `CAMPAIGN_DB_QUERY_LATENCY_MS` | `0` | Fixed latency on ad requests |
+| `CAMPAIGN_FETCH_FAILURE_RATE` | `0.0` | Probability (0.0–1.0) of returning HTTP 503 |
+| `CAMPAIGN_SERVICE_DEGRADED` | `false` | Random latency + error combination |
 
 **What to look for in Datadog:** Failed ad fetches appear in the frontend's `store-frontend-api` traces as 5xx upstream errors from `service-proxy`. The `store-ads` service shows error spans and `error.message` tags in APM.
+
+---
+
+### Dynamic Pricing Engine
+
+The `dynamic-pricing` feature simulates a real-world pricing service that evaluates 10,000 pricing rules on every add-to-cart action. It demonstrates how a legitimate feature addition can introduce significant performance degradation and memory growth — patterns that are highly visible in Datadog APM and infrastructure metrics.
+
+**How to enable:**
+
+Set `FEATURE_FLAG_DYNAMIC_PRICING=true` in your `.env` file and restart the `store-cart` service:
+
+```bash
+FEATURE_FLAG_DYNAMIC_PRICING=true docker compose up store-cart store-pricing-engine
+```
+
+**What you'll see in Datadog:**
+
+- **APM Service Map**: `store-pricing-engine` appears as a new downstream dependency of `store-cart`
+- **Trace Waterfall**: `pricing_engine.evaluate_rules` span visible as the bottleneck in every `add_item` trace
+- **Latency**: `store-cart` `add_item` p95 climbs from ~300ms to 2–4s
+- **Memory**: `store-pricing-engine` container memory grows ~500KB per add-to-cart (unbounded decision cache)
+- **Span Tags**: `pricing.rules_evaluated`, `pricing.rule_matched`, `pricing.final_price`, `pricing.cache_size`
+
+**Tuning:**
+
+| Variable | Default | Description |
+|---|---|---|
+| `PRICING_RULES_COUNT` | `10000` | Number of pricing rules evaluated per request (higher = more latency) |
+| `PRICING_DECISION_PADDING_KB` | `20` | Additional context stored per cached decision (higher = faster memory growth) |
+| `PRICING_CACHE_ENABLED` | `true` | Enable/disable the decision cache (set `false` to isolate latency from memory effects) |
 
 ---
 
@@ -387,8 +418,8 @@ BASE_URL=http://localhost:9090 npx playwright test
 | `services/cart/main.py` | FastAPI cart — cart, checkout, coupon endpoints |
 | `services/cart/promotions.py` | Coupon validation — calls discounts service with trace propagation |
 | `services/discounts/discounts.py` | Flask discounts — code lookup, flash sales, referral, rate limiting |
-| `services/discounts/chaos.py` | Chaos middleware — delay and error injection |
-| `services/ads/java/src/main/java/adsjava/ChaosInterceptor.java` | Java chaos interceptor |
+| `services/discounts/promo_middleware.py` | Promotion engine degradation middleware |
+| `services/ads/java/src/main/java/adsjava/InfrastructureInterceptor.java` | Java infrastructure interceptor |
 | `services/nginx/default.conf.template` | Nginx routing and A/B ads traffic split |
 | `e2e/tests/` | Playwright E2E tests |
 

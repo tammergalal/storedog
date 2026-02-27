@@ -103,10 +103,16 @@ services:
       context: ./services/cart
     command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8001 --reload
     depends_on:
-      - postgres
-      - store-catalog
-      - discounts
-      - dd-agent
+      postgres:
+        condition: service_started
+      store-catalog:
+        condition: service_started
+      discounts:
+        condition: service_started
+      dd-agent:
+        condition: service_started
+      store-pricing-engine:
+        condition: service_started
     networks:
       - storedog-network
     volumes:
@@ -125,6 +131,8 @@ services:
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
       - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - FEATURE_FLAG_DYNAMIC_PRICING=${FEATURE_FLAG_DYNAMIC_PRICING:-false}
+      - PRICING_ENGINE_URL=http://store-pricing-engine:8002
     labels:
       com.datadoghq.ad.logs: '[{"source": "python"}]'
     healthcheck:
@@ -133,6 +141,44 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+  # Pricing engine service (Python/FastAPI)
+  store-pricing-engine:
+    build:
+      context: ./services/pricing_engine
+    command: wait-for-it store-catalog:8000 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8002
+    depends_on:
+      - dd-agent
+    networks:
+      - storedog-network
+    volumes:
+      - ./services/pricing_engine:/app
+    environment:
+      - DD_AGENT_HOST=dd-agent
+      - DD_ENV=${DD_ENV:-development}
+      - DD_SERVICE=store-pricing-engine
+      - DD_VERSION=${DD_VERSION_PRICING:-1.0.0}
+      - DD_RUNTIME_METRICS_ENABLED=true
+      - DD_LOGS_INJECTION=true
+      - DD_PROFILING_ENABLED=true
+      - DD_PROFILING_TIMELINE_ENABLED=true
+      - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - PRICING_RULES_FETCH_FAILURE_RATE=${PRICING_RULES_FETCH_FAILURE_RATE:-0.0}
+      - PRICING_RULES_DB_LATENCY_MS=${PRICING_RULES_DB_LATENCY_MS:-0}
+      - PRICING_ENGINE_DEGRADED=${PRICING_ENGINE_DEGRADED:-false}
+      - PRICING_RULES_COUNT=${PRICING_RULES_COUNT:-10000}
+      - PRICING_FETCH_DELAY_MS=${PRICING_FETCH_DELAY_MS:-2500}
+      - PRICING_CACHE_ENABLED=${PRICING_CACHE_ENABLED:-true}
+      - PRICING_DECISION_PADDING_KB=${PRICING_DECISION_PADDING_KB:-20}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "python"}]'
 
   # Discounts service (Python/Flask)
   discounts:

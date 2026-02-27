@@ -7,8 +7,8 @@ import { isbot } from 'isbot'
 import { renderToPipeableStream } from 'react-dom/server'
 
 const ABORT_DELAY = 5_000
-const ERROR_RATE = parseFloat(process.env.SERVICE_ERROR_RATE || '0')
-const DELAY_MS = parseInt(process.env.SERVICE_DELAY_MS || '0', 10)
+const ERROR_RATE = parseFloat(process.env.UPSTREAM_API_FAILURE_RATE || '0')
+const DELAY_MS = parseInt(process.env.UPSTREAM_API_TIMEOUT_MS || '0', 10)
 
 export default async function handleRequest(
   request: Request,
@@ -18,16 +18,15 @@ export default async function handleRequest(
 ) {
   const url = new URL(request.url)
 
-  // Chaos middleware: apply to /api/ routes
   if (url.pathname.startsWith('/api/')) {
     if (DELAY_MS > 0) {
       await new Promise((resolve) => setTimeout(resolve, DELAY_MS))
     }
     if (Math.random() < ERROR_RATE) {
-      return new Response(JSON.stringify({ error: 'chaos injection' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return new Response(
+        JSON.stringify({ error: 'Upstream service unavailable', upstream: 'store-catalog' }),
+        { status: 503, headers: { 'Content-Type': 'application/json' } }
+      )
     }
   }
 

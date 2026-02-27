@@ -43,9 +43,8 @@ services:
       - NEXT_PUBLIC_DD_SERVICE_FRONTEND=store-frontend # used for client-side Next.js RUM configuration
       - NEXT_PUBLIC_DD_ENV=${DD_ENV:-production}
       - NEXT_PUBLIC_DD_VERSION=${NEXT_PUBLIC_DD_VERSION_FRONTEND:-1.0.0}
-      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
-      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
-      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
+      - UPSTREAM_API_FAILURE_RATE=${UPSTREAM_API_FAILURE_RATE:-0.0}
+      - UPSTREAM_API_TIMEOUT_MS=${UPSTREAM_API_TIMEOUT_MS:-0}
       - FEATURE_FLAG_DBM=${FEATURE_FLAG_DBM:-false}
       - FEATURE_FLAG_ERROR_TRACKING=${FEATURE_FLAG_ERROR_TRACKING:-false}
       - FEATURE_FLAG_BROKEN_DISCOUNTS=${FEATURE_FLAG_BROKEN_DISCOUNTS:-false}
@@ -73,9 +72,9 @@ services:
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
       - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
-      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
-      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
-      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
+      - CATALOG_DB_FAILOVER_RATE=${CATALOG_DB_FAILOVER_RATE:-0.0}
+      - CATALOG_IMAGE_CDN_LATENCY_MS=${CATALOG_IMAGE_CDN_LATENCY_MS:-0}
+      - CATALOG_INCIDENT_MODE=${CATALOG_INCIDENT_MODE:-false}
     labels:
       com.datadoghq.ad.logs: '[{"source": "python"}]'
     healthcheck:
@@ -89,10 +88,16 @@ services:
       context: ./services/cart
     command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8001
     depends_on:
-      - postgres
-      - store-catalog
-      - discounts
-      - dd-agent
+      postgres:
+        condition: service_started
+      store-catalog:
+        condition: service_started
+      discounts:
+        condition: service_started
+      dd-agent:
+        condition: service_started
+      store-pricing-engine:
+        condition: service_started
     networks:
       - storedog-network
     environment:
@@ -108,9 +113,11 @@ services:
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
       - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
-      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
-      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
-      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
+      - PAYMENT_PROCESSOR_FAILURE_RATE=${PAYMENT_PROCESSOR_FAILURE_RATE:-0.0}
+      - PAYMENT_GATEWAY_LATENCY_MS=${PAYMENT_GATEWAY_LATENCY_MS:-0}
+      - PAYMENT_DEGRADED_MODE=${PAYMENT_DEGRADED_MODE:-false}
+      - FEATURE_FLAG_DYNAMIC_PRICING=${FEATURE_FLAG_DYNAMIC_PRICING:-false}
+      - PRICING_ENGINE_URL=http://store-pricing-engine:8002
     labels:
       com.datadoghq.ad.logs: '[{"source": "python"}]'
     healthcheck:
@@ -119,6 +126,39 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+  store-pricing-engine:
+    build:
+      context: ./services/pricing_engine
+    command: wait-for-it store-catalog:8000 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8002
+    depends_on:
+      - dd-agent
+    networks:
+      - storedog-network
+    environment:
+      - DD_AGENT_HOST=dd-agent
+      - DD_ENV=${DD_ENV:-production}
+      - DD_SERVICE=store-pricing-engine
+      - DD_VERSION=${DD_VERSION_PRICING:-1.0.0}
+      - DD_RUNTIME_METRICS_ENABLED=true
+      - DD_PROFILING_ENABLED=true
+      - DD_PROFILING_TIMELINE_ENABLED=true
+      - DD_PROFILING_ALLOCATION_ENABLED=true
+      - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - PRICING_RULES_FETCH_FAILURE_RATE=${PRICING_RULES_FETCH_FAILURE_RATE:-0.0}
+      - PRICING_RULES_DB_LATENCY_MS=${PRICING_RULES_DB_LATENCY_MS:-0}
+      - PRICING_ENGINE_DEGRADED=${PRICING_ENGINE_DEGRADED:-false}
+      - PRICING_RULES_COUNT=${PRICING_RULES_COUNT:-10000}
+      - PRICING_FETCH_DELAY_MS=${PRICING_FETCH_DELAY_MS:-2500}
+      - PRICING_CACHE_ENABLED=${PRICING_CACHE_ENABLED:-true}
+      - PRICING_DECISION_PADDING_KB=${PRICING_DECISION_PADDING_KB:-20}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "python"}]'
   discounts:
     image: ghcr.io/datadog/storedog/discounts:${STOREDOG_IMAGE_VERSION:-latest}
     command: wait-for-it postgres:5432 -- ddtrace-run flask run --port=2814 --host=0.0.0.0
@@ -138,9 +178,9 @@ services:
       - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
-      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
-      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
+      - PROMO_ENGINE_OUTAGE_RATE=${PROMO_ENGINE_OUTAGE_RATE:-0.0}
+      - PROMO_ENGINE_RESPONSE_TIME_MS=${PROMO_ENGINE_RESPONSE_TIME_MS:-0}
+      - PROMO_ENGINE_DEGRADED=${PROMO_ENGINE_DEGRADED:-false}
     networks:
       - storedog-network
     labels:
@@ -162,9 +202,9 @@ services:
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
       - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
-      - SERVICE_ERROR_RATE=${SERVICE_ERROR_RATE:-0.0}
-      - SERVICE_DELAY_MS=${SERVICE_DELAY_MS:-0}
-      - SERVICE_CHAOS_MODE=${SERVICE_CHAOS_MODE:-false}
+      - CAMPAIGN_FETCH_FAILURE_RATE=${CAMPAIGN_FETCH_FAILURE_RATE:-0.0}
+      - CAMPAIGN_DB_QUERY_LATENCY_MS=${CAMPAIGN_DB_QUERY_LATENCY_MS:-0}
+      - CAMPAIGN_SERVICE_DEGRADED=${CAMPAIGN_SERVICE_DEGRADED:-false}
     networks:
       - storedog-network
     labels:

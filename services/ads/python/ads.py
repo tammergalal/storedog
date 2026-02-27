@@ -8,7 +8,7 @@ from flask_cors import CORS
 
 from sqlalchemy import text
 from bootstrap import create_app
-from chaos import register_chaos_middleware
+from targeting_middleware import register_middleware
 from logging_utils import setup_logger
 from models import Advertisement, db
 
@@ -20,7 +20,7 @@ app = create_app()
 CORS(app)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-register_chaos_middleware(app)
+register_middleware(app)
 
 
 @app.route('/health')
