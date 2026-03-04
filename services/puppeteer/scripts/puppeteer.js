@@ -923,9 +923,14 @@ const launchSession = () => {
     releaseSlot();
   }, MAX_SESSION_TIMEOUT_MS);
 
+  // Track whether fn() rejected so .finally() only resets the failure counter
+  // when the session promise genuinely resolved. Sessions that catch their own
+  // errors internally still resolve, but we don't want that to mask real
+  // Puppeteer infrastructure failures (e.g. browser won't launch).
+  let launchFailed = false;
   fn()
-    .then(() => { consecutiveLaunchFailures = 0; })
     .catch((err) => {
+      launchFailed = true;
       consecutiveLaunchFailures++;
       console.error(`[session] ${name} error:`, err);
       if (consecutiveLaunchFailures >= 5) {
@@ -934,6 +939,7 @@ const launchSession = () => {
       }
     })
     .finally(() => {
+      if (!launchFailed) consecutiveLaunchFailures = 0;
       clearTimeout(timeoutId);
       releaseSlot();
     });
