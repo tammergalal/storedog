@@ -874,30 +874,41 @@ const pricingStressSession = async () => {
   }
 };
 
-const launchSession = () => {
+let activeSessions = 0;
+const _parsedMax = parseInt(process.env.MAX_CONCURRENT_SESSIONS || '10', 10);
+const MAX_CONCURRENT_SESSIONS = Number.isFinite(_parsedMax) && _parsedMax > 0 ? _parsedMax : 10;
+const _parsedTimeout = parseInt(process.env.MAX_SESSION_TIMEOUT_MS || '120000', 10);
+const MAX_SESSION_TIMEOUT_MS = Number.isFinite(_parsedTimeout) && _parsedTimeout > 0 ? _parsedTimeout : 120000;
+
+const pickSession = () => {
   const rand = Math.random();
   if (rand < 0.5) {
-    console.log('[session] running pricing-stress');
-    pricingStressSession().catch((err) =>
-      console.error('[session] pricing-stress error:', err)
-    );
+    return { name: 'pricing-stress', fn: pricingStressSession };
   } else if (rand < 0.625) {
-    console.log('[session] running main');
-    mainSession().catch((err) => console.error('[session] main error:', err));
+    return { name: 'main', fn: mainSession };
   } else if (rand < 0.75) {
-    console.log('[session] running second');
-    secondSession().catch((err) =>
-      console.error('[session] second error:', err)
-    );
+    return { name: 'second', fn: secondSession };
   } else if (rand < 0.875) {
-    console.log('[session] running third');
-    thirdSession().catch((err) => console.error('[session] third error:', err));
+    return { name: 'third', fn: thirdSession };
   } else {
-    console.log('[session] running fourth');
-    fourthSession().catch((err) =>
-      console.error('[session] fourth error:', err)
-    );
+    return { name: 'fourth', fn: fourthSession };
   }
+};
+
+const launchSession = () => {
+  if (activeSessions >= MAX_CONCURRENT_SESSIONS) {
+    console.log(`[session] skipping — ${activeSessions} sessions already active`);
+    return;
+  }
+  activeSessions++;
+  const { name, fn } = pickSession();
+  console.log(`[session] running ${name}`);
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(`session timed out after ${MAX_SESSION_TIMEOUT_MS}ms`)), MAX_SESSION_TIMEOUT_MS)
+  );
+  Promise.race([fn(), timeout])
+    .catch((err) => console.error(`[session] ${name} error:`, err))
+    .finally(() => { activeSessions--; });
 };
 
 // Launch one session immediately, then one every 3 seconds

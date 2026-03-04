@@ -62,7 +62,7 @@ services:
     networks:
       - storedog-network
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog_db
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-production}
       - DD_SERVICE=store-catalog
@@ -101,7 +101,7 @@ services:
     networks:
       - storedog-network
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/storedog_db
       - CATALOG_URL=http://store-catalog:8000
       - DISCOUNTS_URL=http://discounts:2814
       - DD_AGENT_HOST=dd-agent
@@ -212,7 +212,8 @@ services:
       com.datadoghq.tags.service: 'store-ads'
       com.datadoghq.tags.version: '${DD_VERSION_ADS:-1.0.0}'
   service-proxy:
-    image: ghcr.io/datadog/storedog/nginx:${STOREDOG_IMAGE_VERSION:-latest}
+    build:
+      context: ./services/nginx
     restart: always
     networks:
       - storedog-network
