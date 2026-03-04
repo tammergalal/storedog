@@ -87,17 +87,9 @@ Every service must expose `GET /health` returning:
 - `db_connected` should reflect actual database connectivity (set to `true` if the service does not use a database).
 - `dd_trace_enabled` should reflect whether the tracer is loaded and active.
 
-## Chaos Middleware Environment Variables
+## Service Degradation Environment Variables
 
-See [chaos-pattern.md](./chaos-pattern.md) for full details. Summary:
-
-| Variable | Type | Default | Description |
-|---|---|---|---|
-| `SERVICE_ERROR_RATE` | float | `0.0` | Probability (0.0--1.0) of returning 5xx |
-| `SERVICE_DELAY_MS` | int | `0` | Artificial latency added to every request (ms) |
-| `SERVICE_CHAOS_MODE` | bool | `false` | Enables random mix of errors and delays |
-
-All default to off (zero impact when not set).
+See [service-degradation-config.md](./service-degradation-config.md) for full details. Each service has its own set of variables named after the infrastructure component being simulated. All default to off (zero impact when not set).
 
 ## Sampling Configuration
 

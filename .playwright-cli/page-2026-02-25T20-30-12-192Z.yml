@@ -1,0 +1,114 @@
+- generic [ref=e2]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - link "Logo" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: Storedog
+      - navigation [ref=e9]:
+        - link "Products" [ref=e10] [cursor=pointer]:
+          - /url: /products
+        - link "Best Sellers" [ref=e11] [cursor=pointer]:
+          - /url: /taxonomies/datadog/bestsellers
+        - link "New" [ref=e12] [cursor=pointer]:
+          - /url: /taxonomies/datadog/new
+        - link "Tops" [ref=e13] [cursor=pointer]:
+          - /url: /taxonomies/datadog/tops
+    - navigation [ref=e15]:
+      - list [ref=e16]:
+        - listitem [ref=e17] [cursor=pointer]:
+          - 'button "Cart items: 0" [ref=e18]':
+            - img [ref=e19]
+  - main [ref=e22]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]:
+              - button "Previous Product Image" [ref=e30] [cursor=pointer]:
+                - img [ref=e31]
+              - button "Next Product Image" [ref=e33] [cursor=pointer]:
+                - img [ref=e34]
+            - img "Cool Bits sticker" [ref=e37]
+          - img "Cool Bits sticker" [ref=e40] [cursor=pointer]
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - heading "Cool Bits" [level=1] [ref=e44]
+            - generic [ref=e45]: $19.99 USD
+          - generic [ref=e47]: "Slap this onto your favorite water bottle and be as cool as Bits. Warning: may cause other attendees at your next conference to dramatically over-hydrate just to keep staring at your bottle. This durable vinyl sticker is weatherproof, sunproof, and cool-proof."
+          - button "Add to Cart" [ref=e48] [cursor=pointer]: Add To Cart
+          - generic [ref=e49]:
+            - paragraph [ref=e50]: Details
+            - generic [ref=e51]:
+              - term [ref=e52]: Material
+              - definition [ref=e53]: Durable vinyl
+              - term [ref=e54]: Size
+              - definition [ref=e55]: Approx. 3" × 3"
+              - term [ref=e56]: Finish
+              - definition [ref=e57]: Glossy, UV & water resistant
+              - term [ref=e58]: Residue
+              - definition [ref=e59]: Removes cleanly — no sticky regrets
+              - term [ref=e60]: Ships
+              - definition [ref=e61]: Free on orders over $25
+      - generic [ref=e62]:
+        - heading "Related Products" [level=2] [ref=e63]
+        - generic [ref=e64]:
+          - link "Cool Bits" [ref=e66] [cursor=pointer]:
+            - /url: /products/cool-bits
+            - generic [ref=e67]:
+              - img "Cool Bits" [ref=e68]
+              - button "Add to Cart" [ref=e70]
+            - generic [ref=e71]:
+              - heading "Cool Bits" [level=3] [ref=e72]
+              - generic [ref=e73]: $19.99
+          - link "Bits by Dre" [ref=e75] [cursor=pointer]:
+            - /url: /products/bits-by-dre
+            - generic [ref=e76]:
+              - img "Bits by Dre" [ref=e77]
+              - button "Add to Cart" [ref=e79]
+            - generic [ref=e80]:
+              - heading "Bits by Dre" [level=3] [ref=e81]
+              - generic [ref=e82]: $14.99
+          - link "Hockey Bits" [ref=e84] [cursor=pointer]:
+            - /url: /products/hockey-bits
+            - generic [ref=e85]:
+              - img "Hockey Bits" [ref=e86]
+              - button "Add to Cart" [ref=e88]
+            - generic [ref=e89]:
+              - heading "Hockey Bits" [level=3] [ref=e90]
+              - generic [ref=e91]: $5.00
+          - link "Learning Bits" [ref=e93] [cursor=pointer]:
+            - /url: /products/learning-bits
+            - generic [ref=e94]:
+              - img "Learning Bits" [ref=e95]
+              - button "Add to Cart" [ref=e97]
+            - generic [ref=e98]:
+              - heading "Learning Bits" [level=3] [ref=e99]
+              - generic [ref=e100]: $9.99
+  - contentinfo [ref=e101]:
+    - generic [ref=e102]:
+      - generic [ref=e103]:
+        - generic [ref=e104]:
+          - generic [ref=e105]: Storedog
+          - paragraph [ref=e106]: Gear for the trail ahead.
+        - generic [ref=e107]:
+          - generic [ref=e108]: Shop
+          - link "Products" [ref=e109] [cursor=pointer]:
+            - /url: /products
+          - link "Bestsellers" [ref=e110] [cursor=pointer]:
+            - /url: /taxonomies/categories/bestsellers
+          - link "New" [ref=e111] [cursor=pointer]:
+            - /url: /taxonomies/categories/new
+          - link "Tops" [ref=e112] [cursor=pointer]:
+            - /url: /taxonomies/categories/tops
+        - generic [ref=e113]:
+          - generic [ref=e114]: Stay in the loop
+          - generic [ref=e115]:
+            - textbox "Email for newsletter" [ref=e116]:
+              - /placeholder: Enter your email
+            - button "Subscribe" [ref=e117] [cursor=pointer]
+      - generic [ref=e118]:
+        - generic [ref=e119]: © 2026 Storedog, Inc. All rights reserved.
+        - generic [ref=e120]:
+          - text: Datadog training demo application — nothing here is actually for sale.
+          - link "datadoghq.com" [ref=e121] [cursor=pointer]:
+            - /url: https://datadoghq.com

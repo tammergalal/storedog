@@ -1,4 +1,6 @@
 const puppeteer = require('puppeteer');
+const http = require('http');
+const https = require('https');
 
 const startUrl = process.env.STOREDOG_URL;
 console.log('starting...');
@@ -27,7 +29,30 @@ const getNewBrowser = async () => {
     return browser;
   } catch (error) {
     console.error('Error launching browser:', error);
-    process.exit(1);
+    throw error;
+  }
+};
+
+const getStressBrowser = async () => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      defaultViewport: { width: 1280, height: 800 },
+      timeout: 40000,
+      slowMo: 100,
+      protocolTimeout: 60000,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ],
+    });
+    const browserVersion = await browser.version();
+    console.log(`[pricing-stress] Started ${browserVersion}`);
+    return browser;
+  } catch (error) {
+    console.error('[pricing-stress] Error launching browser:', error);
+    throw error;
   }
 };
 
@@ -391,7 +416,7 @@ const useDiscountCode = async (page) => {
 
     await page.waitForTimeout(2000);
 
-    if (Math.floor(Math.random * 10) + 1 < 7) {
+    if (Math.floor(Math.random() * 10) + 1 < 7) {
       console.log(`trying discount code ${discountCode} again...`);
 
       await applyDiscountCode(discountCode, page);
@@ -595,7 +620,6 @@ const mainSession = async () => {
   } finally {
     console.log('closing browser');
     await browser.close();
-    if (browser && browser.process() != null) browser.process().kill('SIGINT');
   }
 };
 
@@ -670,7 +694,6 @@ const secondSession = async () => {
   } finally {
     console.log('closing browser');
     await browser.close();
-    if (browser && browser.process() != null) browser.process().kill('SIGINT');
   }
 };
 
@@ -742,7 +765,6 @@ const thirdSession = async () => {
   } finally {
     console.log('closing browser');
     await browser.close();
-    if (browser && browser.process() != null) browser.process().kill('SIGINT');
   }
 };
 
@@ -805,36 +827,193 @@ const fourthSession = async () => {
   } finally {
     console.log('closing browser');
     await browser.close();
-    if (browser && browser.process() != null) browser.process().kill('SIGINT');
   }
 };
 
-for (let i = 0; i < 8; i++) {
-  setTimeout(() => {
-    // randomly select a session to run
-    const session = Math.floor(Math.random() * 4);
-    console.log('running session', session + 1);
-    switch (session) {
-      case 0:
-        (() => mainSession())();
-        break;
-      case 1:
-        (() => secondSession())();
-        break;
-      case 2:
-        (() => thirdSession())();
-        break;
-      case 3:
-        (() => fourthSession())();
-        break;
-      default:
-        (() => mainSession())();
-        break;
+const pricingStressSession = async () => {
+  const browser = await getStressBrowser();
+
+  try {
+    const page = await browser.newPage();
+
+    await page.setUserAgent(
+      `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36`
+    );
+
+    await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 1 });
+
+    await page.setDefaultNavigationTimeout(
+      process.env.PUPPETEER_TIMEOUT || 40000
+    );
+
+    const iterations = Math.floor(Math.random() * 3) + 6; // 6–8
+    console.log(`[pricing-stress] Starting ${iterations} add-to-cart iterations`);
+
+    await page.goto(startUrl, { waitUntil: 'domcontentloaded' });
+
+    for (let i = 0; i < iterations; i++) {
+      try {
+        await selectHomePageProduct(page);
+        await addToCart(page);
+        console.log(`[pricing-stress] Iteration ${i + 1}/${iterations} complete`);
+        await page.goto(startUrl, { waitUntil: 'domcontentloaded' });
+      } catch (iterErr) {
+        console.log(`[pricing-stress] Iteration ${i + 1} failed: ${iterErr}`);
+        try {
+          await page.goto(startUrl, { waitUntil: 'domcontentloaded' });
+        } catch (_) {}
+      }
     }
-  }, 1000 * i);
-}
+
+    console.log('[pricing-stress] Session complete');
+    await page.close();
+  } catch (err) {
+    console.log(`[pricing-stress] Session failed: ${err}`);
+  } finally {
+    console.log('[pricing-stress] closing browser');
+    await browser.close();
+  }
+};
+
+let activeSessions = 0;
+const _parsedMax = parseInt(process.env.MAX_CONCURRENT_SESSIONS || '10', 10);
+const MAX_CONCURRENT_SESSIONS = Number.isFinite(_parsedMax) && _parsedMax > 0 ? _parsedMax : 10;
+const _parsedTimeout = parseInt(process.env.MAX_SESSION_TIMEOUT_MS || '120000', 10);
+const MAX_SESSION_TIMEOUT_MS = Number.isFinite(_parsedTimeout) && _parsedTimeout > 0 ? _parsedTimeout : 120000;
+
+let consecutiveLaunchFailures = 0;
+
+const pickSession = () => {
+  const rand = Math.random();
+  if (rand < 0.5) {
+    return { name: 'pricing-stress', fn: pricingStressSession };
+  } else if (rand < 0.625) {
+    return { name: 'main', fn: mainSession };
+  } else if (rand < 0.75) {
+    return { name: 'second', fn: secondSession };
+  } else if (rand < 0.875) {
+    return { name: 'third', fn: thirdSession };
+  } else {
+    return { name: 'fourth', fn: fourthSession };
+  }
+};
+
+const launchSession = () => {
+  if (activeSessions >= MAX_CONCURRENT_SESSIONS) {
+    console.log(`[session] skipping — ${activeSessions} sessions already active`);
+    return;
+  }
+  activeSessions++;
+
+  // One-shot slot release: ensures activeSessions decrements exactly once per
+  // launched session, whether the session finishes normally or the timeout fires first.
+  let slotReleased = false;
+  const releaseSlot = () => {
+    if (!slotReleased) {
+      slotReleased = true;
+      activeSessions--;
+    }
+  };
+
+  const { name, fn } = pickSession();
+  console.log(`[session] running ${name}`);
+
+  const timeoutId = setTimeout(() => {
+    console.warn(`[session] ${name} exceeded ${MAX_SESSION_TIMEOUT_MS}ms — releasing slot (browser may still be running)`);
+    releaseSlot();
+  }, MAX_SESSION_TIMEOUT_MS);
+
+  // Track whether fn() rejected so .finally() only resets the failure counter
+  // when the session promise genuinely resolved. Sessions that catch their own
+  // errors internally still resolve, but we don't want that to mask real
+  // Puppeteer infrastructure failures (e.g. browser won't launch).
+  let launchFailed = false;
+  fn()
+    .catch((err) => {
+      launchFailed = true;
+      consecutiveLaunchFailures++;
+      console.error(`[session] ${name} error:`, err);
+      if (consecutiveLaunchFailures >= 5) {
+        console.error(`[session] ${consecutiveLaunchFailures} consecutive failures — exiting`);
+        process.exit(1);
+      }
+    })
+    .finally(() => {
+      if (!launchFailed) consecutiveLaunchFailures = 0;
+      clearTimeout(timeoutId);
+      releaseSlot();
+    });
+};
+
+// Launch one session immediately, then one every 3 seconds
+launchSession();
+setInterval(launchSession, 3000);
 
 // (() => mainSession())();
 // (() => secondSession())();
 // (() => thirdSession())();
 // (() => fourthSession())();
+
+let cacheStatsPending = false;
+
+setInterval(() => {
+  if (cacheStatsPending) {
+    console.log('[cache-stats] skipping poll — previous request still in flight');
+    return;
+  }
+  cacheStatsPending = true;
+
+  const pricingEngineUrl = process.env.PRICING_ENGINE_URL || 'http://store-pricing-engine:8002';
+  const httpLib = pricingEngineUrl.startsWith('https') ? https : http;
+
+  // Per-request guard: ensures cacheStatsPending is reset exactly once regardless
+  // of which event fires (end, close, error, timeout).
+  let pendingReleased = false;
+  const releasePending = () => {
+    if (!pendingReleased) {
+      pendingReleased = true;
+      cacheStatsPending = false;
+    }
+  };
+
+  const req = httpLib.get(
+    `${pricingEngineUrl}/pricing/cache-stats`,
+    (res) => {
+      if (res.statusCode !== 200) {
+        console.log(`[cache-stats] unexpected status ${res.statusCode}`);
+        res.resume(); // drain and discard
+        releasePending();
+        return;
+      }
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        releasePending();
+        try {
+          const stats = JSON.parse(data);
+          console.log(
+            `[cache-stats] cache_size: ${stats.cache_size}, estimated_memory_kb: ${stats.estimated_memory_kb}`
+          );
+        } catch (_) {
+          console.log(`[cache-stats] raw: ${data}`);
+        }
+      });
+      res.on('close', () => releasePending()); // catches abrupt closes where 'end' never fires
+      res.on('error', (err) => {
+        console.log(`[cache-stats] response stream error: ${err.message}`);
+        releasePending();
+      });
+    }
+  );
+
+  req.setTimeout(10000, () => {
+    console.log('[cache-stats] request timed out');
+    req.destroy();
+    releasePending();
+  });
+
+  req.on('error', (err) => {
+    console.log(`[cache-stats] poll failed: ${err.message}`);
+    releasePending();
+  });
+}, 30000);

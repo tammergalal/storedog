@@ -1,0 +1,321 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - link "Logo" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e8]: Storedog
+        - navigation [ref=e9]:
+          - link "Products" [ref=e10] [cursor=pointer]:
+            - /url: /products
+          - link "Best Sellers" [ref=e11] [cursor=pointer]:
+            - /url: /taxonomies/datadog/bestsellers
+          - link "New" [ref=e12] [cursor=pointer]:
+            - /url: /taxonomies/datadog/new
+          - link "Tops" [ref=e13] [cursor=pointer]:
+            - /url: /taxonomies/datadog/tops
+      - navigation [ref=e15]:
+        - list [ref=e16]:
+          - listitem [ref=e17] [cursor=pointer]:
+            - 'button "Cart items: 0" [ref=e18]':
+              - img [ref=e19]
+    - main [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e25]:
+          - heading "The Best Bits, All in One Place." [level=1] [ref=e26]:
+            - text: The Best Bits,
+            - text: All in One Place.
+          - paragraph [ref=e27]: Explore our full collection of products, handpicked for quality and value.
+          - link "Shop Now" [ref=e28] [cursor=pointer]:
+            - /url: /products
+        - generic [ref=e29]:
+          - heading "Shop by Category" [level=2] [ref=e30]
+          - generic [ref=e31]:
+            - link "Stickers" [ref=e32] [cursor=pointer]:
+              - /url: /taxonomies/datadog/stickers
+              - heading "Stickers" [level=3] [ref=e35]
+            - link "Tops" [ref=e36] [cursor=pointer]:
+              - /url: /taxonomies/datadog/tops
+              - heading "Tops" [level=3] [ref=e39]
+            - link "Pants" [ref=e40] [cursor=pointer]:
+              - /url: /taxonomies/datadog/pants
+              - heading "Pants" [level=3] [ref=e43]
+            - link "Bestsellers" [ref=e44] [cursor=pointer]:
+              - /url: /taxonomies/datadog/bestsellers
+              - heading "Bestsellers" [level=3] [ref=e47]
+            - link "New" [ref=e48] [cursor=pointer]:
+              - /url: /taxonomies/datadog/new
+              - heading "New" [level=3] [ref=e51]
+        - generic [ref=e53]:
+          - link "Circle Logo T-Shirt" [ref=e54] [cursor=pointer]:
+            - /url: /products/circle-logo-t-shirt
+            - generic [ref=e55]:
+              - img "Circle Logo T-Shirt" [ref=e56]
+              - button "Add to Cart" [ref=e58]
+            - generic [ref=e59]:
+              - heading "Circle Logo T-Shirt" [level=3] [ref=e60]
+              - generic [ref=e61]: $16.95
+          - link "Blue Jeans" [ref=e62] [cursor=pointer]:
+            - /url: /products/blue-jeans
+            - generic [ref=e63]:
+              - img "Blue Jeans" [ref=e64]
+              - button "Add to Cart" [ref=e66]
+            - generic [ref=e67]:
+              - heading "Blue Jeans" [level=3] [ref=e68]
+              - generic [ref=e69]: $64.95
+          - link "Sweatshirt (Crewneck)" [ref=e70] [cursor=pointer]:
+            - /url: /products/sweatshirt-crewneck
+            - generic [ref=e71]:
+              - img "Sweatshirt (Crewneck)" [ref=e72]
+              - button "Add to Cart" [ref=e74]
+            - generic [ref=e75]:
+              - heading "Sweatshirt (Crewneck)" [level=3] [ref=e76]
+              - generic [ref=e77]: $45.00
+          - link "AAPI Heritage Month Bits" [ref=e78] [cursor=pointer]:
+            - /url: /products/aapi-heritage-month-bits
+            - generic [ref=e79]:
+              - img "AAPI Heritage Month Bits" [ref=e80]
+              - button "Add to Cart" [ref=e82]
+            - generic [ref=e83]:
+              - heading "AAPI Heritage Month Bits" [level=3] [ref=e84]
+              - generic [ref=e85]: $19.92
+          - link "Sunset Bits" [ref=e86] [cursor=pointer]:
+            - /url: /products/sunset-bits
+            - generic [ref=e87]:
+              - img "Sunset Bits" [ref=e88]
+              - button "Add to Cart" [ref=e90]
+            - generic [ref=e91]:
+              - heading "Sunset Bits" [level=3] [ref=e92]
+              - generic [ref=e93]: $19.84
+          - link "April 2022 Summit Denver Sticker" [ref=e94] [cursor=pointer]:
+            - /url: /products/april-2022-summit-denver-sticker
+            - generic [ref=e95]:
+              - img "April 2022 Summit Denver Sticker" [ref=e96]
+              - button "Add to Cart" [ref=e98]
+            - generic [ref=e99]:
+              - heading "April 2022 Summit Denver Sticker" [level=3] [ref=e100]
+              - generic [ref=e101]: $4.13
+        - generic [ref=e102]:
+          - generic [ref=e104]:
+            - link "Circle Logo T-Shirt" [ref=e106] [cursor=pointer]:
+              - /url: /products/circle-logo-t-shirt
+              - generic [ref=e107]:
+                - img "Circle Logo T-Shirt" [ref=e108]
+                - generic [ref=e110]: Circle Logo T-Shirt
+            - link "Blue Jeans" [ref=e112] [cursor=pointer]:
+              - /url: /products/blue-jeans
+              - generic [ref=e113]:
+                - img "Blue Jeans" [ref=e114]
+                - generic [ref=e116]: Blue Jeans
+            - link "Sweatshirt (Crewneck)" [ref=e118] [cursor=pointer]:
+              - /url: /products/sweatshirt-crewneck
+              - generic [ref=e119]:
+                - img "Sweatshirt (Crewneck)" [ref=e120]
+                - generic [ref=e122]: Sweatshirt (Crewneck)
+            - link "AAPI Heritage Month Bits" [ref=e124] [cursor=pointer]:
+              - /url: /products/aapi-heritage-month-bits
+              - generic [ref=e125]:
+                - img "AAPI Heritage Month Bits" [ref=e126]
+                - generic [ref=e128]: AAPI Heritage Month Bits
+            - link "Sunset Bits" [ref=e130] [cursor=pointer]:
+              - /url: /products/sunset-bits
+              - generic [ref=e131]:
+                - img "Sunset Bits" [ref=e132]
+                - generic [ref=e134]: Sunset Bits
+            - link "April 2022 Summit Denver Sticker" [ref=e136] [cursor=pointer]:
+              - /url: /products/april-2022-summit-denver-sticker
+              - generic [ref=e137]:
+                - img "April 2022 Summit Denver Sticker" [ref=e138]
+                - generic [ref=e140]: April 2022 Summit Denver Sticker
+            - generic:
+              - link "Stonk Bits":
+                - /url: /products/stonk-bits
+                - generic:
+                  - img "Stonk Bits"
+                  - generic [ref=e141] [cursor=pointer]: Stonk Bits
+            - generic:
+              - link "Student Bits":
+                - /url: /products/student-bits
+                - generic:
+                  - img "Student Bits"
+                  - generic [ref=e142] [cursor=pointer]: Student Bits
+            - generic:
+              - link "Space Bits":
+                - /url: /products/space-bits
+                - generic:
+                  - img "Space Bits"
+                  - generic [ref=e143] [cursor=pointer]: Space Bits
+            - generic:
+              - link "Rainbow Bits":
+                - /url: /products/rainbow-bits
+                - generic:
+                  - img "Rainbow Bits"
+                  - generic [ref=e144] [cursor=pointer]: Rainbow Bits
+            - generic:
+              - link "OG Bits":
+                - /url: /products/og-bits
+                - generic:
+                  - img "OG Bits"
+                  - generic [ref=e145] [cursor=pointer]: OG Bits
+            - generic:
+              - link "Octo Bits":
+                - /url: /products/octo-bits
+                - generic:
+                  - img "Octo Bits"
+                  - generic [ref=e146] [cursor=pointer]: Octo Bits
+            - generic:
+              - link "Money Bits":
+                - /url: /products/money-bits
+                - generic:
+                  - img "Money Bits"
+                  - generic [ref=e147] [cursor=pointer]: Money Bits
+            - generic:
+              - link "Learning Bits":
+                - /url: /products/learning-bits
+                - generic:
+                  - img "Learning Bits"
+                  - generic [ref=e148] [cursor=pointer]: Learning Bits
+            - generic:
+              - link "Hockey Bits":
+                - /url: /products/hockey-bits
+                - generic:
+                  - img "Hockey Bits"
+                  - generic [ref=e149] [cursor=pointer]: Hockey Bits
+            - generic:
+              - link "Bits by Dre":
+                - /url: /products/bits-by-dre
+                - generic:
+                  - img "Bits by Dre"
+                  - generic [ref=e150] [cursor=pointer]: Bits by Dre
+            - generic:
+              - link "Cool Bits":
+                - /url: /products/cool-bits
+                - generic:
+                  - img "Cool Bits"
+                  - generic [ref=e151] [cursor=pointer]: Cool Bits
+          - generic [ref=e152]:
+            - link "Circle Logo T-Shirt" [ref=e154] [cursor=pointer]:
+              - /url: /products/circle-logo-t-shirt
+              - generic [ref=e155]:
+                - img "Circle Logo T-Shirt" [ref=e156]
+                - generic [ref=e158]: Circle Logo T-Shirt
+            - link "Blue Jeans" [ref=e160] [cursor=pointer]:
+              - /url: /products/blue-jeans
+              - generic [ref=e161]:
+                - img "Blue Jeans" [ref=e162]
+                - generic [ref=e164]: Blue Jeans
+            - link "Sweatshirt (Crewneck)" [ref=e166] [cursor=pointer]:
+              - /url: /products/sweatshirt-crewneck
+              - generic [ref=e167]:
+                - img "Sweatshirt (Crewneck)" [ref=e168]
+                - generic [ref=e170]: Sweatshirt (Crewneck)
+            - link "AAPI Heritage Month Bits" [ref=e172] [cursor=pointer]:
+              - /url: /products/aapi-heritage-month-bits
+              - generic [ref=e173]:
+                - img "AAPI Heritage Month Bits" [ref=e174]
+                - generic [ref=e176]: AAPI Heritage Month Bits
+            - link "Sunset Bits" [ref=e178] [cursor=pointer]:
+              - /url: /products/sunset-bits
+              - generic [ref=e179]:
+                - img "Sunset Bits" [ref=e180]
+                - generic [ref=e182]: Sunset Bits
+            - link "April 2022 Summit Denver Sticker" [ref=e184] [cursor=pointer]:
+              - /url: /products/april-2022-summit-denver-sticker
+              - generic [ref=e185]:
+                - img "April 2022 Summit Denver Sticker" [ref=e186]
+                - generic [ref=e188]: April 2022 Summit Denver Sticker
+            - generic:
+              - link "Stonk Bits":
+                - /url: /products/stonk-bits
+                - generic:
+                  - img "Stonk Bits"
+                  - generic [ref=e189] [cursor=pointer]: Stonk Bits
+            - generic:
+              - link "Student Bits":
+                - /url: /products/student-bits
+                - generic:
+                  - img "Student Bits"
+                  - generic [ref=e190] [cursor=pointer]: Student Bits
+            - generic:
+              - link "Space Bits":
+                - /url: /products/space-bits
+                - generic:
+                  - img "Space Bits"
+                  - generic [ref=e191] [cursor=pointer]: Space Bits
+            - generic:
+              - link "Rainbow Bits":
+                - /url: /products/rainbow-bits
+                - generic:
+                  - img "Rainbow Bits"
+                  - generic [ref=e192] [cursor=pointer]: Rainbow Bits
+            - generic:
+              - link "OG Bits":
+                - /url: /products/og-bits
+                - generic:
+                  - img "OG Bits"
+                  - generic [ref=e193] [cursor=pointer]: OG Bits
+            - generic:
+              - link "Octo Bits":
+                - /url: /products/octo-bits
+                - generic:
+                  - img "Octo Bits"
+                  - generic [ref=e194] [cursor=pointer]: Octo Bits
+            - generic:
+              - link "Money Bits":
+                - /url: /products/money-bits
+                - generic:
+                  - img "Money Bits"
+                  - generic [ref=e195] [cursor=pointer]: Money Bits
+            - generic:
+              - link "Learning Bits":
+                - /url: /products/learning-bits
+                - generic:
+                  - img "Learning Bits"
+                  - generic [ref=e196] [cursor=pointer]: Learning Bits
+            - generic:
+              - link "Hockey Bits":
+                - /url: /products/hockey-bits
+                - generic:
+                  - img "Hockey Bits"
+                  - generic [ref=e197] [cursor=pointer]: Hockey Bits
+            - generic:
+              - link "Bits by Dre":
+                - /url: /products/bits-by-dre
+                - generic:
+                  - img "Bits by Dre"
+                  - generic [ref=e198] [cursor=pointer]: Bits by Dre
+            - generic:
+              - link "Cool Bits":
+                - /url: /products/cool-bits
+                - generic:
+                  - img "Cool Bits"
+                  - generic [ref=e199] [cursor=pointer]: Cool Bits
+    - contentinfo [ref=e203]:
+      - generic [ref=e204]:
+        - generic [ref=e205]:
+          - generic [ref=e206]:
+            - generic [ref=e207]: Storedog
+            - paragraph [ref=e208]: Gear for the trail ahead.
+          - generic [ref=e209]:
+            - generic [ref=e210]: Shop
+            - link "Products" [ref=e211] [cursor=pointer]:
+              - /url: /products
+            - link "Bestsellers" [ref=e212] [cursor=pointer]:
+              - /url: /taxonomies/categories/bestsellers
+            - link "New" [ref=e213] [cursor=pointer]:
+              - /url: /taxonomies/categories/new
+            - link "Tops" [ref=e214] [cursor=pointer]:
+              - /url: /taxonomies/categories/tops
+          - generic [ref=e215]:
+            - generic [ref=e216]: Stay in the loop
+            - generic [ref=e217]:
+              - textbox "Email for newsletter" [ref=e218]:
+                - /placeholder: Enter your email
+              - button "Subscribe" [ref=e219] [cursor=pointer]
+        - generic [ref=e220]:
+          - generic [ref=e221]: © 2026 Storedog, Inc. All rights reserved.
+          - generic [ref=e222]:
+            - text: Datadog training demo application — nothing here is actually for sale.
+            - link "datadoghq.com" [ref=e223] [cursor=pointer]:
+              - /url: https://datadoghq.com
+  - button "Show Session Debug" [ref=e224] [cursor=pointer]

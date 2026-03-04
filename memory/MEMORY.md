@@ -58,7 +58,7 @@ Redis: used by store-discounts for rate limiting (keep it)
 - API client: `lib/apiClient.ts` — `catalogRequest()` + `cartRequest()`
 - Env vars: `CATALOG_API_HOST`, `CART_API_HOST` (replaces old SPREE vars)
 - DD RUM injected via `window.ENV` in root loader → `entry.client.tsx`
-- Chaos middleware in `entry.server.tsx` (SERVICE_ERROR_RATE, SERVICE_DELAY_MS)
+- Infrastructure degradation middleware in `entry.server.tsx` (UPSTREAM_API_FAILURE_RATE, UPSTREAM_API_TIMEOUT_MS)
 
 ### `services/discounts/` — Flask, port 2814 (unchanged)
 - Redis rate limiting, discount code validation
@@ -73,7 +73,7 @@ Redis: used by store-discounts for rate limiting (keep it)
 ## Frontend Key Files
 - `app/root.tsx` — HTML shell, DD env injection, CartProvider, ManagedUIContext
 - `app/entry.client.tsx` — DD RUM init with `window.ENV`
-- `app/entry.server.tsx` — chaos middleware + SSR handler
+- `app/entry.server.tsx` — infrastructure degradation middleware + SSR handler
 - `app/styles/` — Tailwind CSS (must be here, not `public/`, for PostCSS processing)
 - `lib/apiClient.ts` — catalog + cart HTTP clients
 - `lib/CartContext.tsx` — cart state, token stored in localStorage
