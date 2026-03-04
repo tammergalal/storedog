@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const http = require('http');
 
 const startUrl = process.env.STOREDOG_URL;
 console.log('starting...');
@@ -27,7 +28,30 @@ const getNewBrowser = async () => {
     return browser;
   } catch (error) {
     console.error('Error launching browser:', error);
-    process.exit(1);
+    throw error;
+  }
+};
+
+const getStressBrowser = async () => {
+  try {
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      defaultViewport: { width: 1280, height: 800 },
+      timeout: 40000,
+      slowMo: 100,
+      protocolTimeout: 60000,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+      ],
+    });
+    const browserVersion = await browser.version();
+    console.log(`[pricing-stress] Started ${browserVersion}`);
+    return browser;
+  } catch (error) {
+    console.error('[pricing-stress] Error launching browser:', error);
+    throw error;
   }
 };
 
@@ -391,7 +415,7 @@ const useDiscountCode = async (page) => {
 
     await page.waitForTimeout(2000);
 
-    if (Math.floor(Math.random * 10) + 1 < 7) {
+    if (Math.floor(Math.random() * 10) + 1 < 7) {
       console.log(`trying discount code ${discountCode} again...`);
 
       await applyDiscountCode(discountCode, page);
@@ -809,32 +833,127 @@ const fourthSession = async () => {
   }
 };
 
-for (let i = 0; i < 8; i++) {
-  setTimeout(() => {
-    // randomly select a session to run
-    const session = Math.floor(Math.random() * 4);
-    console.log('running session', session + 1);
-    switch (session) {
-      case 0:
-        (() => mainSession())();
-        break;
-      case 1:
-        (() => secondSession())();
-        break;
-      case 2:
-        (() => thirdSession())();
-        break;
-      case 3:
-        (() => fourthSession())();
-        break;
-      default:
-        (() => mainSession())();
-        break;
+const pricingStressSession = async () => {
+  const browser = await getStressBrowser();
+
+  try {
+    const page = await browser.newPage();
+
+    await page.setUserAgent(
+      `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36`
+    );
+
+    await page.setViewport({ width: 1280, height: 800, deviceScaleFactor: 1 });
+
+    await page.setDefaultNavigationTimeout(
+      process.env.PUPPETEER_TIMEOUT || 40000
+    );
+
+    const iterations = Math.floor(Math.random() * 3) + 6; // 6–8
+    console.log(`[pricing-stress] Starting ${iterations} add-to-cart iterations`);
+
+    await page.goto(startUrl, { waitUntil: 'domcontentloaded' });
+
+    for (let i = 0; i < iterations; i++) {
+      try {
+        await selectHomePageProduct(page);
+        await addToCart(page);
+        console.log(`[pricing-stress] Iteration ${i + 1}/${iterations} complete`);
+        await page.goto(startUrl, { waitUntil: 'domcontentloaded' });
+      } catch (iterErr) {
+        console.log(`[pricing-stress] Iteration ${i + 1} failed: ${iterErr}`);
+        try {
+          await page.goto(startUrl, { waitUntil: 'domcontentloaded' });
+        } catch (_) {}
+      }
     }
-  }, 1000 * i);
-}
+
+    console.log('[pricing-stress] Session complete');
+    await page.close();
+  } catch (err) {
+    console.log(`[pricing-stress] Session failed: ${err}`);
+  } finally {
+    console.log('[pricing-stress] closing browser');
+    await browser.close();
+    if (browser && browser.process() != null) browser.process().kill('SIGINT');
+  }
+};
+
+const launchSession = () => {
+  const rand = Math.random();
+  if (rand < 0.5) {
+    console.log('[session] running pricing-stress');
+    pricingStressSession().catch((err) =>
+      console.error('[session] pricing-stress error:', err)
+    );
+  } else if (rand < 0.625) {
+    console.log('[session] running main');
+    mainSession().catch((err) => console.error('[session] main error:', err));
+  } else if (rand < 0.75) {
+    console.log('[session] running second');
+    secondSession().catch((err) =>
+      console.error('[session] second error:', err)
+    );
+  } else if (rand < 0.875) {
+    console.log('[session] running third');
+    thirdSession().catch((err) => console.error('[session] third error:', err));
+  } else {
+    console.log('[session] running fourth');
+    fourthSession().catch((err) =>
+      console.error('[session] fourth error:', err)
+    );
+  }
+};
+
+// Launch one session immediately, then one every 3 seconds
+launchSession();
+setInterval(launchSession, 3000);
 
 // (() => mainSession())();
 // (() => secondSession())();
 // (() => thirdSession())();
 // (() => fourthSession())();
+
+let cacheStatsPending = false;
+
+setInterval(() => {
+  if (cacheStatsPending) {
+    console.log('[cache-stats] skipping poll — previous request still in flight');
+    return;
+  }
+  cacheStatsPending = true;
+
+  const req = http.get(
+    'http://store-pricing-engine:8002/pricing/cache-stats',
+    (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('error', (err) => {
+        console.log(`[cache-stats] response stream error: ${err.message}`);
+        cacheStatsPending = false;
+      });
+      res.on('end', () => {
+        cacheStatsPending = false;
+        try {
+          const stats = JSON.parse(data);
+          console.log(
+            `[cache-stats] cache_size: ${stats.cache_size}, estimated_memory_kb: ${stats.estimated_memory_kb}`
+          );
+        } catch (_) {
+          console.log(`[cache-stats] raw: ${data}`);
+        }
+      });
+    }
+  );
+
+  req.setTimeout(10000, () => {
+    console.log('[cache-stats] request timed out');
+    req.destroy();
+    cacheStatsPending = false;
+  });
+
+  req.on('error', (err) => {
+    console.log(`[cache-stats] poll failed: ${err.message}`);
+    cacheStatsPending = false;
+  });
+}, 30000);
