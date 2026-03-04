@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const http = require('http');
+const https = require('https');
 
 const startUrl = process.env.STOREDOG_URL;
 console.log('starting...');
@@ -880,6 +881,8 @@ const MAX_CONCURRENT_SESSIONS = Number.isFinite(_parsedMax) && _parsedMax > 0 ? 
 const _parsedTimeout = parseInt(process.env.MAX_SESSION_TIMEOUT_MS || '120000', 10);
 const MAX_SESSION_TIMEOUT_MS = Number.isFinite(_parsedTimeout) && _parsedTimeout > 0 ? _parsedTimeout : 120000;
 
+let consecutiveLaunchFailures = 0;
+
 const pickSession = () => {
   const rand = Math.random();
   if (rand < 0.5) {
@@ -901,14 +904,39 @@ const launchSession = () => {
     return;
   }
   activeSessions++;
+
+  // One-shot slot release: ensures activeSessions decrements exactly once per
+  // launched session, whether the session finishes normally or the timeout fires first.
+  let slotReleased = false;
+  const releaseSlot = () => {
+    if (!slotReleased) {
+      slotReleased = true;
+      activeSessions--;
+    }
+  };
+
   const { name, fn } = pickSession();
   console.log(`[session] running ${name}`);
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error(`session timed out after ${MAX_SESSION_TIMEOUT_MS}ms`)), MAX_SESSION_TIMEOUT_MS)
-  );
-  Promise.race([fn(), timeout])
-    .catch((err) => console.error(`[session] ${name} error:`, err))
-    .finally(() => { activeSessions--; });
+
+  const timeoutId = setTimeout(() => {
+    console.warn(`[session] ${name} exceeded ${MAX_SESSION_TIMEOUT_MS}ms — releasing slot (browser may still be running)`);
+    releaseSlot();
+  }, MAX_SESSION_TIMEOUT_MS);
+
+  fn()
+    .then(() => { consecutiveLaunchFailures = 0; })
+    .catch((err) => {
+      consecutiveLaunchFailures++;
+      console.error(`[session] ${name} error:`, err);
+      if (consecutiveLaunchFailures >= 5) {
+        console.error(`[session] ${consecutiveLaunchFailures} consecutive failures — exiting`);
+        process.exit(1);
+      }
+    })
+    .finally(() => {
+      clearTimeout(timeoutId);
+      releaseSlot();
+    });
 };
 
 // Launch one session immediately, then one every 3 seconds
@@ -930,17 +958,31 @@ setInterval(() => {
   cacheStatsPending = true;
 
   const pricingEngineUrl = process.env.PRICING_ENGINE_URL || 'http://store-pricing-engine:8002';
-  const req = http.get(
+  const httpLib = pricingEngineUrl.startsWith('https') ? https : http;
+
+  // Per-request guard: ensures cacheStatsPending is reset exactly once regardless
+  // of which event fires (end, close, error, timeout).
+  let pendingReleased = false;
+  const releasePending = () => {
+    if (!pendingReleased) {
+      pendingReleased = true;
+      cacheStatsPending = false;
+    }
+  };
+
+  const req = httpLib.get(
     `${pricingEngineUrl}/pricing/cache-stats`,
     (res) => {
+      if (res.statusCode !== 200) {
+        console.log(`[cache-stats] unexpected status ${res.statusCode}`);
+        res.resume(); // drain and discard
+        releasePending();
+        return;
+      }
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
-      res.on('error', (err) => {
-        console.log(`[cache-stats] response stream error: ${err.message}`);
-        cacheStatsPending = false;
-      });
       res.on('end', () => {
-        cacheStatsPending = false;
+        releasePending();
         try {
           const stats = JSON.parse(data);
           console.log(
@@ -950,17 +992,22 @@ setInterval(() => {
           console.log(`[cache-stats] raw: ${data}`);
         }
       });
+      res.on('close', () => releasePending()); // catches abrupt closes where 'end' never fires
+      res.on('error', (err) => {
+        console.log(`[cache-stats] response stream error: ${err.message}`);
+        releasePending();
+      });
     }
   );
 
   req.setTimeout(10000, () => {
     console.log('[cache-stats] request timed out');
     req.destroy();
-    cacheStatsPending = false;
+    releasePending();
   });
 
   req.on('error', (err) => {
     console.log(`[cache-stats] poll failed: ${err.message}`);
-    cacheStatsPending = false;
+    releasePending();
   });
 }, 30000);
