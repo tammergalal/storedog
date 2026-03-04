@@ -619,7 +619,6 @@ const mainSession = async () => {
   } finally {
     console.log('closing browser');
     await browser.close();
-    if (browser && browser.process() != null) browser.process().kill('SIGINT');
   }
 };
 
@@ -694,7 +693,6 @@ const secondSession = async () => {
   } finally {
     console.log('closing browser');
     await browser.close();
-    if (browser && browser.process() != null) browser.process().kill('SIGINT');
   }
 };
 
@@ -766,7 +764,6 @@ const thirdSession = async () => {
   } finally {
     console.log('closing browser');
     await browser.close();
-    if (browser && browser.process() != null) browser.process().kill('SIGINT');
   }
 };
 
@@ -829,7 +826,6 @@ const fourthSession = async () => {
   } finally {
     console.log('closing browser');
     await browser.close();
-    if (browser && browser.process() != null) browser.process().kill('SIGINT');
   }
 };
 
@@ -875,7 +871,6 @@ const pricingStressSession = async () => {
   } finally {
     console.log('[pricing-stress] closing browser');
     await browser.close();
-    if (browser && browser.process() != null) browser.process().kill('SIGINT');
   }
 };
 
@@ -923,8 +918,9 @@ setInterval(() => {
   }
   cacheStatsPending = true;
 
+  const pricingEngineUrl = process.env.PRICING_ENGINE_URL || 'http://store-pricing-engine:8002';
   const req = http.get(
-    'http://store-pricing-engine:8002/pricing/cache-stats',
+    `${pricingEngineUrl}/pricing/cache-stats`,
     (res) => {
       let data = '';
       res.on('data', (chunk) => { data += chunk; });
