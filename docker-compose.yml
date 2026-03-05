@@ -22,7 +22,7 @@ services:
   frontend:
     build:
       context: ./services/frontend
-    command: bash -c "wait-for-it store-catalog:8000 -- node --require ./datadog-tracer.cjs node_modules/.bin/remix-serve build/server/index.js"
+    command: bash -c "wait-for-it store-catalog:8000 -- ${FRONTEND_COMMAND:-node --require ./datadog-tracer.cjs node_modules/.bin/remix-serve build/server/index.js}"
     depends_on:
       - store-catalog
       - store-cart
@@ -229,7 +229,7 @@ services:
       context: ./services/nginx
     restart: always
     ports:
-      - "80:80"
+      - "${STOREDOG_PORT:-80}:80"
     networks:
       - storedog-network
     depends_on:
