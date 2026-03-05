@@ -57,8 +57,10 @@ services:
       context: ./services/catalog
     command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8000
     depends_on:
-      - postgres
-      - dd-agent
+      postgres:
+        condition: service_healthy
+      dd-agent:
+        condition: service_started
     networks:
       - storedog-network
     environment:
@@ -89,7 +91,7 @@ services:
     command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8001
     depends_on:
       postgres:
-        condition: service_started
+        condition: service_healthy
       store-catalog:
         condition: service_started
       discounts:
@@ -163,9 +165,12 @@ services:
     image: ghcr.io/datadog/storedog/discounts:${STOREDOG_IMAGE_VERSION:-latest}
     command: wait-for-it postgres:5432 -- ddtrace-run flask run --port=2814 --host=0.0.0.0
     depends_on:
-      - postgres
-      - redis
-      - dd-agent
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      dd-agent:
+        condition: service_started
     environment:
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-production}
@@ -188,8 +193,10 @@ services:
   ads:
     image: ghcr.io/datadog/storedog/ads-java:${STOREDOG_IMAGE_VERSION:-latest}
     depends_on:
-      - postgres
-      - dd-agent
+      postgres:
+        condition: service_healthy
+      dd-agent:
+        condition: service_started
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
@@ -242,6 +249,12 @@ services:
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     labels:
       com.datadoghq.tags.service: 'store-db'
       com.datadoghq.tags.version: '${DD_VERSION_POSTGRES:-15.0}'
