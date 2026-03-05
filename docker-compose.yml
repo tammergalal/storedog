@@ -20,8 +20,9 @@ services:
       - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
       - postgres_logs:/var/log/pg_log:ro
   frontend:
-    image: ghcr.io/datadog/storedog/frontend:${STOREDOG_IMAGE_VERSION:-latest}
-    command: bash -c "wait-for-it store-catalog:8000 -- ${FRONTEND_COMMAND:-npm run prod}"
+    build:
+      context: ./services/frontend
+    command: bash -c "wait-for-it store-catalog:8000 -- node --require ./datadog-tracer.js ./build/server/index.js"
     depends_on:
       - store-catalog
       - store-cart
@@ -162,7 +163,8 @@ services:
     labels:
       com.datadoghq.ad.logs: '[{"source": "python"}]'
   discounts:
-    image: ghcr.io/datadog/storedog/discounts:${STOREDOG_IMAGE_VERSION:-latest}
+    build:
+      context: ./services/discounts
     command: wait-for-it postgres:5432 -- ddtrace-run flask run --port=2814 --host=0.0.0.0
     depends_on:
       postgres:
@@ -191,7 +193,8 @@ services:
     labels:
       com.datadoghq.ad.logs: '[{"source": "python"}]'
   ads:
-    image: ghcr.io/datadog/storedog/ads-java:${STOREDOG_IMAGE_VERSION:-latest}
+    build:
+      context: ./services/ads/java
     depends_on:
       postgres:
         condition: service_healthy
@@ -222,6 +225,8 @@ services:
     build:
       context: ./services/nginx
     restart: always
+    ports:
+      - "80:80"
     networks:
       - storedog-network
     depends_on:
@@ -238,7 +243,8 @@ services:
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"nginx_status_url": "http://%%host%%:81/nginx_status/"}]'
   postgres:
-    image: ghcr.io/datadog/storedog/postgres:${STOREDOG_IMAGE_VERSION:-latest}
+    build:
+      context: ./services/postgres
     restart: always
     depends_on:
       - dd-agent
@@ -278,7 +284,8 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379}]'
       com.datadoghq.ad.logs: '[{"source": "redis", "service": "redis"}]'
   puppeteer:
-    image: ghcr.io/datadog/storedog/puppeteer:${STOREDOG_IMAGE_VERSION:-latest}
+    build:
+      context: ./services/puppeteer
     platform: linux/amd64
     environment:
       - STOREDOG_URL=${STOREDOG_URL:-http://service-proxy:80}
