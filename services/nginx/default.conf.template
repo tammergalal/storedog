@@ -37,7 +37,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
 
         set $upstream_discounts "http://discounts:2814";
-        rewrite ^/services/discounts(/.*)$ $1 break;
+        rewrite ^/services/discounts/?(.*)$ /$1 break;
         proxy_pass $upstream_discounts;
     }
 
