@@ -38,7 +38,7 @@ WORKDIR /app
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/datadog-tracer.js ./datadog-tracer.js
+COPY --from=builder /app/datadog-tracer.cjs ./datadog-tracer.cjs
 
 # Runtime env vars (overridable at runtime)
 ENV NODE_ENV=production \
@@ -47,4 +47,4 @@ ENV NODE_ENV=production \
   CART_API_HOST=http://service-proxy/services/cart
 
 EXPOSE 3000
-CMD ["node", "--require", "./datadog-tracer.js", "./build/server/index.js"]
+CMD ["node", "--require", "./datadog-tracer.cjs", "node_modules/.bin/remix-serve", "build/server/index.js"]
