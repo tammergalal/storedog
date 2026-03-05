@@ -22,7 +22,7 @@ services:
   frontend:
     build:
       context: ./services/frontend
-    command: bash -c "wait-for-it store-catalog:8000 -- node --require ./datadog-tracer.js ./build/server/index.js"
+    command: bash -c "wait-for-it store-catalog:8000 -- node --require ./datadog-tracer.cjs node_modules/.bin/remix-serve build/server/index.js"
     depends_on:
       - store-catalog
       - store-cart
@@ -183,6 +183,9 @@ services:
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
       - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_HOST=postgres
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PROMO_ENGINE_OUTAGE_RATE=${PROMO_ENGINE_OUTAGE_RATE:-0.0}
