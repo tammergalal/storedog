@@ -20,8 +20,9 @@ services:
       - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
       - postgres_logs:/var/log/pg_log:ro
   frontend:
-    image: ghcr.io/datadog/storedog/frontend:${STOREDOG_IMAGE_VERSION:-latest}
-    command: bash -c "wait-for-it store-catalog:8000 -- ${FRONTEND_COMMAND:-npm run prod}"
+    build:
+      context: ./services/frontend
+    command: bash -c "wait-for-it store-catalog:8000 -- ${FRONTEND_COMMAND:-node --require ./datadog-tracer.cjs node_modules/.bin/remix-serve build/server/index.js}"
     depends_on:
       - store-catalog
       - store-cart
@@ -57,8 +58,10 @@ services:
       context: ./services/catalog
     command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8000
     depends_on:
-      - postgres
-      - dd-agent
+      postgres:
+        condition: service_healthy
+      dd-agent:
+        condition: service_started
     networks:
       - storedog-network
     environment:
@@ -89,7 +92,7 @@ services:
     command: wait-for-it postgres:5432 -- ddtrace-run uvicorn main:app --host 0.0.0.0 --port 8001
     depends_on:
       postgres:
-        condition: service_started
+        condition: service_healthy
       store-catalog:
         condition: service_started
       discounts:
@@ -160,12 +163,16 @@ services:
     labels:
       com.datadoghq.ad.logs: '[{"source": "python"}]'
   discounts:
-    image: ghcr.io/datadog/storedog/discounts:${STOREDOG_IMAGE_VERSION:-latest}
+    build:
+      context: ./services/discounts
     command: wait-for-it postgres:5432 -- ddtrace-run flask run --port=2814 --host=0.0.0.0
     depends_on:
-      - postgres
-      - redis
-      - dd-agent
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      dd-agent:
+        condition: service_started
     environment:
       - DD_AGENT_HOST=dd-agent
       - DD_ENV=${DD_ENV:-production}
@@ -176,6 +183,9 @@ services:
       - DD_PROFILING_TIMELINE_ENABLED=true
       - DD_PROFILING_ALLOCATION_ENABLED=true
       - DD_TRACE_PROPAGATION_STYLE=tracecontext,datadog
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_HOST=postgres
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - PROMO_ENGINE_OUTAGE_RATE=${PROMO_ENGINE_OUTAGE_RATE:-0.0}
@@ -186,10 +196,13 @@ services:
     labels:
       com.datadoghq.ad.logs: '[{"source": "python"}]'
   ads:
-    image: ghcr.io/datadog/storedog/ads-java:${STOREDOG_IMAGE_VERSION:-latest}
+    build:
+      context: ./services/ads/java
     depends_on:
-      - postgres
-      - dd-agent
+      postgres:
+        condition: service_healthy
+      dd-agent:
+        condition: service_started
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
@@ -231,7 +244,8 @@ services:
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"nginx_status_url": "http://%%host%%:81/nginx_status/"}]'
   postgres:
-    image: ghcr.io/datadog/storedog/postgres:${STOREDOG_IMAGE_VERSION:-latest}
+    build:
+      context: ./services/postgres
     restart: always
     depends_on:
       - dd-agent
@@ -242,6 +256,12 @@ services:
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     labels:
       com.datadoghq.tags.service: 'store-db'
       com.datadoghq.tags.version: '${DD_VERSION_POSTGRES:-15.0}'
@@ -265,7 +285,8 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379}]'
       com.datadoghq.ad.logs: '[{"source": "redis", "service": "redis"}]'
   puppeteer:
-    image: ghcr.io/datadog/storedog/puppeteer:${STOREDOG_IMAGE_VERSION:-latest}
+    build:
+      context: ./services/puppeteer
     platform: linux/amd64
     environment:
       - STOREDOG_URL=${STOREDOG_URL:-http://service-proxy:80}

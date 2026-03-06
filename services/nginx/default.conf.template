@@ -25,15 +25,20 @@ server {
         proxy_pass http://ads_upstream/;
     }
 
-    # Reverse proxy for discounts 
+    # The resolver is set in the docker-entrypoint.sh file
+    # valid=5s forces re-resolution on every request cycle — prevents stale IPs after container restarts
+    resolver ${NGINX_RESOLVER} valid=5s;
+
+    # Reverse proxy for discounts
     location /services/discounts {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        # Proxy to discounts service
-        proxy_pass http://discounts:2814/;
+        set $upstream_discounts "http://discounts:2814";
+        rewrite ^/services/discounts/?(.*)$ /$1 break;
+        proxy_pass $upstream_discounts;
     }
 
     # Reverse proxy for catalog service
@@ -44,7 +49,9 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Order-Token $http_x_order_token;
 
-        proxy_pass http://store-catalog:8000/;
+        set $upstream_catalog "http://store-catalog:8000";
+        rewrite ^/services/catalog/(.*)$ /$1 break;
+        proxy_pass $upstream_catalog;
     }
 
     # Reverse proxy for cart service
@@ -55,11 +62,10 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Order-Token $http_x_order_token;
 
-        proxy_pass http://store-cart:8001/;
+        set $upstream_cart "http://store-cart:8001";
+        rewrite ^/services/cart/(.*)$ /$1 break;
+        proxy_pass $upstream_cart;
     }
-
-    # The resolver is set in the docker-entrypoint.sh file
-    resolver ${NGINX_RESOLVER} valid=30s;
 
     # Reverse proxy for dbm service (not used that often)
     location /services/dbm {
@@ -93,7 +99,8 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
 
-        proxy_pass http://frontend:3000;
+        set $upstream_frontend "http://frontend:3000";
+        proxy_pass $upstream_frontend;
 
         # Enable intercepting errors
         proxy_intercept_errors on;

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "remix vite:dev",
     "build": "remix vite:build",
-    "start": "node --require ./datadog-tracer.js ./build/server/index.js",
+    "start": "node --require ./datadog-tracer.cjs node_modules/.bin/remix-serve build/server/index.js",
     "typecheck": "tsc --noEmit",
     "prettier-fix": "prettier --write ."
   },
