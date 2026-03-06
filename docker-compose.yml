@@ -228,8 +228,6 @@ services:
     build:
       context: ./services/nginx
     restart: always
-    ports:
-      - "${STOREDOG_PORT:-80}:80"
     networks:
       - storedog-network
     depends_on:

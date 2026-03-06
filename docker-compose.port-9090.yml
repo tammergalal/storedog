@@ -1,4 +1,4 @@
 services:
   service-proxy:
     ports:
-      - '9090:80'
+      - '${STOREDOG_PORT:-9090}:80'
